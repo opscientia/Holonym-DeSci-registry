@@ -1,8 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useEffect, useRef, useState } from 'react';
-const { ethers } = require('ethers');
+import { GoogleLogin } from 'react-google-login';
+import FacebookLogin from 'react-facebook-login';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
+const responseGoogle = (response) => {
+  console.log(response);
+}
+const responseFacebook = (response) => {
+  console.log(response);
+}
+
+const { ethers } = require('ethers');
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 const abi = [
@@ -57,28 +68,44 @@ const apiRequest = (authCode)=>{
     xhr.send(data);
 }
 
-function App() {
-  apiRequest(2000);
-  
-  console.log(ethers.utils.sha256(ethers.utils.toUtf8Bytes('txt')));
-  const orig = 'access_token=117a16aa-f766-4079-ba50-faaf0a09c864&token_type=bearer&expires_in=599&tokenVersion=1&persistent=true&id_token=eyJraWQiOiJwcm9kdWN0aW9uLW9yY2lkLW9yZy03aGRtZHN3YXJvc2czZ2p1am84YWd3dGF6Z2twMW9qcyIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiX1RCT2VPZ2VZNzBPVnBHRWNDTi0zUSIsImF1ZCI6IkFQUC1NUExJMEZRUlVWRkVLTVlYIiwic3ViIjoiMDAwMC0wMDAyLTIzMDgtOTUxNyIsImF1dGhfdGltZSI6MTY0NDgzMDE5MSwiaXNzIjoiaHR0cHM6XC9cL29yY2lkLm9yZyIsImV4cCI6MTY0NDkxODUzNywiZ2l2ZW5fbmFtZSI6Ik5hbmFrIE5paGFsIiwiaWF0IjoxNjQ0ODMyMTM3LCJmYW1pbHlfbmFtZSI6IktoYWxzYSIsImp0aSI6IjcxM2RjMGZiLTMwZTAtNDM0Mi05ODFjLTNlYjJiMTRiODM0OCJ9.VXNSFbSJSdOiX7n-hWB6Vh30L1IkOLiNs2hBTuUDZ4oDB-cL6AJ8QjX7wj9Nj_lGcq1kjIfFLhowo8Jy_mzMGIFU8KTZvinSA-A-tJkXOUEvjUNjd0OfQJnVVJ63wvp9gSEj419HZ13Lc2ci9CRY7efQCYeelvQOQvpdrZsRLiQ_XndeDw2hDLAmI7YrYrLMy1zQY9rD4uAlBa56RVD7me6t47jEOOJJMAs3PC8UZ6pYyNc0zAjQ8Vapqz7gxeCN-iya91YI1AIE8Ut19hGgVRa9N7l-aUielPAlzss0Qbeyvl0KTRuZWnLUSrOz8y9oGxVBCUmStEOrVrAhmkMS8A&tokenId=254337461'
-  // const pubkey = JSON.parse('{"keys":[{"kty":"RSA","e":"AQAB","use":"sig","kid":"production-orcid-org-7hdmdswarosg3gjujo8agwtazgkp1ojs","n":"jxTIntA7YvdfnYkLSN4wk__E2zf_wbb0SV_HLHFvh6a9ENVRD1_rHK0EijlBzikb-1rgDQihJETcgBLsMoZVQqGj8fDUUuxnVHsuGav_bf41PA7E_58HXKPrB2C0cON41f7K3o9TStKpVJOSXBrRWURmNQ64qnSSryn1nCxMzXpaw7VUo409ohybbvN6ngxVy4QR2NCC7Fr0QVdtapxD7zdlwx6lEwGemuqs_oG5oDtrRuRgeOHmRps2R6gG5oc-JqVMrVRv6F9h4ja3UgxCDBQjOVT1BFPWmMHnHCsVYLqbbXkZUfvP2sO1dJiYd_zrQhi-FtNth9qrLLv3gkgtwQ"}]}')
-  // const [e, n] = [Buffer.from(pubkey.keys[0]['e'], 'base64url'), Buffer.from(pubkey.keys[0]['n'], 'base64url')]
-  
-  // const checkSignature = (message, e, n) => {
-
-  // }
+// takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
+const parseJWT = (JWT) => {
+  if(!JWT){return null}
   let parsedToJSON = {}
-  orig.split('&').map(x=>{let [key, value] = x.split('='); parsedToJSON[key] = value});
-  let [headerRaw, payloadRaw, signatureRaw] = parsedToJSON['id_token'].split('.');
-  let [header, payload] = [headerRaw, payloadRaw].map(x => JSON.parse(atob(x)));
-  let [signature] = [Buffer.from(signatureRaw.replaceAll('-', '+').replaceAll('_', '/'), 'base64')] //replaceAlls convert it from base64url to base64
-  // console.log(header, payload, signature)
+  JWT.split('&').map(x=>{let [key, value] = x.split('='); parsedToJSON[key] = value});
+  let [rawHead, rawPay, rawSig] = parsedToJSON['id_token'].split('.');
+  let [head, pay] = [rawHead, rawPay].map(x => JSON.parse(atob(x)));
+  let [sig] = [Buffer.from(rawSig.replaceAll('-', '+').replaceAll('_', '/'), 'base64')] //replaceAlls convert it from base64url to base64
+  return {
+    'header' :  {
+      'parsed' : head,
+     'raw' : rawHead,
+    }, 
+    'payload' :  {
+      'parsed' : pay,
+     'raw' : rawPay,
+    }, 
+    'signature' :  {
+      'decoded' : sig,
+     'raw' : rawSig,
+    }, 
+  }
+}
+
+function App() {
+  // apiRequest(2000);
+  
+  // const orig = 'access_token=117a16aa-f766-4079-ba50-faaf0a09c864&token_type=bearer&expires_in=599&tokenVersion=1&persistent=true&id_token=eyJraWQiOiJwcm9kdWN0aW9uLW9yY2lkLW9yZy03aGRtZHN3YXJvc2czZ2p1am84YWd3dGF6Z2twMW9qcyIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiX1RCT2VPZ2VZNzBPVnBHRWNDTi0zUSIsImF1ZCI6IkFQUC1NUExJMEZRUlVWRkVLTVlYIiwic3ViIjoiMDAwMC0wMDAyLTIzMDgtOTUxNyIsImF1dGhfdGltZSI6MTY0NDgzMDE5MSwiaXNzIjoiaHR0cHM6XC9cL29yY2lkLm9yZyIsImV4cCI6MTY0NDkxODUzNywiZ2l2ZW5fbmFtZSI6Ik5hbmFrIE5paGFsIiwiaWF0IjoxNjQ0ODMyMTM3LCJmYW1pbHlfbmFtZSI6IktoYWxzYSIsImp0aSI6IjcxM2RjMGZiLTMwZTAtNDM0Mi05ODFjLTNlYjJiMTRiODM0OCJ9.VXNSFbSJSdOiX7n-hWB6Vh30L1IkOLiNs2hBTuUDZ4oDB-cL6AJ8QjX7wj9Nj_lGcq1kjIfFLhowo8Jy_mzMGIFU8KTZvinSA-A-tJkXOUEvjUNjd0OfQJnVVJ63wvp9gSEj419HZ13Lc2ci9CRY7efQCYeelvQOQvpdrZsRLiQ_XndeDw2hDLAmI7YrYrLMy1zQY9rD4uAlBa56RVD7me6t47jEOOJJMAs3PC8UZ6pYyNc0zAjQ8Vapqz7gxeCN-iya91YI1AIE8Ut19hGgVRa9N7l-aUielPAlzss0Qbeyvl0KTRuZWnLUSrOz8y9oGxVBCUmStEOrVrAhmkMS8A&tokenId=254337461'
 
 
   const [account, setAccount] = useState(null);
   const [signer, setSigner] = useState(provider.getSigner());
   const [step, setStep] = useState(null);
+  const [JWTText, setJWTText] = useState('');
+  const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
+  const [message, setMessage] = useState('');
+  const [onChainCreds, setOnChainCreds] = useState(null);
+
   const signerChanged = async () => {
     let address;
     try {
@@ -94,11 +121,13 @@ function App() {
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
 
-  const commitJWTOnChain = async () => {
-    let message = headerRaw + '.' + payloadRaw
+  useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
+
+  const commitJWTOnChain = async (JWTObject) => {
+    let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
     let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
     let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
-    console.log(account)
+    setMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
     let proof = await vjwt.XOR(secretHashedMessage, account)
     let txHash = await vjwt.commitJWTProof(proof, publicHashedMessage)
     console.log(txHash)
@@ -107,7 +136,8 @@ function App() {
   }
 
   const proveIKnewValidJWT = async (sig, message) => {
-    await vjwt.verifyMe(ethers.BigNumber.from(sig), message)
+    let txHash = await vjwt.verifyMe(ethers.BigNumber.from(sig), message);
+    provider.on(txHash, async () => {await setOnChainCreds(await vjwt.credsForAddress(account)); setStep('success'); })
   }
 
   // listen for the transaction to go to the mempool
@@ -115,28 +145,55 @@ function App() {
   provider.on('block', async ()=>{
     if((step == 'waitingForBlockCompletion') && !pendingProofPopup){
       pendingProofPopup = true;
-      await proveIKnewValidJWT(signature, headerRaw + '.' + payloadRaw)
+      await proveIKnewValidJWT(JWTObject.signature.decoded, JWTObject.header.raw + '.' + JWTObject.payload.raw)
     }
   })
 
   const Body = (props) => {
     switch(props.step){
+      case 'success':
+        console.log(onChainCreds);
+        return onChainCreds ? <p class='success'>✓ You're successfully verified :) </p> : <p class='warning'>Failed to verify JWT on-chain</p>
       case 'waitingForBlockCompletion':
         return <p>Waiting for block to be mined</p>
+      case 'userApproveJWT':
+        return message ? message : <p>
+                <h1>Confirm you're OK with this info being on-chain</h1>
+                {Date.now() / 1000 > JWTObject.payload.parsed.exp ? <p class='success'>JWT is expired ✓ (that's a good thing)</p> : <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} Header
+                <br />
+                <code>{Object.keys(JWTObject.header.parsed).map(x=><p class='token-field'>{x + ': ' + JWTObject.header.parsed[x]}</p>)}</code>
+                Payload
+                <code>{Object.keys(JWTObject.payload.parsed).map(x=><p class='token-field'>{x + ': ' + JWTObject.payload.parsed[x]}</p>)}</code>
+                <Button variant='danger' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</Button>
+              </p>
       default:
         return <>
-                  <p>
-                          {Date.now() / 1000 > payload.exp ? <p class='success'>Expired ✓</p> : <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} Header
-                          <br />
-                          <code>{Object.keys(header).map(x=><p class='token-field'>{x + ': ' + header[x]}</p>)}</code>
-                          Payload
-                          <code>{Object.keys(payload).map(x=><p class='token-field'>{x + ': ' + payload[x]}</p>)}</code>
-                          <button onClick={async ()=>{await commitJWTOnChain()}}>Verify Identity</button>
-                  </p>
+                  Authenticate via
+                  <GoogleLogin
+                      clientId="658977310896-knrl3gka66fldh83dao2rhgbblmd4un9.apps.googleusercontent.com"
+                      buttonText="Login"
+                      onSuccess={responseGoogle}
+                      onFailure={responseGoogle}
+                      cookiePolicy={'single_host_origin'}
+                    />
+                  or 
+                  <FacebookLogin
+                      appId="1088597931155576"
+                      autoLoad={false}
+                      fields="name,email,picture"
+                      // onClick={componentClicked}
+                      callback={responseFacebook} />
+                  or 
+                  <Form.Label>Paste JWT Here</Form.Label>
+                  <Form.Control as="textarea" rows={4} value={JWTText} onChange={(event)=>{console.log(event.target.value); setJWTText(event.target.value)}}/>
+                  <button class='cool-button' onClick={()=>setStep('userApproveJWT')}>Continue</button>
               </>
+
+              
     }
     
   }
+
   return (  
     <div className="App">
       <header className="App-header">
@@ -148,12 +205,6 @@ function App() {
         <Body step={step} />
       
     </header>
-    <body>
-      <div id="fb-root"></div>
-      <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v13.0" nonce="gHgcs0Ka"></script>
-      <div class="fb-login-button" data-width="" data-size="small" data-button-type="login_with" data-layout="rounded" data-auto-logout-link="false" data-use-continue-as="false"></div>
-      <script></script>
-    </body>
     </div>
   );
 }
