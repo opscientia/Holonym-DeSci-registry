@@ -28,6 +28,15 @@
   color: #61dafb;
 }
 
+.success {
+  color: green;
+  font-size: 30px;
+}
+.token-field {
+  color: rgb(143, 86, 138);
+  font-size: 20px;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
