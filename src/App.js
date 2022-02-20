@@ -1,17 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useEffect, useRef, useState } from 'react';
-import { GoogleLogin } from 'react-google-login';
+import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-
-const responseGoogle = (response) => {
-  console.log(response);
-}
-const responseFacebook = (response) => {
-  console.log(response);
-}
 
 const { ethers } = require('ethers');
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -149,6 +142,24 @@ function App() {
     }
   })
 
+
+  const responseGoogle = (response) => {
+    console.log(response);
+  }
+  const responseFacebook = (response) => {
+    let expirationDateString = (new Date(response.data_access_expiration_time * 1000)).toString()
+    console.log(response)
+    let message = 'IMPORTANT! Please do not submit this JWT yet as it is not expired. It is below so you can copy it. Please return after it expires at ' 
+    + expirationDateString 
+    + ' and paste it:\n\n\n\n'
+    + JSON.stringify(response)
+    console.log(message);
+    // setMessage(message)
+    setMessage('Support for Facebook is still pending...')
+  
+  }
+
+  
   const Body = (props) => {
     switch(props.step){
       case 'success':
@@ -168,9 +179,10 @@ function App() {
               </p>
       default:
         return <>
+                  <div class='message'>{message}</div>
                   Authenticate via
                   <GoogleLogin
-                      clientId="658977310896-knrl3gka66fldh83dao2rhgbblmd4un9.apps.googleusercontent.com"
+                      clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
                       buttonText="Login"
                       onSuccess={responseGoogle}
                       onFailure={responseGoogle}
@@ -178,7 +190,7 @@ function App() {
                     />
                   or 
                   <FacebookLogin
-                      appId="1088597931155576"
+                      appId="1420829754999380"
                       autoLoad={false}
                       fields="name,email,picture"
                       // onClick={componentClicked}

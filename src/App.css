@@ -54,6 +54,7 @@
   
 }
 
+
 .connect-wallet {
   margin: 20px;
   background-color: rgba(54, 57, 102, 0.534);
@@ -75,6 +76,11 @@
   
 }
 
+.message {
+  font-size: 13px;
+  max-width: 600px;
+  max-height: 1000px;
+}
 
 @keyframes App-logo-spin {
   from {
