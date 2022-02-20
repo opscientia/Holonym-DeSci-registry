@@ -164,7 +164,7 @@ function App() {
                 <code>{Object.keys(JWTObject.header.parsed).map(x=><p class='token-field'>{x + ': ' + JWTObject.header.parsed[x]}</p>)}</code>
                 Payload
                 <code>{Object.keys(JWTObject.payload.parsed).map(x=><p class='token-field'>{x + ': ' + JWTObject.payload.parsed[x]}</p>)}</code>
-                <Button variant='danger' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</Button>
+                <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
               </p>
       default:
         return <>
@@ -194,10 +194,18 @@ function App() {
     
   }
 
+// These should be in their own file for modularity:
+// returns idxStart, idxEnd
+const searchSubtextInText = (subtext, text) => {
+  let start = text.indexOf(subtext)
+  return start, start + subtext.length
+}
+
+
   return (  
     <div className="App">
       <header className="App-header">
-              {account ? null : <button onClick={async () => {
+              {account ? null : <button class='connect-wallet' onClick={async () => {
                 await provider.send('eth_requestAccounts', []);
                 setSigner(provider.getSigner());
               }}>Connect Wallet</button>
