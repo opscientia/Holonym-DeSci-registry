@@ -159,7 +159,21 @@ function App() {
   
   }
 
+  const ignoredFields = ['kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
   
+  const DisplayJWTSection = (props) => {
+    return <>
+    {Object.keys(props.section).map(x => {
+      console.log('x is ', x)
+      if(ignoredFields.includes(x)){
+        return null
+      } else {
+        return <p class='token-field'>{x + ': ' + props.section[x]}</p>
+      }
+    })}
+    </>
+  }
+
   const Body = (props) => {
     switch(props.step){
       case 'success':
@@ -170,33 +184,38 @@ function App() {
       case 'userApproveJWT':
         return message ? message : <p>
                 <h1>Confirm you're OK with this info being on-chain</h1>
-                {Date.now() / 1000 > JWTObject.payload.parsed.exp ? <p class='success'>JWT is expired ✓ (that's a good thing)</p> : <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} Header
+                {Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
+                  <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
+                  : 
+                  <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} 
+                {/*Header
                 <br />
-                <code>{Object.keys(JWTObject.header.parsed).map(x=><p class='token-field'>{x + ': ' + JWTObject.header.parsed[x]}</p>)}</code>
-                Payload
-                <code>{Object.keys(JWTObject.payload.parsed).map(x=><p class='token-field'>{x + ': ' + JWTObject.payload.parsed[x]}</p>)}</code>
+                <code>
+                  <DisplayJWTSection section={JWTObject.header.parsed} />
+                </code>
+                */}
+                <code><DisplayJWTSection section={JWTObject.payload.parsed} /></code>
                 <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
               </p>
       default:
         return <>
                   <div class='message'>{message}</div>
-                  Authenticate via
+                  <p>Authenticate via</p>
                   <GoogleLogin
                       clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
                       buttonText="Login"
                       onSuccess={responseGoogle}
                       onFailure={responseGoogle}
-                      cookiePolicy={'single_host_origin'}
                     />
-                  or 
+                  <p>or</p> 
                   <FacebookLogin
                       appId="1420829754999380"
                       autoLoad={false}
                       fields="name,email,picture"
                       // onClick={componentClicked}
                       callback={responseFacebook} />
-                  or 
-                  <Form.Label>Paste JWT Here</Form.Label>
+                  <p>or</p> 
+                  <p>Paste Your ORCID JWT</p>
                   <Form.Control as="textarea" rows={4} value={JWTText} onChange={(event)=>{console.log(event.target.value); setJWTText(event.target.value)}}/>
                   <button class='cool-button' onClick={()=>setStep('userApproveJWT')}>Continue</button>
               </>

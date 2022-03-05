@@ -1,16 +1,22 @@
 // Note: this is fairly untested currently
 // arguments: plaintext, base64string
-function searchForPlainTextInBase64(plaintext, base64string){
-    let bEnc = Buffer.from(base64string, 'base64');
-    let bPlain = Buffer.from(plaintext);
-    let fullString = bEnc.toString('hex')
-    let searchString = bPlain.toString('hex')
-    let start = fullString.indexOf(searchString)
-    if (start == -1) { return null }
-    finish = start + searchString.length
-    return [start * 2, finish * 2]; //convert nibbles to bytes by multiplying by 2
+
+module.exports = {
+    searchForPlainTextInBase64 : function (plaintext, base64string){
+        // convert both to bytes, so there is no difference between base64 and plaintext -- this difference is only in interperetation of the bytes, not the bytes themselves:
+        let searchBytes = Buffer.from(plaintext).toString('hex');
+        let allBytes = Buffer.from(base64string, 'base64').toString('hex');
+        let start = allBytes.indexOf(searchBytes)
+        if (start == -1) { return null }
+        let finish = start + searchBytes.length
+        return [start / 2, finish / 2]; //convert nibbles to bytes by dividing by 2
+    },
+
+    searchForPlainTextInBase64Url : function (plaintext, base64UrlString) {
+        searchForPlainTextInBase64(plainText, base64UrlString.replaceAll('-', '+').replaceAll('_', '/'))
+    }
+
 }
 
-function searchForPlainTextInBase64Url(plaintext, base64UrlString) {
-    searchForPlainTextInBase64(plainText, base64UrlString.replaceAll('-', '+').replaceAll('_', '/'))
-}
+
+
