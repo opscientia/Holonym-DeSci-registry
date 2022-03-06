@@ -5,6 +5,12 @@ import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams
+} from 'react-router-dom';
 
 const { ethers } = require('ethers');
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -41,25 +47,32 @@ const vjwt = new ethers.Contract('0x02D725e30B89A9229fe3Cd16005226f7A680601B', a
 // var jwt = require('jsonwebtoken');
 let pendingProofPopup = false; 
 
-const apiRequest = (authCode)=>{
-  var url = "https://orcid.org/oauth/token";
-  
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", url);
-
-    xhr.setRequestHeader("Accept", "application/json");
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    xhr.onreadystatechange = function () {
-        console.log('something happened')
-      if (xhr.readyState === 4) {
-          console.log(xhr.status);
-          console.log(xhr.responseText);
-      }};
-
-    var data = "client_id=APP-MPLI0FQRUVFEKMYX&client_secret=0c2470a1-ab05-457a-930c-487188e658e2&grant_type=authorization_code&redirect_uri=https://developers.google.com/oauthplayground&code=" + authCode;
-    xhr.send(data);
+// These should be in their own file for modularity:
+// returns idxStart, idxEnd
+const searchSubtextInText = (subtext, text) => {
+  let start = text.indexOf(subtext)
+  return start, start + subtext.length
 }
+
+// const apiRequest = (authCode)=>{
+//   var url = "https://orcid.org/oauth/token";
+  
+//     var xhr = new XMLHttpRequest();
+//     xhr.open("POST", url);
+
+//     xhr.setRequestHeader("Accept", "application/json");
+//     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+//     xhr.onreadystatechange = function () {
+//         console.log('something happened')
+//       if (xhr.readyState === 4) {
+//           console.log(xhr.status);
+//           console.log(xhr.responseText);
+//       }};
+
+//     var data = "client_id=APP-MPLI0FQRUVFEKMYX&client_secret=0c2470a1-ab05-457a-930c-487188e658e2&grant_type=authorization_code&redirect_uri=https://developers.google.com/oauthplayground&code=" + authCode;
+//     xhr.send(data);
+// }
 
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
 const parseJWT = (JWT) => {
@@ -85,6 +98,133 @@ const parseJWT = (JWT) => {
   }
 }
 
+const ignoredFields = ['kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
+// React component to display (part of) a JWT in the form of a javscript Object to the user
+const DisplayJWTSection = (props) => {
+  return <>
+  {Object.keys(props.section).map(x => {
+    console.log('x is ', x)
+    if(ignoredFields.includes(x)){
+      return null
+    } else {
+      return <p class='token-field'>{x + ': ' + props.section[x]}</p>
+    }
+  })}
+  </>
+}
+
+const ORCIDLogin = (props)=>{
+  return <a href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>Login with ORCID</a>
+}
+
+// const responseGoogle = (response) => {
+//   console.log(response);
+// }
+// const responseFacebook = (response) => {
+//   let expirationDateString = (new Date(response.data_access_expiration_time * 1000)).toString()
+//   console.log(response)
+//   let message = 'IMPORTANT! Please do not submit this JWT yet as it is not expired. It is below so you can copy it. Please return after it expires at ' 
+//   + expirationDateString 
+//   + ' and paste it:\n\n\n\n'
+//   + JSON.stringify(response)
+//   console.log(message);
+//   // setMessage(message)
+//   setMessage('Support for Facebook is still pending...')
+
+// }
+
+const AuthenticationFlow = (props) => {
+
+  const [step, setStep] = useState(null);
+  const [JWTText, setJWTText] = useState('');
+  const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
+  const [message, setMessage] = useState('');
+  const [onChainCreds, setOnChainCreds] = useState(null);
+
+  useEffect(()=>{if(props.token){setJWTText(props.token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
+  useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
+
+  const commitJWTOnChain = async (JWTObject) => {
+    let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
+    let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
+    let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
+    setMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
+    let proof = await vjwt.XOR(secretHashedMessage, props.account)
+    let txHash = await vjwt.commitJWTProof(proof, publicHashedMessage)
+    console.log(txHash)
+    provider.on(txHash, () => {setStep('waitingForBlockCompletion'); })
+    // setStep('waitingForBlockCompletion')
+  }
+
+  const proveIKnewValidJWT = async (sig, message) => {
+    let txHash = await vjwt.verifyMe(ethers.BigNumber.from(sig), message);
+    provider.on(txHash, async () => {await setOnChainCreds(await vjwt.credsForAddress(props.account)); setStep('success'); })
+  }
+
+  // listen for the transaction to go to the mempool
+  // provider.on('pending', async () => console.log('tx'))
+  provider.on('block', async ()=>{
+    if((step == 'waitingForBlockCompletion') && !pendingProofPopup){
+      pendingProofPopup = true;
+      await proveIKnewValidJWT(JWTObject.signature.decoded, JWTObject.header.raw + '.' + JWTObject.payload.raw)
+    }
+  })
+
+  switch(step){
+    case 'success':
+      console.log(onChainCreds);
+      return onChainCreds ? <p class='success'>✓ You're successfully verified :) </p> : <p class='warning'>Failed to verify JWT on-chain</p>
+    case 'waitingForBlockCompletion':
+      return <p>Waiting for block to be mined</p>
+    case 'userApproveJWT':
+      if(!JWTObject){return 'waiting for token to load'}
+      return message ? message : <p>
+              <h1>Confirm you're OK with this info being on-chain</h1>
+              {Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
+                <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
+                : 
+                <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} 
+              {/*Header
+              <br />
+              <code>
+                <DisplayJWTSection section={JWTObject.header.parsed} />
+              </code>
+              */}
+              <code><DisplayJWTSection section={JWTObject.payload.parsed} /></code>
+              <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
+            </p>
+    default:
+      return <>
+                <div class='message'>{message}</div>
+                <p>Authenticate via</p>
+                {/*<GoogleLogin
+                    clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
+                    buttonText="Login"
+                    onSuccess={responseGoogle}
+                    onFailure={responseGoogle}
+                  />
+                <p>or</p> 
+                <FacebookLogin
+                    appId="1420829754999380"
+                    autoLoad={false}
+                    fields="name,email,picture"
+                    // onClick={componentClicked}
+                callback={responseFacebook} />*/}
+                <ORCIDLogin />
+                
+                {
+                  /*<p>or</p> 
+                  <p>Paste Your ORCID JWT</p>
+                  <Form.Control as="textarea" rows={4} value={JWTText} onChange={(event)=>{console.log(event.target.value); setJWTText(event.target.value)}}/>*/
+                }
+
+                <button class='cool-button' onClick={()=>setStep('userApproveJWT')}>Continue</button>
+            </>
+
+            
+  }
+  
+}
 function App() {
   // apiRequest(2000);
   
@@ -93,12 +233,7 @@ function App() {
 
   const [account, setAccount] = useState(null);
   const [signer, setSigner] = useState(provider.getSigner());
-  const [step, setStep] = useState(null);
-  const [JWTText, setJWTText] = useState('');
-  const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
-  const [message, setMessage] = useState('');
-  const [onChainCreds, setOnChainCreds] = useState(null);
-
+  
   const signerChanged = async () => {
     let address;
     try {
@@ -114,126 +249,7 @@ function App() {
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
 
-  useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
-
-  const commitJWTOnChain = async (JWTObject) => {
-    let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
-    let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
-    let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
-    setMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
-    let proof = await vjwt.XOR(secretHashedMessage, account)
-    let txHash = await vjwt.commitJWTProof(proof, publicHashedMessage)
-    console.log(txHash)
-    provider.on(txHash, () => {setStep('waitingForBlockCompletion'); })
-    // setStep('waitingForBlockCompletion')
-  }
-
-  const proveIKnewValidJWT = async (sig, message) => {
-    let txHash = await vjwt.verifyMe(ethers.BigNumber.from(sig), message);
-    provider.on(txHash, async () => {await setOnChainCreds(await vjwt.credsForAddress(account)); setStep('success'); })
-  }
-
-  // listen for the transaction to go to the mempool
-  // provider.on('pending', async () => console.log('tx'))
-  provider.on('block', async ()=>{
-    if((step == 'waitingForBlockCompletion') && !pendingProofPopup){
-      pendingProofPopup = true;
-      await proveIKnewValidJWT(JWTObject.signature.decoded, JWTObject.header.raw + '.' + JWTObject.payload.raw)
-    }
-  })
-
-
-  const responseGoogle = (response) => {
-    console.log(response);
-  }
-  const responseFacebook = (response) => {
-    let expirationDateString = (new Date(response.data_access_expiration_time * 1000)).toString()
-    console.log(response)
-    let message = 'IMPORTANT! Please do not submit this JWT yet as it is not expired. It is below so you can copy it. Please return after it expires at ' 
-    + expirationDateString 
-    + ' and paste it:\n\n\n\n'
-    + JSON.stringify(response)
-    console.log(message);
-    // setMessage(message)
-    setMessage('Support for Facebook is still pending...')
-  
-  }
-
-  const ignoredFields = ['kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
-  
-  const DisplayJWTSection = (props) => {
-    return <>
-    {Object.keys(props.section).map(x => {
-      console.log('x is ', x)
-      if(ignoredFields.includes(x)){
-        return null
-      } else {
-        return <p class='token-field'>{x + ': ' + props.section[x]}</p>
-      }
-    })}
-    </>
-  }
-
-  const Body = (props) => {
-    switch(props.step){
-      case 'success':
-        console.log(onChainCreds);
-        return onChainCreds ? <p class='success'>✓ You're successfully verified :) </p> : <p class='warning'>Failed to verify JWT on-chain</p>
-      case 'waitingForBlockCompletion':
-        return <p>Waiting for block to be mined</p>
-      case 'userApproveJWT':
-        return message ? message : <p>
-                <h1>Confirm you're OK with this info being on-chain</h1>
-                {Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
-                  <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
-                  : 
-                  <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} 
-                {/*Header
-                <br />
-                <code>
-                  <DisplayJWTSection section={JWTObject.header.parsed} />
-                </code>
-                */}
-                <code><DisplayJWTSection section={JWTObject.payload.parsed} /></code>
-                <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
-              </p>
-      default:
-        return <>
-                  <div class='message'>{message}</div>
-                  <p>Authenticate via</p>
-                  <GoogleLogin
-                      clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
-                      buttonText="Login"
-                      onSuccess={responseGoogle}
-                      onFailure={responseGoogle}
-                    />
-                  <p>or</p> 
-                  <FacebookLogin
-                      appId="1420829754999380"
-                      autoLoad={false}
-                      fields="name,email,picture"
-                      // onClick={componentClicked}
-                      callback={responseFacebook} />
-                  <p>or</p> 
-                  <p>Paste Your ORCID JWT</p>
-                  <Form.Control as="textarea" rows={4} value={JWTText} onChange={(event)=>{console.log(event.target.value); setJWTText(event.target.value)}}/>
-                  <button class='cool-button' onClick={()=>setStep('userApproveJWT')}>Continue</button>
-              </>
-
-              
-    }
-    
-  }
-
-// These should be in their own file for modularity:
-// returns idxStart, idxEnd
-const searchSubtextInText = (subtext, text) => {
-  let start = text.indexOf(subtext)
-  return start, start + subtext.length
-}
-
-
-  return (  
+  return (
     <div className="App">
       <header className="App-header">
               {account ? null : <button class='connect-wallet' onClick={async () => {
@@ -241,7 +257,13 @@ const searchSubtextInText = (subtext, text) => {
                 setSigner(provider.getSigner());
               }}>Connect Wallet</button>
           }
-        <Body step={step} />
+        <Router>
+          <Routes>
+            <Route path='/token/*' element={<AuthenticationFlow account={account} token={window.location.href.split('/token/#')[1]} />} /> {/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
+            You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
+            <Route path='/' element={<AuthenticationFlow accou={account} />} />
+          </Routes>
+        </Router>
       
     </header>
     </div>
