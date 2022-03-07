@@ -163,7 +163,7 @@ const ORCIDLogin = (props)=>{
 const AuthenticationFlow = (props) => {
 
   const params = useParams();
-  const vjwt = new ethers.Contract(providerAddresses[params.provider], abi, signer);
+  const vjwt = params.provider ? new ethers.Contract(providerAddresses[params.provider], abi, signer) : null;
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState('');
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
