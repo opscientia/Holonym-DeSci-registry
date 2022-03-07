@@ -108,7 +108,14 @@ const DisplayJWTSection = (props) => {
     if(ignoredFields.includes(x)){
       return null
     } else {
-      return <p class='token-field'>{x + ': ' + props.section[x]}</p>
+      let field = x;
+      // give a human readable name to important field:
+      if(field == 'sub'){field='subject (ID)'}
+      // capitalize first letter:
+      field = field.replace('_', ' ')
+      field = field[0].toUpperCase() + field.substring(1)
+
+      return <p class='token-field'>{field + ': ' + props.section[x]}</p>
     }
   })}
   </>
@@ -193,10 +200,10 @@ const AuthenticationFlow = (props) => {
       if(!JWTObject){return 'waiting for token to load'}
       return message ? message : <p>
               <h1>Confirm you're OK with this info being on-chain</h1>
-              {Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
+              {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
                 <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
                 : 
-                <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>} 
+                <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
               {/*Header
               <br />
               <code>
