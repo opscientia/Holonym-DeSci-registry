@@ -191,7 +191,12 @@ const AuthenticationFlow = (props) => {
               </code>
               */}
               <code><DisplayJWTSection section={JWTObject.payload.parsed} /></code>
-              <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
+              {
+                
+                props.account ? 
+                <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
+                 : 
+                <button class='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>}
             </p>
     default:
       return <>
@@ -239,6 +244,7 @@ function App() {
     try {
       address = await signer.getAddress();
       setAccount(address);
+      console.log('SET ACCOUNT!!!')
     }
     catch (err) {
       console.log('need to login to metamask')
@@ -249,19 +255,26 @@ function App() {
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
 
+  const connectWallet = async () => {
+    await provider.send('eth_requestAccounts', []);
+    setSigner(provider.getSigner());
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-              {account ? null : <button class='connect-wallet' onClick={async () => {
-                await provider.send('eth_requestAccounts', []);
-                setSigner(provider.getSigner());
-              }}>Connect Wallet</button>
+              {account ? null : <button class='connect-wallet' onClick={connectWallet}>Connect Wallet</button>
           }
         <Router>
           <Routes>
-            <Route path='/token/*' element={<AuthenticationFlow account={account} token={window.location.href.split('/token/#')[1]} />} /> {/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
-            You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
-            <Route path='/' element={<AuthenticationFlow accou={account} />} />
+            <Route path='/token/*' element={<AuthenticationFlow 
+                                                account={account} 
+                                                connectWalletFunction={connectWallet}
+                                                token={window.location.href.split('/token/#')[1]} />} /> {/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
+                                                You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
+            <Route path='/' element={<AuthenticationFlow 
+                                        account={account} 
+                                        connectWalletFunction={connectWallet} />} />
           </Routes>
         </Router>
       
