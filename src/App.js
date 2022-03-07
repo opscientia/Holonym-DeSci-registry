@@ -12,6 +12,7 @@ import {
   useParams
 } from 'react-router-dom';
 
+import orcidImage from './img/orcid32.png';
 const { ethers } = require('ethers');
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
@@ -114,7 +115,19 @@ const DisplayJWTSection = (props) => {
 }
 
 const ORCIDLogin = (props)=>{
-  return <a href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>Login with ORCID</a>
+  return <a style={{
+    height: '64px',
+    width: '256px',
+    textDecoration : 'none', 
+    backgroundColor: 'rgb(167,206,51)',
+    color: 'white',
+    borderRadius: '10px',
+    fontSize: '11'
+    // border: '3px solid red'
+    }} href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
+    <img src={orcidImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
+    <span style={{position: 'relative', bottom: '10px'}}> Login with ORCID</span>
+    </a>
 }
 
 // const responseGoogle = (response) => {
@@ -201,8 +214,10 @@ const AuthenticationFlow = (props) => {
     default:
       return <>
                 <div class='message'>{message}</div>
+                
+                {/*
                 <p>Authenticate via</p>
-                {/*<GoogleLogin
+                <GoogleLogin
                     clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
                     buttonText="Login"
                     onSuccess={responseGoogle}
