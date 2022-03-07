@@ -44,7 +44,14 @@ const abi = [
   "function verifyMe(bytes,string)"
 ]
 
-const vjwt = new ethers.Contract('0x02D725e30B89A9229fe3Cd16005226f7A680601B', abi, signer);
+let providerAddresses = {
+  'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B',
+  'google' : null,
+  'facebook' : null,
+  'github' : null,
+}
+
+
 // var jwt = require('jsonwebtoken');
 let pendingProofPopup = false; 
 
@@ -131,7 +138,7 @@ const ORCIDLogin = (props)=>{
     borderRadius: '10px',
     fontSize: '21px'
     // border: '3px solid red'
-    }} href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
+    }} href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
     <img src={orcidImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
     <span style={{position: 'relative', bottom: '10px'}}> Login with ORCID</span>
     </a>
@@ -155,6 +162,8 @@ const ORCIDLogin = (props)=>{
 
 const AuthenticationFlow = (props) => {
 
+  const params = useParams();
+  const vjwt = new ethers.Contract(providerAddresses[params.provider], abi, signer);
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState('');
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
@@ -289,11 +298,12 @@ function App() {
           }
         <Router>
           <Routes>
-            <Route path='/token/*' element={<AuthenticationFlow 
+            <Route path='/:provider/token/*' element={<AuthenticationFlow 
                                                 account={account} 
                                                 connectWalletFunction={connectWallet}
-                                                token={window.location.href.split('/token/#')[1]} />} /> {/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
-                                                You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
+                                                token={window.location.href.split('/token/#')[1]/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
+                                                                                                    You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
+                                                web2service={window.location.href.split('/token/#')[0].split('.com/'[1])} />} /> 
             <Route path='/' element={<AuthenticationFlow 
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />
