@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+import logo from './logo.png';
 import './App.css';
 import React, { useEffect, useRef, useState } from 'react';
 import GoogleLogin from 'react-google-login';
@@ -122,7 +122,7 @@ const ORCIDLogin = (props)=>{
     backgroundColor: 'rgb(167,206,51)',
     color: 'white',
     borderRadius: '10px',
-    fontSize: '11'
+    fontSize: '21px'
     // border: '3px solid red'
     }} href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
     <img src={orcidImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
@@ -238,7 +238,7 @@ const AuthenticationFlow = (props) => {
                   <Form.Control as="textarea" rows={4} value={JWTText} onChange={(event)=>{console.log(event.target.value); setJWTText(event.target.value)}}/>*/
                 }
 
-                <button class='cool-button' onClick={()=>setStep('userApproveJWT')}>Continue</button>
+                {/*<button class='cool-button' onClick={()=>setStep('userApproveJWT')}>Continue</button>*/}
             </>
 
             
