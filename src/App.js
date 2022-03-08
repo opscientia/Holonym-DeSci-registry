@@ -11,8 +11,8 @@ import {
   Route,
   useParams
 } from 'react-router-dom';
-
 import orcidImage from './img/orcid32.png';
+import { xor } from './fixed-buffer-xor';
 const { ethers } = require('ethers');
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
@@ -178,7 +178,9 @@ const AuthenticationFlow = (props) => {
     let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
     let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
     setMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
-    let proof = await vjwt.XOR(secretHashedMessage, props.account)
+    console.log(secretHashedMessage, props.account)
+    // xor the values as bytes (without preceding 0x)
+    let proof = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
     let txHash = await vjwt.commitJWTProof(proof, publicHashedMessage)
     console.log(txHash)
     provider.on(txHash, () => {setStep('waitingForBlockCompletion'); })
