@@ -12,8 +12,10 @@ import {
   useParams
 } from 'react-router-dom';
 import orcidImage from './img/orcid32.png';
-import { xor } from './fixed-buffer-xor';
+
+import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
 const { ethers } = require('ethers');
+
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 const abi = [
@@ -45,7 +47,9 @@ const abi = [
 ]
 
 let providerAddresses = {
-  'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B',
+  'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B', // polygon: 
+  // 'orcid' : '0xdF10310d2C72F5358b19bF6A7C817Ec4570b270f', //harmony
+  // 'orcid' : '0xdF10310d2C72F5358b19bF6A7C817Ec4570b270f', //fantom
   'google' : null,
   'facebook' : null,
   'github' : null,
@@ -111,7 +115,6 @@ const ignoredFields = ['kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp'
 const DisplayJWTSection = (props) => {
   return <>
   {Object.keys(props.section).map(x => {
-    console.log('x is ', x)
     if(ignoredFields.includes(x)){
       return null
     } else {
@@ -169,6 +172,7 @@ const AuthenticationFlow = (props) => {
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
   const [message, setMessage] = useState('');
   const [onChainCreds, setOnChainCreds] = useState(null);
+  const [txHash, setTxHash] = useState(null);
 
   useEffect(()=>{if(props.token){setJWTText(props.token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
   useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
@@ -181,30 +185,52 @@ const AuthenticationFlow = (props) => {
     console.log(secretHashedMessage, props.account)
     // xor the values as bytes (without preceding 0x)
     let proof = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
-    let txHash = await vjwt.commitJWTProof(proof, publicHashedMessage)
-    console.log(txHash)
-    provider.on(txHash, () => {setStep('waitingForBlockCompletion'); })
+    console.log(proof.toString('hex'))
+    let txHash_ = await vjwt.commitJWTProof(proof, publicHashedMessage)
+    console.log(txHash_)
+    provider.on(txHash_, () => {setStep('waitingForBlockCompletion'); })
     // setStep('waitingForBlockCompletion')
   }
 
-  const proveIKnewValidJWT = async (sig, message) => {
-    let txHash = await vjwt.verifyMe(ethers.BigNumber.from(sig), message);
-    provider.on(txHash, async () => {await setOnChainCreds(await vjwt.credsForAddress(props.account)); setStep('success'); })
+  // sig: JWT signature, payloadIdx: byte where the payload starts within the message, startIdx: byte where the sandwich starts within the payload, endIdx: byte where the sandwich ends within the payload, sandwich: sandwich content
+  const proveIKnewValidJWT = async (sig, message, payloadIdx, startIdx, endIdx, sandwich) => {
+    console.log(vjwt, ethers.BigNumber.from(sig), message)
+    let txHash_ = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich);
+    provider.on(txHash_, async () => {await setOnChainCreds(await vjwt.credsForAddress(props.account)); setStep('success'); })
+    setTxHash(txHash_)
+
   }
 
   // listen for the transaction to go to the mempool
   // provider.on('pending', async () => console.log('tx'))
   provider.on('block', async ()=>{
+    console.log('ON block')
+    console.log(step, pendingProofPopup)
     if((step == 'waitingForBlockCompletion') && !pendingProofPopup){
       pendingProofPopup = true;
-      await proveIKnewValidJWT(JWTObject.signature.decoded, JWTObject.header.raw + '.' + JWTObject.payload.raw)
+      console.log('this ran')
+      let sig = JWTObject.signature.decoded;
+      console.log('21')
+      let messsage = JWTObject.header.raw + '.' + JWTObject.payload.raw;
+      console.log('f8u')
+      console.log(sig, message)
+      let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1;
+      console.log(payloadIdx)
+      console.log('ID ', JWTObject.payload.sub)
+      let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.sub);
+      let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
+
+      await proveIKnewValidJWT(sig, message)
     }
   })
 
   switch(step){
     case 'success':
       console.log(onChainCreds);
-      return onChainCreds ? <p class='success'>✓ You're successfully verified :) </p> : <p class='warning'>Failed to verify JWT on-chain</p>
+      return onChainCreds ? 
+      <>
+        <p class='success'>✓ You're successfully verified :)</p><br /><a href={txHash}>transaction hash</a>
+      </> : <p class='warning'>Failed to verify JWT on-chain</p>
     case 'waitingForBlockCompletion':
       return <p>Waiting for block to be mined</p>
     case 'userApproveJWT':
