@@ -13,43 +13,105 @@ import {
 } from 'react-router-dom';
 import orcidImage from './img/orcid32.png';
 
-import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
+import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
 const { ethers } = require('ethers');
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 const abi = [
-  "constructor(uint256,bytes)",
+  "constructor(uint256,bytes,bytes,bytes)",
   "event JWTVerification(bool)",
   "event KeyAuthorization(bool)",
   "event modExpEventForTesting(bytes)",
+  "function JWTForAddress(address) view returns (string)",
   "function XOR(uint256,uint256) pure returns (uint256)",
-  "function _verifyJWT(uint256,bytes,bytes,bytes) returns (bool)",
-  "function addressForCreds(string) view returns (address)",
+  "function addressForCreds(bytes) view returns (address)",
+  "function addressForJWT(string) view returns (address)",
   "function addressToBytes(address) pure returns (bytes)",
+  "function bottomBread() view returns (bytes)",
+  "function bytes32ToBytes(bytes32) pure returns (bytes)",
   "function bytes32ToUInt256(bytes32) pure returns (uint256)",
+  "function bytesAreEqual(bytes,bytes) pure returns (bool)",
   "function bytesToFirst32BytesAsBytes32Type(bytes) pure returns (bytes32)",
   "function bytesToLast32BytesAsBytes32Type(bytes) pure returns (bytes32)",
   "function checkJWTProof(address,string) view returns (bool)",
-  "function commitJWTProof(bytes32,bytes32)",
-  "function credsForAddress(address) view returns (string)",
+  "function checkJWTProof(address,bytes32) view returns (bool)",
+  "function commitJWTProof(bytes32)",
+  "function credsForAddress(address) view returns (bytes)",
+  "function destructivelySliceBytesMemory(bytes,uint256,uint256) pure returns (bytes)",
   "function e() view returns (uint256)",
-  "function jwtProofs(bytes32) view returns (uint256, bytes32)",
+  "function getRegisteredAddresses() view returns (address[])",
+  "function getRegisteredCreds() view returns (bytes[])",
+  "function hasAccess(address,address) view returns (bool)",
+  "function hashFromSignature(uint256,bytes,bytes) returns (bytes32)",
+  "function linkPrivateJWT(bytes,bytes32)",
   "function modExp(bytes,uint256,bytes) returns (bytes)",
   "function n() view returns (bytes)",
-  "function pendingVerification(uint256) view returns (bytes32)",
+  "function privateJWTAllowances(address,address) view returns (bool)",
+  "function privateJWTForAddress(address) view returns (bytes32)",
+  "function proofToBlock(bytes32) view returns (uint256)",
+  "function registeredAddresses(uint256) view returns (address)",
+  "function registeredCreds(uint256) view returns (bytes)",
+  "function setAccess(address,bool)",
+  "function sliceBytesMemory(bytes,uint256,uint256) view returns (bytes)",
   "function stringToBytes(string) pure returns (bytes)",
   "function testAddressByteConversion(address) pure returns (bool)",
   "function testSHA256OnJWT(string) pure returns (bytes32)",
+  "function topBread() view returns (bytes)",
   "function verifiedUsers(uint256) view returns (bytes32)",
   "function verifyJWT(bytes,string) returns (bool)",
-  "function verifyMe(bytes,string)"
+  "function verifyMe(bytes,string,uint256,uint256,uint256,bytes)"
 ]
 
+
+// const addAvaxToMetamask = () => {
+//   // https://docs.avax.network/build/tutorials/smart-contracts/add-avalanche-to-metamask-programmatically
+//   const AVALANCHE_MAINNET_PARAMS = {
+//     chainId: '0xA86A',
+//     chainName: 'Avalanche Mainnet C-Chain',
+//     nativeCurrency: {
+//         name: 'Avalanche',
+//         symbol: 'AVAX',
+//         decimals: 18
+//     },
+//     rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+//     blockExplorerUrls: ['https://snowtrace.io/']
+// }
+
+// const AVALANCHE_TESTNET_PARAMS = {
+//   chainId: '0xA869',
+//   chainName: 'Avalanche Testnet C-Chain',
+//   nativeCurrency: {
+//       name: 'Avalanche',
+//       symbol: 'AVAX',
+//       decimals: 18
+//   },
+//   rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+//   blockExplorerUrls: ['https://testnet.snowtrace.io/']
+// }
+
+// function addAvalancheNetwork() {
+//   injected.getProvider().then(provider => {
+//     provider
+//       .request({
+//         method: 'wallet_addEthereumChain',
+//         params: [AVALANCHE_TESTNET_PARAMS]
+//       })
+//       .catch((error: any) => {
+//         console.log(error)
+//       })
+//   })
+// }
+// addAvalancheNetwork()
+// }
+
+// addAvaxToMetamask()
+
 let providerAddresses = {
-  'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B', // polygon: 
+  'orcid' : '0x4D39C84712C9A13f4d348050E82A2Eeb45DB5e29', // avax
+  // 'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B', // polygon
   // 'orcid' : '0xdF10310d2C72F5358b19bF6A7C817Ec4570b270f', //harmony
-  // 'orcid' : '0xdF10310d2C72F5358b19bF6A7C817Ec4570b270f', //fantom
+  // 'orcid' : '0x87b6e03b0D57771940D7cC9E92531B6217364B3E', //fantom
   'google' : null,
   'facebook' : null,
   'github' : null,
@@ -85,6 +147,7 @@ const searchSubtextInText = (subtext, text) => {
 //     var data = "client_id=APP-MPLI0FQRUVFEKMYX&client_secret=0c2470a1-ab05-457a-930c-487188e658e2&grant_type=authorization_code&redirect_uri=https://developers.google.com/oauthplayground&code=" + authCode;
 //     xhr.send(data);
 // }
+
 
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
 const parseJWT = (JWT) => {
@@ -170,7 +233,7 @@ const AuthenticationFlow = (props) => {
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState('');
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
-  const [message, setMessage] = useState('');
+  const [displayMessage, setDisplayMessage] = useState('');
   const [onChainCreds, setOnChainCreds] = useState(null);
   const [txHash, setTxHash] = useState(null);
 
@@ -179,25 +242,26 @@ const AuthenticationFlow = (props) => {
 
   const commitJWTOnChain = async (JWTObject) => {
     let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
-    let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
+    // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
     let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
-    setMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
+    setDisplayMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
     console.log(secretHashedMessage, props.account)
     // xor the values as bytes (without preceding 0x)
-    let proof = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
+    let proofPt1 = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
+    let proof = ethers.utils.sha256(proofPt1)
     console.log(proof.toString('hex'))
-    let txHash_ = await vjwt.commitJWTProof(proof, publicHashedMessage)
-    console.log(txHash_)
-    provider.on(txHash_, () => {setStep('waitingForBlockCompletion'); })
+    let tx = await vjwt.commitJWTProof(proof)
+    console.log(tx)
+    provider.once(tx, () => {console.log('has beeen mined'); setStep('waitingForBlockCompletion'); })
     // setStep('waitingForBlockCompletion')
   }
 
   // sig: JWT signature, payloadIdx: byte where the payload starts within the message, startIdx: byte where the sandwich starts within the payload, endIdx: byte where the sandwich ends within the payload, sandwich: sandwich content
   const proveIKnewValidJWT = async (sig, message, payloadIdx, startIdx, endIdx, sandwich) => {
-    console.log(vjwt, ethers.BigNumber.from(sig), message)
-    let txHash_ = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich);
-    provider.on(txHash_, async () => {await setOnChainCreds(await vjwt.credsForAddress(props.account)); setStep('success'); })
-    setTxHash(txHash_)
+    console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
+    let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich);
+    provider.on(tx, async () => {await setOnChainCreds(hexToString(await vjwt.credsForAddress(props.account))); setStep('success'); })
+    setTxHash(tx.hash)
 
   }
 
@@ -211,16 +275,16 @@ const AuthenticationFlow = (props) => {
       console.log('this ran')
       let sig = JWTObject.signature.decoded;
       console.log('21')
-      let messsage = JWTObject.header.raw + '.' + JWTObject.payload.raw;
+      let message = JWTObject.header.raw + '.' + JWTObject.payload.raw;
       console.log('f8u')
       console.log(sig, message)
       let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1;
       console.log(payloadIdx)
-      console.log('ID ', JWTObject.payload.sub)
-      let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.sub);
+      console.log('ID ', JWTObject.payload.parsed.sub)
+      let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed.sub, vjwt);
       let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
 
-      await proveIKnewValidJWT(sig, message)
+      await proveIKnewValidJWT(sig, message, payloadIdx, startIdx, endIdx, '0x'+sandwich)
     }
   })
 
@@ -229,13 +293,13 @@ const AuthenticationFlow = (props) => {
       console.log(onChainCreds);
       return onChainCreds ? 
       <>
-        <p class='success'>✓ You're successfully verified :)</p><br /><a href={txHash}>transaction hash</a>
+        <p class='success'>✓ You're successfully verified as {onChainCreds} :)</p><br /><a href={txHash}>transaction hash</a>
       </> : <p class='warning'>Failed to verify JWT on-chain</p>
     case 'waitingForBlockCompletion':
       return <p>Waiting for block to be mined</p>
     case 'userApproveJWT':
       if(!JWTObject){return 'waiting for token to load'}
-      return message ? message : <p>
+      return displayMessage ? displayMessage : <p>
               <h1>Confirm you're OK with this info being on-chain</h1>
               {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
                 <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
@@ -257,7 +321,7 @@ const AuthenticationFlow = (props) => {
             </p>
     default:
       return <>
-                <div class='message'>{message}</div>
+                <div class='message'>{displayMessage}</div>
                 
                 {/*
                 <p>Authenticate via</p>
