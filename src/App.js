@@ -15,6 +15,7 @@ import {
 import orcidImage from './img/orcid32.png';
 
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
+import { isCompositeComponent } from 'react-dom/test-utils';
 const { ethers } = require('ethers');
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -237,11 +238,12 @@ const AuthenticationFlow = (props) => {
   const [displayMessage, setDisplayMessage] = useState('');
   const [onChainCreds, setOnChainCreds] = useState(null);
   const [txHash, setTxHash] = useState(null);
-
+  let revealBlock = 0; //block when user should be prompted to reveal their JWT
   useEffect(()=>{if(props.token){setJWTText(props.token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
   useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
 
   const commitJWTOnChain = async (JWTObject) => {
+    console.log('commitJWTOnChat called')
     let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
     // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
     let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
@@ -252,60 +254,66 @@ const AuthenticationFlow = (props) => {
     let proof = ethers.utils.sha256(proofPt1)
     console.log(proof.toString('hex'))
     let tx = await vjwt.commitJWTProof(proof)
-    console.log(tx)
-    provider.once(tx, () => {console.log('has beeen mined'); setStep('waitingForBlockCompletion'); })
+    revealBlock = await provider.getBlockNumber() + 1
+    console.log('t', await provider.getBlockNumber() + 1, revealBlock)
+    let revealed = false 
+    provider.on('block', async () => {
+      console.log(revealed, 'revealed')
+      console.log(await provider.getBlockNumber(), revealBlock)
+      if(( await provider.getBlockNumber() >= revealBlock) && (!revealed)){
+        setStep('waitingForBlockCompletion')
+        revealed=true
+      }
+    })
     // setStep('waitingForBlockCompletion')
   }
 
   // sig: JWT signature, payloadIdx: byte where the payload starts within the message, startIdx: byte where the sandwich starts within the payload, endIdx: byte where the sandwich ends within the payload, sandwich: sandwich content
-  const proveIKnewValidJWT = async (sig, message, payloadIdx, startIdx, endIdx, sandwich) => {
-    console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
-    let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich);
-    provider.on(tx, async () => {
-      console.log(props.account)
-      console.log(await vjwt.credsForAddress(props.account))
-      console.log(hexToString(await vjwt.credsForAddress(props.account)))
-      await setOnChainCreds(
-        hexToString(await vjwt.credsForAddress(props.account))
-      );
+  // Make sure to modularize this; it's too much for one function
+  const proveIKnewValidJWT = async () => {
+    let sig = JWTObject.signature.decoded
+    let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
+    let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1
+    let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed.sub, vjwt);
+    let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
 
-      setStep('success'); })
+    console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
+    let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
+    
     setTxHash(tx.hash)
+    return tx
 
   }
 
   // listen for the transaction to go to the mempool
   // provider.on('pending', async () => console.log('tx'))
-  provider.on('block', async ()=>{
-    console.log('ON block')
-    console.log(step, pendingProofPopup)
-    if((step == 'waitingForBlockCompletion') && !pendingProofPopup){
-      pendingProofPopup = true;
-      console.log('this ran')
-      let sig = JWTObject.signature.decoded;
-      console.log('21')
-      let message = JWTObject.header.raw + '.' + JWTObject.payload.raw;
-      console.log('f8u')
-      console.log(sig, message)
-      let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1;
-      console.log(payloadIdx)
-      console.log('ID ', JWTObject.payload.parsed.sub)
-      let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed.sub, vjwt);
-      let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
 
-      await proveIKnewValidJWT(sig, message, payloadIdx, startIdx, endIdx, '0x'+sandwich)
-    }
-  })
 
   switch(step){
+    case 'waitingForBlockCompletion':
+      if(!pendingProofPopup){
+        pendingProofPopup = true;
+        proveIKnewValidJWT().then(tx => {
+          provider.once(tx, async () => {
+            console.log(props.account)
+            console.log(await vjwt.credsForAddress(props.account))
+            console.log(hexToString(await vjwt.credsForAddress(props.account)))
+            await setOnChainCreds(
+              hexToString(await vjwt.credsForAddress(props.account))
+            );
+      
+            setStep('success'); })
+        })
+      }
+      return <p>Waiting for block to be mined</p>
+
     case 'success':
       console.log(onChainCreds);
       return onChainCreds ? 
       <>
         <p class='success'>✓ You're successfully verified as {onChainCreds} :)</p><br /><a href={txHash}>transaction hash</a>
       </> : <p class='warning'>Failed to verify JWT on-chain</p>
-    case 'waitingForBlockCompletion':
-      return <p>Waiting for block to be mined</p>
+
     case 'userApproveJWT':
       if(!JWTObject){return 'waiting for token to load'}
       return displayMessage ? displayMessage : <p>
