@@ -247,7 +247,7 @@ const AuthenticationFlow = (props) => {
     let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
     // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
     let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
-    setDisplayMessage('It may take some time for a block to be mined. You will be prompted a second time in about 30 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
+    setDisplayMessage('It may take some time for a block to be mined. You will be prompted a second time in about 10 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
     console.log(secretHashedMessage, props.account)
     // xor the values as bytes (without preceding 0x)
     let proofPt1 = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
