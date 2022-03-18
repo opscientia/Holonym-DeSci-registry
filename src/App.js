@@ -1,6 +1,7 @@
 import logo from './logo.png';
 import './App.css';
 import React, { useEffect, useRef, useState } from 'react';
+import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import Form from 'react-bootstrap/Form';
@@ -260,7 +261,15 @@ const AuthenticationFlow = (props) => {
   const proveIKnewValidJWT = async (sig, message, payloadIdx, startIdx, endIdx, sandwich) => {
     console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
     let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich);
-    provider.on(tx, async () => {await setOnChainCreds(hexToString(await vjwt.credsForAddress(props.account))); setStep('success'); })
+    provider.on(tx, async () => {
+      console.log(props.account)
+      console.log(await vjwt.credsForAddress(props.account))
+      console.log(hexToString(await vjwt.credsForAddress(props.account)))
+      await setOnChainCreds(
+        hexToString(await vjwt.credsForAddress(props.account))
+      );
+
+      setStep('success'); })
     setTxHash(tx.hash)
 
   }
@@ -383,7 +392,16 @@ function App() {
     setSigner(provider.getSigner());
   }
 
+  const LoginButton = () => {
+    const { loginWithRedirect } = useAuth0();
+
+    return <button onClick={() => loginWithRedirect()}>Log In</button>;
+  };
   return (
+    <Auth0Provider 
+      domain='localhost:3000'
+      clientId='vDweibbnTY1aIV78RBJXGseIiD95sSFj'
+      redirectUri={window.location.origin}>
     <div className="App">
       <header className="App-header">
               {account ? null : <button class='connect-wallet' onClick={connectWallet}>Connect Wallet</button>
@@ -403,7 +421,9 @@ function App() {
         </Router>
       
     </header>
+    <LoginButton />
     </div>
+    </Auth0Provider>
   );
 }
 
