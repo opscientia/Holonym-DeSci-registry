@@ -328,6 +328,14 @@ const AuthenticationFlow = (props) => {
 
   }
 
+  const submitAnonymousCredentials = async () => {
+    let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
+    let sig = JWTObject.signature.decoded
+    let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), ethers.utils.sha256(message))
+    setTxHash(tx.hash)
+    return tx
+  }
+
   // listen for the transaction to go to the mempool
   // provider.on('pending', async () => console.log('tx'))
 
