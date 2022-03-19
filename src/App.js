@@ -3,15 +3,18 @@ import './App.css';
 import React, { useEffect, useRef, useState } from 'react';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import GoogleLogin from 'react-google-login';
-import FacebookLogin from 'react-facebook-login';
+// import FacebookLogin from 'react-facebook-login';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useParams
+  useParams,
+  useNavigate,
+  Navigate
 } from 'react-router-dom';
+
 import orcidImage from './img/orcid32.png';
 
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
@@ -114,7 +117,7 @@ let providerAddresses = {
   // 'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B', // polygon
   // 'orcid' : '0xdF10310d2C72F5358b19bF6A7C817Ec4570b270f', //harmony
   // 'orcid' : '0x87b6e03b0D57771940D7cC9E92531B6217364B3E', //fantom
-  'google' : null,
+  'google' : '0x8472e9b0FC3800f0eddD6A77da5C8D5cDc4556ac', //avax
   'facebook' : null,
   'github' : null,
 }
@@ -175,11 +178,12 @@ const parseJWT = (JWT) => {
   }
 }
 
-const ignoredFields = ['kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
+const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
 // React component to display (part of) a JWT in the form of a javscript Object to the user
 const DisplayJWTSection = (props) => {
   return <>
   {Object.keys(props.section).map(x => {
+    console.log(x)
     if(ignoredFields.includes(x)){
       return null
     } else {
@@ -212,9 +216,10 @@ const ORCIDLogin = (props)=>{
     </a>
 }
 
-// const responseGoogle = (response) => {
-//   console.log(response);
-// }
+const responseGoogle = (response) => {
+  
+  console.log(response);
+}
 // const responseFacebook = (response) => {
 //   let expirationDateString = (new Date(response.data_access_expiration_time * 1000)).toString()
 //   console.log(response)
@@ -231,7 +236,9 @@ const ORCIDLogin = (props)=>{
 const AuthenticationFlow = (props) => {
 
   const params = useParams();
-  const vjwt = params.provider ? new ethers.Contract(providerAddresses[params.provider], abi, signer) : null;
+  const navigate = useNavigate();
+  let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
+  const vjwt = props.web2service ? new ethers.Contract(providerAddresses[props.web2service], abi, signer) : null;
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState('');
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
@@ -239,7 +246,21 @@ const AuthenticationFlow = (props) => {
   const [onChainCreds, setOnChainCreds] = useState(null);
   const [txHash, setTxHash] = useState(null);
   let revealBlock = 0; //block when user should be prompted to reveal their JWT
-  useEffect(()=>{if(props.token){setJWTText(props.token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
+  // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
+  
+  // if a token is already provided, set the step to user approving the token
+  if(token){
+    if(JWTText == ''){
+      console.log('setting token')
+      setJWTText(token); setStep('userApproveJWT')
+    }
+  } else {
+    if(step){
+      setStep(null)
+    }
+  }
+  console.log(props, JWTText, step)
+
   useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
 
   const commitJWTOnChain = async (JWTObject) => {
@@ -268,13 +289,14 @@ const AuthenticationFlow = (props) => {
     // setStep('waitingForBlockCompletion')
   }
 
-  // sig: JWT signature, payloadIdx: byte where the payload starts within the message, startIdx: byte where the sandwich starts within the payload, endIdx: byte where the sandwich ends within the payload, sandwich: sandwich content
-  // Make sure to modularize this; it's too much for one function
-  const proveIKnewValidJWT = async () => {
+  // credentialField is 'email' for gmail and 'sub' for orcid. It's the claim of the JWT which should be used as an index to look the user up by
+  const proveIKnewValidJWT = async (credentialClaim) => {
     let sig = JWTObject.signature.decoded
     let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
     let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1
-    let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed.sub, vjwt);
+    console.log(JWTObject.payload.parsed[credentialClaim])
+    let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed[credentialClaim], vjwt);
+    console.log(sandwich, JWTObject.payload.raw)
     let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
 
     console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
@@ -293,7 +315,7 @@ const AuthenticationFlow = (props) => {
     case 'waitingForBlockCompletion':
       if(!pendingProofPopup){
         pendingProofPopup = true;
-        proveIKnewValidJWT().then(tx => {
+        proveIKnewValidJWT(props.credentialClaim).then(tx => {
           provider.once(tx, async () => {
             console.log(props.account)
             console.log(await vjwt.credsForAddress(props.account))
@@ -339,7 +361,12 @@ const AuthenticationFlow = (props) => {
     default:
       return <>
                 <div class='message'>{displayMessage}</div>
-                
+                <GoogleLogin
+                    clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
+                    buttonText="Login"
+                    onSuccess={r=>navigate(`/google/token/id_token=${r.tokenId}`)}
+                    onFailure={responseGoogle}
+                  />
                 {/*
                 <p>Authenticate via</p>
                 <GoogleLogin
@@ -416,12 +443,20 @@ function App() {
           }
         <Router>
           <Routes>
-            <Route path='/:provider/token/*' element={<AuthenticationFlow 
+            <Route path='/orcid/token/*' element={<AuthenticationFlow 
                                                 account={account} 
                                                 connectWalletFunction={connectWallet}
                                                 token={window.location.href.split('/token/#')[1]/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
-                                                                                                    You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
-                                                web2service={window.location.href.split('/token/#')[0].split('.com/'[1])} />} /> 
+                                                                                                   You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
+                                                credentialClaim={'sub'} 
+                                                web2service={'orcid'} />} /> 
+            {/*Google has a different syntax and redirect pattern than ORCID*/}
+            <Route path='/google/token/:token' element={<AuthenticationFlow 
+                                                account={account} 
+                                                connectWalletFunction={connectWallet}
+                                                credentialClaim={'email'}
+                                                web2service={'google'} />} /> 
+
             <Route path='/' element={<AuthenticationFlow 
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />
