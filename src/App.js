@@ -16,6 +16,7 @@ import {
 } from 'react-router-dom';
 
 import orcidImage from './img/orcid32.png';
+import googleImage from './img/google32.png';
 
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
 import { isCompositeComponent } from 'react-dom/test-utils';
@@ -200,6 +201,8 @@ const DisplayJWTSection = (props) => {
   </>
 }
 
+
+// these should be in their own file for butons
 const ORCIDLogin = (props)=>{
   return <a style={{
     height: '64px',
@@ -208,13 +211,31 @@ const ORCIDLogin = (props)=>{
     backgroundColor: 'rgb(167,206,51)',
     color: 'white',
     borderRadius: '10px',
-    fontSize: '21px'
+    fontSize: '21px',
+    margin: '10px'
     // border: '3px solid red'
-    }} href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
-    <img src={orcidImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
-    <span style={{position: 'relative', bottom: '10px'}}> Login with ORCID</span>
+    }} 
+    href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
+      <img src={orcidImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
+      <span style={{position: 'relative', bottom: '10px'}}> Login with ORCID</span>
     </a>
 }
+const GoogleLoginButton = (renderProps)=>
+<a style={{
+  height: '64px',
+  width: '256px',
+  textDecoration : 'none', 
+  backgroundColor: 'white',
+  color: 'grey',
+  borderRadius: '10px',
+  fontSize: '21px',
+  margin: '10px'
+  // border: '3px solid red'
+  }} 
+  onClick={renderProps.onClick} disabled={renderProps.disabled}>
+    <img src={googleImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
+    <span style={{position: 'relative', bottom: '10px'}}> Login with Google</span>
+  </a>
 
 const responseGoogle = (response) => {
   
@@ -362,8 +383,8 @@ const AuthenticationFlow = (props) => {
       return <>
                 <div class='message'>{displayMessage}</div>
                 <GoogleLogin
-                    clientId="254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com"
-                    buttonText="Login"
+                    clientId='254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com'
+                    render={renderProps => <GoogleLoginButton {...renderProps} />}
                     onSuccess={r=>navigate(`/google/token/id_token=${r.tokenId}`)}
                     onFailure={responseGoogle}
                   />
