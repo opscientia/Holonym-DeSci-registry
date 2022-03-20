@@ -43,7 +43,7 @@ const SearchBar = () => {
                     id={`radio-${idx}`}
                     type="radio"
                     variant={idx % 2 ? 'outline-success' : 'outline-danger'}
-                    name="radio"
+                    name='radio'
                     value={toggle.value}
                     checked={web2service === toggle.value}
                     onChange={(e) => setWeb2Service(e.currentTarget.value)}
