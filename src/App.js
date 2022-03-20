@@ -1,5 +1,6 @@
 import logo from './logo.png';
 import './App.css';
+import { Lookup } from './Lookup.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import GoogleLogin from 'react-google-login';
@@ -15,59 +16,17 @@ import {
   Navigate
 } from 'react-router-dom';
 
+import contractAddresses from './contractAddresses.json';
 import orcidImage from './img/orcid32.png';
 import googleImage from './img/google32.png';
 
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
-import { isCompositeComponent } from 'react-dom/test-utils';
+import abi from './abi/VerifyJWT.json'
+
 const { ethers } = require('ethers');
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
-const abi = [
-  "constructor(uint256,bytes,bytes,bytes)",
-  "event JWTVerification(bool)",
-  "event KeyAuthorization(bool)",
-  "event modExpEventForTesting(bytes)",
-  "function JWTForAddress(address) view returns (string)",
-  "function XOR(uint256,uint256) pure returns (uint256)",
-  "function addressForCreds(bytes) view returns (address)",
-  "function addressForJWT(string) view returns (address)",
-  "function addressToBytes(address) pure returns (bytes)",
-  "function bottomBread() view returns (bytes)",
-  "function bytes32ToBytes(bytes32) pure returns (bytes)",
-  "function bytes32ToUInt256(bytes32) pure returns (uint256)",
-  "function bytesAreEqual(bytes,bytes) pure returns (bool)",
-  "function bytesToFirst32BytesAsBytes32Type(bytes) pure returns (bytes32)",
-  "function bytesToLast32BytesAsBytes32Type(bytes) pure returns (bytes32)",
-  "function checkJWTProof(address,string) view returns (bool)",
-  "function checkJWTProof(address,bytes32) view returns (bool)",
-  "function commitJWTProof(bytes32)",
-  "function credsForAddress(address) view returns (bytes)",
-  "function destructivelySliceBytesMemory(bytes,uint256,uint256) pure returns (bytes)",
-  "function e() view returns (uint256)",
-  "function getRegisteredAddresses() view returns (address[])",
-  "function getRegisteredCreds() view returns (bytes[])",
-  "function hasAccess(address,address) view returns (bool)",
-  "function hashFromSignature(uint256,bytes,bytes) returns (bytes32)",
-  "function linkPrivateJWT(bytes,bytes32)",
-  "function modExp(bytes,uint256,bytes) returns (bytes)",
-  "function n() view returns (bytes)",
-  "function privateJWTAllowances(address,address) view returns (bool)",
-  "function privateJWTForAddress(address) view returns (bytes32)",
-  "function proofToBlock(bytes32) view returns (uint256)",
-  "function registeredAddresses(uint256) view returns (address)",
-  "function registeredCreds(uint256) view returns (bytes)",
-  "function setAccess(address,bool)",
-  "function sliceBytesMemory(bytes,uint256,uint256) view returns (bytes)",
-  "function stringToBytes(string) pure returns (bytes)",
-  "function testAddressByteConversion(address) pure returns (bool)",
-  "function testSHA256OnJWT(string) pure returns (bytes32)",
-  "function topBread() view returns (bytes)",
-  "function verifiedUsers(uint256) view returns (bytes32)",
-  "function verifyJWT(bytes,string) returns (bool)",
-  "function verifyMe(bytes,string,uint256,uint256,uint256,bytes)"
-]
 
 
 // const addAvaxToMetamask = () => {
@@ -113,15 +72,7 @@ const abi = [
 
 // addAvaxToMetamask()
 
-let providerAddresses = {
-  'orcid' : '0x4D39C84712C9A13f4d348050E82A2Eeb45DB5e29', // avax
-  // 'orcid' : '0x02D725e30B89A9229fe3Cd16005226f7A680601B', // polygon
-  // 'orcid' : '0xdF10310d2C72F5358b19bF6A7C817Ec4570b270f', //harmony
-  // 'orcid' : '0x87b6e03b0D57771940D7cC9E92531B6217364B3E', //fantom
-  'google' : '0x8472e9b0FC3800f0eddD6A77da5C8D5cDc4556ac', //avax
-  'facebook' : null,
-  'github' : null,
-}
+
 
 
 // var jwt = require('jsonwebtoken');
@@ -259,7 +210,7 @@ const AuthenticationFlow = (props) => {
   const params = useParams();
   const navigate = useNavigate();
   let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-  const vjwt = props.web2service ? new ethers.Contract(providerAddresses[props.web2service], abi, signer) : null;
+  const vjwt = props.web2service ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState('');
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
@@ -486,6 +437,7 @@ function App() {
                                                 credentialClaim={'email'}
                                                 web2service={'google'} />} /> 
 
+            <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
             <Route path='/' element={<AuthenticationFlow 
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />
