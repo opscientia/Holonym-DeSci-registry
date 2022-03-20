@@ -312,9 +312,13 @@ const AuthenticationFlow = (props) => {
 
     case 'success':
       console.log(onChainCreds);
+      console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
       return onChainCreds ? 
       <>
-        <p class='success'>✓ You're successfully verified as {onChainCreds} :)</p><br /><a href={'https://testnet.snowtrace.io/tx/' + txHash}>transaction hash</a>
+        <p class='success'>✓ You're successfully verified as {onChainCreds} :)</p>
+        <br />
+        <a href={'https://testnet.snowtrace.io/tx/' + txHash}>transaction hash</a>
+        <a href={`https://whoisthis.wtf/lookup${props.web2service}/${onChainCreds}`}>look me up</a>
       </> : <p class='warning'>Failed to verify JWT on-chain</p>
 
     case 'userApproveJWT':

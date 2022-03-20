@@ -80,8 +80,8 @@ export const Lookup = (props) => {
         return <SearchBar />
     }
     const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
+    console.log(contractAddresses[params.web2service])
     vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
-    console.log(address)
     return <>
         <SearchBar />
         {address == '0x0000000000000000000000000000000000000000' ? 'No address with these credentials was found on Avalanche testnet' : 
@@ -89,7 +89,7 @@ export const Lookup = (props) => {
             <p><b>{params.credentials}</b> is {address}</p>
             <button onClick={()=>sendCrypto(props.signer, address)}
                     style={{color: 'grey', fontSize: '14px', background: 'yellow', border: 'none'}}>
-                Send 0.1 AVAX to <b>{params.credentials}</b>
+                Send 1 MATIC to <b>{params.credentials}</b>
             </button>
         </>}
     </>

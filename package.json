@@ -24,6 +24,7 @@
     "js-sha256": "^0.9.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.5",
+    "lit-ceramic-sdk": "^1.1.12",
     "lit-js-sdk": "^1.1.149",
     "process": "^0.11.10",
     "react": "^17.0.2",
@@ -56,16 +57,9 @@
       "@babel/preset-typescript"
     ]
   },
-  "browserslist": {
-    "production": [
+  "browserslist": [
       ">0.2%",
       "not dead",
       "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
     ]
-  }
 }

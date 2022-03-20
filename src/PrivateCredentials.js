@@ -37,3 +37,6 @@ const encryptedSymmetricKey = await window.litNodeClient.saveEncryptionKey({
     authSig,
     chain,
   });
+
+
+export const PrivateCredentials = ()=><p>heylakjdfhbalksdbj;</p>
