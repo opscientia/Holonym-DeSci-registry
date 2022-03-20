@@ -1,6 +1,6 @@
 import logo from './logo.png';
 import './App.css';
-import { ConnectButton } from './CeramicAuth.js';
+import { LitCeramic } from './LitCeramic';
 import { Lookup } from './Lookup.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
@@ -440,7 +440,7 @@ function App() {
 
             <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
             <Route path='/lookup' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
-            <Route path='/ceramic' element={<ConnectButton />} />
+            <Route path='/ceramic' element={<LitCeramic />} />
             <Route path='/' element={<AuthenticationFlow 
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />

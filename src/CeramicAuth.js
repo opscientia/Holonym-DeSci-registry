@@ -1,29 +1,22 @@
 // Ceramic Self.ID
 import React, { useState, useEffect } from 'react'
-import { useConnection, Provider } from '@self.id/framework'
-// import { useConnection } from '../node_modules/@self.id/framework/src/hooks.ts'
-export const ConnectButton = () => {
-  const [connection, connect, disconnect] = useConnection()
+import { EthereumAuthProvider, SelfID } from '@self.id/web'
 
-  return connection.status === 'connected' ? (
-    <button
-      onClick={() => {
-        disconnect()
-      }}>
-      Disconnect ({connection.selfID.id})
-    </button>
-  ) : 'ethereum' in window ? (
-    <button
-      disabled={connection.status === 'connecting'}
-      onClick={() => {
-        connect()
-      }}>
-      Connect
-    </button>
-  ) : (
-    <p>
-      An injected Ethereum provider such as{' '}
-      <a href="https://metamask.io/">MetaMask</a> is needed to authenticate.
-    </p>
-  )
+export const ConnectButton = () => {
+  const [account, setAccount] = useState(null)
+  const [self, setSelf] = useState(null)
+  // get ethereum account
+  window.ethereum.request({
+  method: 'eth_requestAccounts',
+  })
+  .then(accounts=>setAccount(accounts[0]))
+
+  // The following configuration assumes your local node is connected to the Clay testnet
+  SelfID.authenticate({
+    authProvider: new EthereumAuthProvider(window.ethereum, account),
+    ceramic: 'local',
+    connectNetwork: 'testnet-clay',
+  })
+  .then(self=>setSelf(self))
+  return <a>h</a>
 }
