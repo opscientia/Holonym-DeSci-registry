@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import contractAddresses from './contractAddresses.json'
 import abi from './abi/VerifyJWT.json'
+import ToggleButton from 'react-bootstrap/ToggleButton'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import 'bootstrap/dist/css/bootstrap.css';
 
-const { ethers } = require('ethers');
-
+const { ethers } = require('ethers');  
+  
 const SearchBar = () => {
     const searchBarStyle = {
         height : '45px',
@@ -25,12 +28,36 @@ const SearchBar = () => {
         
     }
     let navigate = useNavigate()
+    let params = useParams()
     let [credentials, setCredentials] = useState(null)
-    return <span style={{border:'5px dotted grey'}}>
+    let [web2service, setWeb2Service] = useState(params.web2service)
+    const toggles = [
+        { name: 'Google', value: 'google' },
+        { name: 'ORCID', value: 'orcid' },
+      ];
+    return <>
+            <ButtonGroup>
+                {toggles.map((toggle, idx) => (
+                <ToggleButton
+                    key={idx}
+                    id={`radio-${idx}`}
+                    type="radio"
+                    variant={idx % 2 ? 'outline-success' : 'outline-danger'}
+                    name="radio"
+                    value={toggle.value}
+                    checked={web2service === toggle.value}
+                    onChange={(e) => setWeb2Service(e.currentTarget.value)}
+                >
+                    {toggle.name}
+                </ToggleButton>
+                ))}
+            </ButtonGroup>
+            <span style={{border:'5px dotted grey'}}>
                 <input placeholder='Search for someone' value={credentials} onChange={e=>setCredentials(e.target.value)} style={searchBarStyle} />
-                <button onClick={()=>navigate(`/lookup/google/${credentials}`)} style={searchButtonStyle}>Go</button>
+                <button onClick={()=>navigate(`/lookup/${web2service}/${credentials}`)} style={searchButtonStyle}>Go</button>
             
             </span>
+        </>
 }
 const sendCrypto = (signer, to) => {
     if(!signer || !to) {
