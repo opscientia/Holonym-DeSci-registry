@@ -438,6 +438,7 @@ function App() {
                                                 web2service={'google'} />} /> 
 
             <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
+            <Route path='/lookup' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
             <Route path='/' element={<AuthenticationFlow 
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />
