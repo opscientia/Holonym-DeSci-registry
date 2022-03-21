@@ -169,7 +169,7 @@ const ORCIDLogin = (props)=>{
     }} 
     href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
       <img src={orcidImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
-      <span style={{position: 'relative', bottom: '10px'}}> Login with ORCID</span>
+      <span style={{position: 'relative', top: '10%'}}> Login with ORCID</span>
     </a>
 }
 const GoogleLoginButton = (renderProps)=>
@@ -186,7 +186,7 @@ const GoogleLoginButton = (renderProps)=>
   }} 
   onClick={renderProps.onClick} disabled={renderProps.disabled}>
     <img src={googleImage} style={{marginTop: '10px', border: '3px solid white', borderRadius: '30px'}}></img>
-    <span style={{position: 'relative', bottom: '10px'}}> Login with Google</span>
+    <span style={{position: 'relative', top: '10%'}}> Login with Google</span>
   </a>
 
 const responseGoogle = (response) => {
