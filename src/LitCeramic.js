@@ -116,6 +116,11 @@ const changeAccess = async (to, newState) => {
     vjwt.setAccess(to, newState)
 }
 
+const decodeJWT = (jwt)=>{
+    if(!jwt){return}
+    console.log('decode', jwt)
+    return jwt.split('.').map(x=>atob(x)).join(',')
+}
 export const LitCeramic = (props)=> {
     const [streamID, setStreamID] = useState(null)
     const [streamContent, setStreamContent] = useState(null)
@@ -146,11 +151,12 @@ export const LitCeramic = (props)=> {
     }, [streamID, buttonPressed])
 
     return <>
-        <button class='cool-button' onClick={async ()=> await changeAccess(account, true)}>Grant Me Access</button>
-        <button class='cool-button' onClick={async ()=> await changeAccess(account, false)}>Revoke My Access</button>
-        <button class='cool-button' onClick={uploadPrivateCredentials}>Upload Private Credentials</button>
+        <button class='cool-button' onClick={uploadPrivateCredentials}>Finish Uploading Your Private Credentials</button>
+        then
+        <button class='cool-button' onClick={async ()=> await changeAccess(account, true)}>Grant (Me) Access</button>
+        <button class='cool-button' onClick={async ()=> await changeAccess(account, false)}>Revoke (My) Access</button>
         <button class='cool-button' onClick={()=>setButtonPressed( buttonPressed +1 ) }>View Credentials</button>
         {streamID ? `Saved to streamID ${streamID} ,` : null} 
-        <i>Content :</i>{streamContent && streamContent.startsWith('something went wrong decrypting:') ? <b>Error: Could not access the content</b> : streamContent}
+        <i>Content :</i>{streamContent && streamContent.startsWith('something went wrong decrypting:') ? <b>Error: Could not access the content</b> : <p style={{fontSize:'12px'}}>{decodeJWT(streamContent)}</p>}
     </>
 }
