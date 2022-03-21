@@ -218,6 +218,7 @@ const AuthenticationFlow = (props) => {
   const [displayMessage, setDisplayMessage] = useState('');
   const [onChainCreds, setOnChainCreds] = useState(null);
   const [txHash, setTxHash] = useState(null);
+  const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
   let revealBlock = 0; //block when user should be prompted to reveal their JWT
   // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
   
@@ -280,10 +281,11 @@ const AuthenticationFlow = (props) => {
 
   }
 
-  const submitAnonymousCredentials = async () => {
+  // vjwt is VerifyJWT smart contract as an ethers object, JWTObject is the parsed JWT
+  const submitAnonymousCredentials = async (vjwt, JWTObject) => {
     let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
     let sig = JWTObject.signature.decoded
-    let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), ethers.utils.sha256(message))
+    let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
     setTxHash(tx.hash)
     return tx
   }
@@ -296,20 +298,29 @@ const AuthenticationFlow = (props) => {
     case 'waitingForBlockCompletion':
       if(!pendingProofPopup){
         pendingProofPopup = true;
-        proveIKnewValidJWT(props.credentialClaim).then(tx => {
-          provider.once(tx, async () => {
-            console.log(props.account)
-            console.log(await vjwt.credsForAddress(props.account))
-            console.log(hexToString(await vjwt.credsForAddress(props.account)))
-            await setOnChainCreds(
-              hexToString(await vjwt.credsForAddress(props.account))
-            );
-      
-            setStep('success'); })
-        })
+        // this should be multiple functions eventually instead of convoluded nested loops
+        if(credentialsRPrivate){
+          submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
+            provider.once(tx, async () => {    
+              console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')        
+              // setStep('success'); 
+            })
+          })
+        } else {
+          proveIKnewValidJWT(props.credentialClaim).then(tx => {
+            provider.once(tx, async () => {
+              console.log(props.account)
+              console.log(await vjwt.credsForAddress(props.account))
+              console.log(hexToString(await vjwt.credsForAddress(props.account)))
+              await setOnChainCreds(
+                hexToString(await vjwt.credsForAddress(props.account))
+              );
+        
+              setStep('success'); })
+          })
+        }
       }
-      return <p>Waiting for block to be mined</p>
-
+      return credentialsRPrivate ? <LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <p>Waiting for block to be mined</p>
     case 'success':
       console.log(onChainCreds);
       console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
@@ -318,13 +329,13 @@ const AuthenticationFlow = (props) => {
         <p class='success'>✓ You're successfully verified as {onChainCreds} :)</p>
         <br />
         <a href={'https://testnet.snowtrace.io/tx/' + txHash}>transaction hash</a>
-        <a href={`https://whoisthis.wtf/lookup${props.web2service}/${onChainCreds}`}>look me up</a>
+        <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`}>look me up</a>
       </> : <p class='warning'>Failed to verify JWT on-chain</p>
 
     case 'userApproveJWT':
       if(!JWTObject){return 'waiting for token to load'}
       return displayMessage ? displayMessage : <p>
-              <h1>Confirm you're OK with this info being on-chain</h1>
+              <h1>If you're OK with this info being on-chain</h1>
               {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
                 <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
                 : 
@@ -338,8 +349,12 @@ const AuthenticationFlow = (props) => {
               <code><DisplayJWTSection section={JWTObject.payload.parsed} /></code>
               {
                 
-                props.account ? 
-                <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Verify Identity</button>
+                props.account ? <>
+                Then<br />
+                <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
+                <br />Otherwise<br />
+                <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
+                </>
                  : 
                 <button class='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>}
             </p>
@@ -444,7 +459,7 @@ function App() {
 
             <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
             <Route path='/lookup' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
-            <Route path='/ceramic' element={<LitCeramic />} />
+            {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
             <Route path='/' element={<AuthenticationFlow 
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />
