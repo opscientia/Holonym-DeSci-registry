@@ -5,7 +5,6 @@ import abi from './abi/VerifyJWT.json'
 import { providers } from 'ethers'
 const { ethers } = require('ethers')
 
-
 const provider = new ethers.providers.Web3Provider(window.ethereum)
 const signer = provider.getSigner()
 
@@ -109,7 +108,7 @@ const evmContractConditions = [
     },
   ];
 
-const stringToEncrypt = 'This is what we want to encrypt on Lit and then store on ceramic'
+// const stringToEncrypt = 'This is what we want to encrypt on Lit and then store on ceramic'
 // Changes to's access to newState (true or false)
 const changeAccess = async (to, newState) => {
     console.log(contractAddresses['google'])
@@ -131,26 +130,27 @@ export const LitCeramic = (props)=> {
 
     // upload content to stream when page loads
     const uploadPrivateCredentials = ()=>{
-        litCeramicIntegration.encryptAndWrite(stringToEncrypt, evmContractConditions, 'evmContractConditions').then(streamID => setStreamID(streamID))
+        litCeramicIntegration.encryptAndWrite(props.stringToEncrypt, evmContractConditions, 'evmContractConditions').then(streamID => setStreamID(streamID))
     }
 
-    // load stream from ceramic when streamID changes
+    // load stream from ceramic when streamID changes or 'View Credentials' is pressed
     useEffect(()=>{
         if(streamID){
-            litCeramicIntegration.readAndDecrypt(streamID).then(c=>setStreamContent(c))
-            let vjwt = new ethers.Contract(contractAddresses['google'], abi, signer)
-            console.log(account)
-            vjwt.hasAccess('0xC8834C1FcF0Df6623Fc8C8eD25064A4148D99388',
-            '0xC8834C1FcF0Df6623Fc8C8eD25064A4148D99388',).then(x=>console.log('HAS AXIS ', x))
+            try {
+                litCeramicIntegration.readAndDecrypt(streamID).then(c=>setStreamContent(c))
+            } catch {
+                setStreamContent('Error: You don\'t have access to it') // this never gets called javascript error handling is terrible - hacky workaround is done instead of this
+            }
+            
         }
     }, [streamID, buttonPressed])
 
     return <>
-        <button onClick={async ()=> await changeAccess(account, true)}>Grant Me Access</button>
-        <button onClick={async ()=> await changeAccess(account, false)}>Revoke My Access</button>
-        <button onClick={uploadPrivateCredentials}>Upload Private Credentials</button>
-        <button onClick={()=>setButtonPressed( buttonPressed +1 ) }>View Credentials</button>
+        <button class='cool-button' onClick={async ()=> await changeAccess(account, true)}>Grant Me Access</button>
+        <button class='cool-button' onClick={async ()=> await changeAccess(account, false)}>Revoke My Access</button>
+        <button class='cool-button' onClick={uploadPrivateCredentials}>Upload Private Credentials</button>
+        <button class='cool-button' onClick={()=>setButtonPressed( buttonPressed +1 ) }>View Credentials</button>
         {streamID ? `Saved to streamID ${streamID} ,` : null} 
-        <i>Content :</i>{streamContent}
+        <i>Content :</i>{streamContent && streamContent.startsWith('something went wrong decrypting:') ? <b>Error: Could not access the content</b> : streamContent}
     </>
 }
