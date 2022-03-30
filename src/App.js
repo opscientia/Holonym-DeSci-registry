@@ -27,7 +27,7 @@ import abi from './abi/VerifyJWT.json'
 const { ethers } = require('ethers');
 
 const chainParams = {
-  'avalanche' : {
+  'avalancheCTest' : {
   chainId: '0xA869',
   chainName: 'Avalanche Testnet C-Chain',
   nativeCurrency: {
@@ -60,8 +60,8 @@ const switchToChain = (chainName) => {
       )
 }
 
-let onDesiredChain = 'mumbai'
-switchToChain('mumbai')
+let desiredChain = 'mumbai'
+switchToChain(desiredChain)
 
 let metamaskConnected = false;
 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -479,10 +479,12 @@ function App() {
   const [onRightChain, setOnRightChain] = useState(false);
 
   const networkChanged = (network) => {
-    if(network == chainParams[onDesiredChain].chainId){setOnRightChain(true)
+    console.log('network changed')
+    if(Number(network) == Number(chainParams[desiredChain].chainId)){ //number converts between hex and int
+      setOnRightChain(true)
     } else {
       setOnRightChain(false)
-      try{switchToChain(onDesiredChain)}catch{}
+      try{switchToChain(desiredChain)}catch{}
     }
   }
 
@@ -515,7 +517,7 @@ function App() {
   });
 
   if (!onRightChain){
-    return 'Please make sure metamask is installed and switched to Polygon'
+    return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
   }
 
   const connectWallet = async () => {
