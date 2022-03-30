@@ -89,7 +89,7 @@ export const Lookup = (props) => {
             <p><b>{params.credentials}</b> is {address}</p>
             <button onClick={()=>sendCrypto(props.signer, address)}
                     style={{color: 'grey', fontSize: '14px', background: 'yellow', border: 'none'}}>
-                Send 1 MATIC to <b>{params.credentials}</b>
+                Send some $$$ to <b>{params.credentials}</b>
             </button>
         </>}
     </>

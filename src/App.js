@@ -26,52 +26,120 @@ import abi from './abi/VerifyJWT.json'
 
 const { ethers } = require('ethers');
 
+const chainParams = {
+  'avalanche' : {
+  chainId: '0xA869',
+  chainName: 'Avalanche Testnet C-Chain',
+  nativeCurrency: {
+      name: 'Avalanche',
+      symbol: 'AVAX',
+      decimals: 18
+  },
+  rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+  blockExplorerUrls: ['https://testnet.snowtrace.io/']
+},
+'mumbai' : {
+  chainId: '0x13881',
+  chainName: 'Polygon Mumbai Testnet',
+  nativeCurrency: {
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18
+  },
+  rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
+  blockExplorerUrls: ['https://mumbai.polygonscan.com/']
+}
+}
+
+// Get metamask on the right network
+const switchToChain = (chainName) => {
+  window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [chainParams[chainName]]
+        }
+      )
+}
+
+let onDesiredChain = 'mumbai'
+switchToChain('mumbai')
+
+let metamaskConnected = false;
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
-
-
-// const addAvaxToMetamask = () => {
-//   // https://docs.avax.network/build/tutorials/smart-contracts/add-avalanche-to-metamask-programmatically
-//   const AVALANCHE_MAINNET_PARAMS = {
-//     chainId: '0xA86A',
-//     chainName: 'Avalanche Mainnet C-Chain',
-//     nativeCurrency: {
-//         name: 'Avalanche',
-//         symbol: 'AVAX',
-//         decimals: 18
-//     },
-//     rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
-//     blockExplorerUrls: ['https://snowtrace.io/']
+// const initMetamaskOnNetwork = async (desiredChainID) => {
+//   let onCorrectNetwork = false; let provider = null; let signer = null;
+//   let provider = window.ethereum;
+//   if(window.ethereum) {
+//     let signer = provider.getSigner();
+//     let currId = await provider.request({method: 'eth_chainId'});
+//     if (currId == desiredChainID){
+//       return [provider, signer, {'onDesiredChain' : true}]
+//     } else {
+//       try {
+//         await provider.request({
+//           method: 'wallet_switchEthereumChain',
+//           params: [{ chainId: desiredChainID }],
+//         });
+//       } catch (err) {
+//         // If chain wasn't added in metamask 
+//         if (switchError.code === 4902) {
+//           add
+//         }
+//         return [provider, signer, err]
+//       }
+//     }
+//     return 
+//   } else {
+//     metamaskConnected = false
+//   }
 // }
 
-// const AVALANCHE_TESTNET_PARAMS = {
-//   chainId: '0xA869',
-//   chainName: 'Avalanche Testnet C-Chain',
-//   nativeCurrency: {
-//       name: 'Avalanche',
-//       symbol: 'AVAX',
-//       decimals: 18
-//   },
-//   rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
-//   blockExplorerUrls: ['https://testnet.snowtrace.io/']
-// }
 
-// function addAvalancheNetwork() {
-//   injected.getProvider().then(provider => {
-//     provider
-//       .request({
-//         method: 'wallet_addEthereumChain',
-//         params: [AVALANCHE_TESTNET_PARAMS]
-//       })
-//       .catch((error: any) => {
-//         console.log(error)
-//       })
-//   })
-// }
-// addAvalancheNetwork()
-// }
 
-// addAvaxToMetamask()
+
+
+// // const addAvaxToMetamask = () => {
+// //   // https://docs.avax.network/build/tutorials/smart-contracts/add-avalanche-to-metamask-programmatically
+// //   const AVALANCHE_MAINNET_PARAMS = {
+// //     chainId: '0xA86A',
+// //     chainName: 'Avalanche Mainnet C-Chain',
+// //     nativeCurrency: {
+// //         name: 'Avalanche',
+// //         symbol: 'AVAX',
+// //         decimals: 18
+// //     },
+// //     rpcUrls: ['https://api.avax.network/ext/bc/C/rpc'],
+// //     blockExplorerUrls: ['https://snowtrace.io/']
+// // }
+
+// // const AVALANCHE_TESTNET_PARAMS = {
+// //   chainId: '0xA869',
+// //   chainName: 'Avalanche Testnet C-Chain',
+// //   nativeCurrency: {
+// //       name: 'Avalanche',
+// //       symbol: 'AVAX',
+// //       decimals: 18
+// //   },
+// //   rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+// //   blockExplorerUrls: ['https://testnet.snowtrace.io/']
+// // }
+
+// // function addAvalancheNetwork() {
+// //   injected.getProvider().then(provider => {
+// //     provider
+// //       .request({
+// //         method: 'wallet_addEthereumChain',
+// //         params: [AVALANCHE_TESTNET_PARAMS]
+// //       })
+// //       .catch((error: any) => {
+// //         console.log(error)
+// //       })
+// //   })
+// // }
+// // addAvalancheNetwork()
+// // }
+
+// // addAvaxToMetamask()
 
 
 
@@ -207,7 +275,6 @@ const responseGoogle = (response) => {
 // }
 
 const AuthenticationFlow = (props) => {
-
   const params = useParams();
   const navigate = useNavigate();
   let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
@@ -236,6 +303,10 @@ const AuthenticationFlow = (props) => {
   console.log(props, JWTText, step)
 
   useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
+
+
+  if(!signer){return}
+
 
   const commitJWTOnChain = async (JWTObject) => {
     console.log('commitJWTOnChat called')
@@ -274,6 +345,7 @@ const AuthenticationFlow = (props) => {
     let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
 
     console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
+    console.log(vjwt.address)
     let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
     
     setTxHash(tx.hash)
@@ -402,25 +474,49 @@ function App() {
   
   // const orig = 'access_token=117a16aa-f766-4079-ba50-faaf0a09c864&token_type=bearer&expires_in=599&tokenVersion=1&persistent=true&id_token=eyJraWQiOiJwcm9kdWN0aW9uLW9yY2lkLW9yZy03aGRtZHN3YXJvc2czZ2p1am84YWd3dGF6Z2twMW9qcyIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiX1RCT2VPZ2VZNzBPVnBHRWNDTi0zUSIsImF1ZCI6IkFQUC1NUExJMEZRUlVWRkVLTVlYIiwic3ViIjoiMDAwMC0wMDAyLTIzMDgtOTUxNyIsImF1dGhfdGltZSI6MTY0NDgzMDE5MSwiaXNzIjoiaHR0cHM6XC9cL29yY2lkLm9yZyIsImV4cCI6MTY0NDkxODUzNywiZ2l2ZW5fbmFtZSI6Ik5hbmFrIE5paGFsIiwiaWF0IjoxNjQ0ODMyMTM3LCJmYW1pbHlfbmFtZSI6IktoYWxzYSIsImp0aSI6IjcxM2RjMGZiLTMwZTAtNDM0Mi05ODFjLTNlYjJiMTRiODM0OCJ9.VXNSFbSJSdOiX7n-hWB6Vh30L1IkOLiNs2hBTuUDZ4oDB-cL6AJ8QjX7wj9Nj_lGcq1kjIfFLhowo8Jy_mzMGIFU8KTZvinSA-A-tJkXOUEvjUNjd0OfQJnVVJ63wvp9gSEj419HZ13Lc2ci9CRY7efQCYeelvQOQvpdrZsRLiQ_XndeDw2hDLAmI7YrYrLMy1zQY9rD4uAlBa56RVD7me6t47jEOOJJMAs3PC8UZ6pYyNc0zAjQ8Vapqz7gxeCN-iya91YI1AIE8Ut19hGgVRa9N7l-aUielPAlzss0Qbeyvl0KTRuZWnLUSrOz8y9oGxVBCUmStEOrVrAhmkMS8A&tokenId=254337461'
 
-
   const [account, setAccount] = useState(null);
-  const [signer, setSigner] = useState(provider.getSigner());
-  
+  const [signer, setSigner] = useState(provider ? provider.getSigner() : provider);
+  const [onRightChain, setOnRightChain] = useState(false);
+
+  const networkChanged = (network) => {
+    if(network == chainParams[onDesiredChain].chainId){setOnRightChain(true)
+    } else {
+      setOnRightChain(false)
+      try{switchToChain(onDesiredChain)}catch{}
+    }
+  }
+
   const signerChanged = async () => {
     let address;
     try {
       address = await signer.getAddress();
       setAccount(address);
-      console.log('SET ACCOUNT!!!')
     }
     catch (err) {
       console.log('need to login to metamask')
     }
-    console.log('called signer change');
+    // also set the network correctly:
+    let currentChainId = await window.ethereum.request({method: 'eth_chainId'})
+    networkChanged(currentChainId)
   }
 
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
+
+
+  window.ethereum.on('accountsChanged', function (accounts) {
+   setAccount(accounts[0])
+
+  });
+
+  // make sure the current chain is always the desired network
+  window.ethereum.on('networkChanged', function (network) {
+    networkChanged(network)
+  });
+
+  if (!onRightChain){
+    return 'Please make sure metamask is installed and switched to Polygon'
+  }
 
   const connectWallet = async () => {
     await provider.send('eth_requestAccounts', []);
