@@ -432,6 +432,7 @@ const AuthenticationFlow = (props) => {
             </p>
     default:
       return <>
+                <h2>Login with a Web2 account to link it to your blockchain address</h2>
                 <div class='message'>{displayMessage}</div>
                 <GoogleLogin
                     clientId='254984500566-3qis54mofeg5edogaujrp8rb7pbp9qtn.apps.googleusercontent.com'
