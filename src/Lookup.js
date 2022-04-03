@@ -87,7 +87,7 @@ export const Lookup = (props) => {
         {address == '0x0000000000000000000000000000000000000000' ? 'No address with these credentials was found on Avalanche testnet' : 
         <>
             <p><b>{params.credentials}</b> is {address}</p>
-            <button onClick={()=>sendCrypto(props.signer, address)}
+            <button onClick={()=>sendCrypto(props.provider.getSigner(), address)}
                     style={{color: 'grey', fontSize: '14px', background: 'yellow', border: 'none'}}>
                 Send some $$$ to <b>{params.credentials}</b>
             </button>

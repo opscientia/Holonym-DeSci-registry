@@ -8,6 +8,9 @@ import GoogleLogin from 'react-google-login';
 // import FacebookLogin from 'react-facebook-login';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Web3Modal from 'web3modal';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,49 +26,11 @@ import googleImage from './img/google32.png';
 
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers';
 import abi from './abi/VerifyJWT.json'
-
+import chainParams from './chainParams.json'
+import { WebSocketProvider } from '@ethersproject/providers';
 const { ethers } = require('ethers');
 
-const chainParams = {
-  'avalancheCTest' : {
-  chainId: '0xA869',
-  chainName: 'Avalanche Testnet C-Chain',
-  nativeCurrency: {
-      name: 'Avalanche',
-      symbol: 'AVAX',
-      decimals: 18
-  },
-  rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
-  blockExplorerUrls: ['https://testnet.snowtrace.io/']
-},
-'mumbai' : {
-  chainId: '0x13881',
-  chainName: 'Polygon Mumbai Testnet',
-  nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
-      decimals: 18
-  },
-  rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
-  blockExplorerUrls: ['https://mumbai.polygonscan.com/']
-}
-}
-
-// Get metamask on the right network
-const switchToChain = (chainName) => {
-  window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [chainParams[chainName]]
-        }
-      )
-}
-
-let desiredChain = 'mumbai'
-switchToChain(desiredChain)
-
-let metamaskConnected = false;
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
+// const provider = new ethers.providers.Web3Provider(window.ethereum);
 // const initMetamaskOnNetwork = async (desiredChainID) => {
 //   let onCorrectNetwork = false; let provider = null; let signer = null;
 //   let provider = window.ethereum;
@@ -278,7 +243,7 @@ const AuthenticationFlow = (props) => {
   const params = useParams();
   const navigate = useNavigate();
   let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-  const vjwt = props.web2service ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
+  const vjwt = props.web2service ? new ethers.Contract(contractAddresses[props.web2service], abi, props.provider.getSigner()) : null;
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState('');
   const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
@@ -305,7 +270,7 @@ const AuthenticationFlow = (props) => {
   useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
 
 
-  if(!signer){return}
+  if(!props.provider){console.log(props); return 'Please connect your wallet'}
 
 
   const commitJWTOnChain = async (JWTObject) => {
@@ -320,13 +285,13 @@ const AuthenticationFlow = (props) => {
     let proof = ethers.utils.sha256(proofPt1)
     console.log(proof.toString('hex'))
     let tx = await vjwt.commitJWTProof(proof)
-    revealBlock = await provider.getBlockNumber() + 1
-    console.log('t', await provider.getBlockNumber() + 1, revealBlock)
+    revealBlock = await props.provider.getBlockNumber() + 1
+    console.log('t', await props.provider.getBlockNumber() + 1, revealBlock)
     let revealed = false 
-    provider.on('block', async () => {
+    props.provider.on('block', async () => {
       console.log(revealed, 'revealed')
-      console.log(await provider.getBlockNumber(), revealBlock)
-      if(( await provider.getBlockNumber() >= revealBlock) && (!revealed)){
+      console.log(await props.provider.getBlockNumber(), revealBlock)
+      if(( await props.provider.getBlockNumber() >= revealBlock) && (!revealed)){
         setStep('waitingForBlockCompletion')
         revealed=true
       }
@@ -363,7 +328,7 @@ const AuthenticationFlow = (props) => {
   }
 
   // listen for the transaction to go to the mempool
-  // provider.on('pending', async () => console.log('tx'))
+  // props.provider.on('pending', async () => console.log('tx'))
 
 
   switch(step){
@@ -373,14 +338,14 @@ const AuthenticationFlow = (props) => {
         // this should be multiple functions eventually instead of convoluded nested loops
         if(credentialsRPrivate){
           submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
-            provider.once(tx, async () => {    
+            props.provider.once(tx, async () => {    
               console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')        
               // setStep('success'); 
             })
           })
         } else {
           proveIKnewValidJWT(props.credentialClaim).then(tx => {
-            provider.once(tx, async () => {
+            props.provider.once(tx, async () => {
               console.log(props.account)
               console.log(await vjwt.credsForAddress(props.account))
               console.log(hexToString(await vjwt.credsForAddress(props.account)))
@@ -392,7 +357,7 @@ const AuthenticationFlow = (props) => {
           })
         }
       }
-      return credentialsRPrivate ? <LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <p>Waiting for block to be mined</p>
+      return credentialsRPrivate ? <LitCeramic provider={props.provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <p>Waiting for block to be mined</p>
     case 'success':
       console.log(onChainCreds);
       console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
@@ -471,14 +436,56 @@ const AuthenticationFlow = (props) => {
   
 }
 function App() {
+  const desiredChain = 'mumbai'
   // apiRequest(2000);
   
   // const orig = 'access_token=117a16aa-f766-4079-ba50-faaf0a09c864&token_type=bearer&expires_in=599&tokenVersion=1&persistent=true&id_token=eyJraWQiOiJwcm9kdWN0aW9uLW9yY2lkLW9yZy03aGRtZHN3YXJvc2czZ2p1am84YWd3dGF6Z2twMW9qcyIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiX1RCT2VPZ2VZNzBPVnBHRWNDTi0zUSIsImF1ZCI6IkFQUC1NUExJMEZRUlVWRkVLTVlYIiwic3ViIjoiMDAwMC0wMDAyLTIzMDgtOTUxNyIsImF1dGhfdGltZSI6MTY0NDgzMDE5MSwiaXNzIjoiaHR0cHM6XC9cL29yY2lkLm9yZyIsImV4cCI6MTY0NDkxODUzNywiZ2l2ZW5fbmFtZSI6Ik5hbmFrIE5paGFsIiwiaWF0IjoxNjQ0ODMyMTM3LCJmYW1pbHlfbmFtZSI6IktoYWxzYSIsImp0aSI6IjcxM2RjMGZiLTMwZTAtNDM0Mi05ODFjLTNlYjJiMTRiODM0OCJ9.VXNSFbSJSdOiX7n-hWB6Vh30L1IkOLiNs2hBTuUDZ4oDB-cL6AJ8QjX7wj9Nj_lGcq1kjIfFLhowo8Jy_mzMGIFU8KTZvinSA-A-tJkXOUEvjUNjd0OfQJnVVJ63wvp9gSEj419HZ13Lc2ci9CRY7efQCYeelvQOQvpdrZsRLiQ_XndeDw2hDLAmI7YrYrLMy1zQY9rD4uAlBa56RVD7me6t47jEOOJJMAs3PC8UZ6pYyNc0zAjQ8Vapqz7gxeCN-iya91YI1AIE8Ut19hGgVRa9N7l-aUielPAlzss0Qbeyvl0KTRuZWnLUSrOz8y9oGxVBCUmStEOrVrAhmkMS8A&tokenId=254337461'
 
   const [account, setAccount] = useState(null);
+  const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(provider ? provider.getSigner() : provider);
   const [onRightChain, setOnRightChain] = useState(false);
 
+  if(!provider){
+
+    // set walletConnect options
+    let wcOptions = {rpc:{}}
+    wcOptions.rpc[chainParams[desiredChain].chainId] = chainParams[desiredChain].rpcUrls[0]
+
+    const providerOptions = {
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: wcOptions,
+        chainId: 1
+      }
+    };
+
+    const web3Modal = new Web3Modal({
+      network: "mainnet", // optional
+      cacheProvider: true, // optional
+      providerOptions // required
+    }); 
+
+    web3Modal.connect().then(instance => {
+      let provider = new ethers.providers.Web3Provider(instance)
+      setProvider(provider)
+      setSigner(provider.getSigner())
+      console.log('connected??')
+      });
+    return 'Please connect your wallet'
+  }
+
+  
+  // Get metamask on the right network
+  const switchToChain = (chainName, provider_) => {
+    provider_.request({
+            method: "wallet_addEthereumChain",
+            params: [chainParams[chainName]]
+          }
+        )
+  }
+  // switchToChain(desiredChain, provider)
+    
   const networkChanged = (network) => {
     console.log('network changed')
     if(Number(network) == Number(chainParams[desiredChain].chainId)){ //number converts between hex and int
@@ -499,7 +506,7 @@ function App() {
       console.log('need to login to metamask')
     }
     // also set the network correctly:
-    let currentChainId = await window.ethereum.request({method: 'eth_chainId'})
+    let currentChainId = await provider.request({method: 'eth_chainId'})
     networkChanged(currentChainId)
   }
 
@@ -507,13 +514,13 @@ function App() {
   useEffect(signerChanged, []); //also update initially when the page loads
 
 
-  window.ethereum.on('accountsChanged', function (accounts) {
+  provider.on('accountsChanged', function (accounts) {
    setAccount(accounts[0])
 
   });
 
   // make sure the current chain is always the desired network
-  window.ethereum.on('networkChanged', function (network) {
+  provider.on('networkChanged', function (network) {
     networkChanged(network)
   });
 
@@ -531,6 +538,7 @@ function App() {
 
     return <button onClick={() => loginWithRedirect()}>Log In</button>;
   };
+
   return (
     <Auth0Provider 
       domain='localhost:3000'
@@ -543,6 +551,7 @@ function App() {
         <Router>
           <Routes>
             <Route path='/orcid/token/*' element={<AuthenticationFlow 
+                                                provider={provider}
                                                 account={account} 
                                                 connectWalletFunction={connectWallet}
                                                 token={window.location.href.split('/token/#')[1]/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
@@ -550,16 +559,18 @@ function App() {
                                                 credentialClaim={'sub'} 
                                                 web2service={'orcid'} />} /> 
             {/*Google has a different syntax and redirect pattern than ORCID*/}
-            <Route path='/google/token/:token' element={<AuthenticationFlow 
+            <Route path='/google/token/:token' element={<AuthenticationFlow
+                                                provider={provider} 
                                                 account={account} 
                                                 connectWalletFunction={connectWallet}
                                                 credentialClaim={'email'}
                                                 web2service={'google'} />} /> 
 
-            <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
-            <Route path='/lookup' element={<Lookup provider={provider} signer={provider.getSigner()} />} />
+            <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} />} />
+            <Route path='/lookup' element={<Lookup provider={provider} />} />
             {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
             <Route path='/' element={<AuthenticationFlow 
+                                        provider={provider}
                                         account={account} 
                                         connectWalletFunction={connectWallet} />} />
           </Routes>
