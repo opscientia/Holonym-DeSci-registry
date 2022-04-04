@@ -30,6 +30,7 @@ import chainParams from './chainParams.json'
 import { WebSocketProvider } from '@ethersproject/providers';
 const { ethers } = require('ethers');
 
+let walletIsConnecting = false
 // const provider = new ethers.providers.Web3Provider(window.ethereum);
 // const initMetamaskOnNetwork = async (desiredChainID) => {
 //   let onCorrectNetwork = false; let provider = null; let signer = null;
@@ -445,36 +446,6 @@ function App() {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(provider ? provider.getSigner() : provider);
   const [onRightChain, setOnRightChain] = useState(false);
-
-  if(!provider){
-
-    // set walletConnect options
-    let wcOptions = {rpc:{}}
-    wcOptions.rpc[chainParams[desiredChain].chainId] = chainParams[desiredChain].rpcUrls[0]
-
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: wcOptions,
-        chainId: 1
-      }
-    };
-
-    const web3Modal = new Web3Modal({
-      network: "mainnet", // optional
-      cacheProvider: true, // optional
-      providerOptions // required
-    }); 
-
-    web3Modal.connect().then(instance => {
-      let provider = new ethers.providers.Web3Provider(instance)
-      setProvider(provider)
-      setSigner(provider.getSigner())
-      console.log('connected??')
-      });
-    return 'Please connect your wallet'
-  }
-
   
   // Get metamask on the right network
   const switchToChain = (chainName, provider_) => {
@@ -497,6 +468,7 @@ function App() {
   }
 
   const signerChanged = async () => {
+    console.log('SIGNER WAS CHANGED', provider, signer)
     let address;
     try {
       address = await signer.getAddress();
@@ -506,14 +478,55 @@ function App() {
       console.log('need to login to metamask')
     }
     // also set the network correctly:
-    let currentChainId = await provider.request({method: 'eth_chainId'})
-    networkChanged(currentChainId)
+    try {
+      let currentChainId = await provider.request({method: 'eth_chainId'})
+      console.log('CURRENT CHAIN ID IS ', currentChainId)
+      networkChanged(currentChainId)
+    } catch (err) {
+      console.log(provider, err)
+    }
+    
+    
   }
 
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
 
+  if(!provider){
 
+    // set walletConnect options
+    let wcOptions = {rpc:{}}
+    wcOptions.rpc[chainParams[desiredChain].chainId] = chainParams[desiredChain].rpcUrls[0]
+
+    const providerOptions = {
+      walletconnect: {
+        package: WalletConnectProvider,
+        options: wcOptions,
+        chainId: 1
+      }
+    };
+
+    const web3Modal = new Web3Modal({
+      network: "mainnet", // optional
+      cacheProvider: true, // optional
+      providerOptions // required
+    });
+    // only run once, using connecting global variable to track whether it's been run -- this is to prevent annoying metamask error when connection to wallet is prompted twice
+    if(!walletIsConnecting){
+      walletIsConnecting = true;
+      web3Modal.connect().then(instance => {
+        let provider = new ethers.providers.Web3Provider(instance)
+        setProvider(provider)
+        setSigner(provider.getSigner())
+        console.log('new provider is', provider)
+        console.log('connected??')
+        });
+    }
+    }
+  if(!provider){
+    return 'pls connect ur wallet'
+  }
+  console.log('Provider is', provider)
   provider.on('accountsChanged', function (accounts) {
    setAccount(accounts[0])
 
@@ -524,9 +537,9 @@ function App() {
     networkChanged(network)
   });
 
-  if (!onRightChain){
-    return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
-  }
+  // if (!onRightChain){
+  //   return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
+  // }
 
   const connectWallet = async () => {
     await provider.send('eth_requestAccounts', []);
@@ -538,7 +551,6 @@ function App() {
 
     return <button onClick={() => loginWithRedirect()}>Log In</button>;
   };
-
   return (
     <Auth0Provider 
       domain='localhost:3000'
