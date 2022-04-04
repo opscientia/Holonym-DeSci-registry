@@ -491,6 +491,21 @@ function App() {
 
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
+  // useEffect(function(){
+  //   if(provider){
+  //     provider.on('accountsChanged', function (accounts) {
+  //       setAccount(accounts[0])
+    
+  //       });
+    
+  //       // make sure the current chain is always the desired network
+  //       provider.on('networkChanged', function (network) {
+  //         networkChanged(network)
+  //       });
+  //   }
+  //   console.log('pro vider is ', provider) 
+  // }, [provider]
+  // )
 
   if(!provider){
 
@@ -518,24 +533,19 @@ function App() {
         let provider = new ethers.providers.Web3Provider(instance)
         setProvider(provider)
         setSigner(provider.getSigner())
-        console.log('new provider is', provider)
+        console.log('new provider is ', provider)
         console.log('connected??')
         });
     }
     }
   if(!provider){
+    if(window.ethereum){
+      let provider_ = new ethers.providers.Web3Provider(window.ethereum)
+      setProvider(provider_)
+      setSigner(provider_.getSigner())
+    }
     return 'pls connect ur wallet'
-  }
-  console.log('Provider is', provider)
-  provider.on('accountsChanged', function (accounts) {
-   setAccount(accounts[0])
-
-  });
-
-  // make sure the current chain is always the desired network
-  provider.on('networkChanged', function (network) {
-    networkChanged(network)
-  });
+  }  
 
   // if (!onRightChain){
   //   return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
