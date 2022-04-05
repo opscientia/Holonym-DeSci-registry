@@ -3,7 +3,7 @@ import './App.css';
 import { LitCeramic } from './LitCeramic';
 import { Lookup } from './Lookup.js';
 import React, { useEffect, useRef, useState } from 'react';
-import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
+// import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import GoogleLogin from 'react-google-login';
 // import FacebookLogin from 'react-facebook-login';
 import Form from 'react-bootstrap/Form';
@@ -28,6 +28,7 @@ import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexT
 import abi from './abi/VerifyJWT.json'
 import chainParams from './chainParams.json'
 import { WebSocketProvider } from '@ethersproject/providers';
+import { SocketAddress } from 'net';
 const { ethers } = require('ethers');
 
 let walletIsConnecting = false
@@ -471,7 +472,9 @@ function App() {
     console.log('SIGNER WAS CHANGED', provider, signer)
     let address;
     try {
+      console.log('signer is ', signer)
       address = await signer.getAddress();
+      console.log('address is', address)
       setAccount(address);
     }
     catch (err) {
@@ -507,6 +510,11 @@ function App() {
   // }, [provider]
   // )
 
+  const connectWallet = async () => {
+    await provider.send('eth_requestAccounts', []);
+    setSigner(provider.getSigner());
+  }
+
   if(!provider){
 
     // set walletConnect options
@@ -529,15 +537,29 @@ function App() {
     // only run once, using connecting global variable to track whether it's been run -- this is to prevent annoying metamask error when connection to wallet is prompted twice
     if(!walletIsConnecting){
       walletIsConnecting = true;
-      web3Modal.connect().then(instance => {
-        let provider = new ethers.providers.Web3Provider(instance)
-        setProvider(provider)
-        setSigner(provider.getSigner())
-        console.log('new provider is ', provider)
-        console.log('connected??')
-        });
+      let tmpProvider; let tmpSigner;
+      web3Modal.connect().then(async (instance) => {
+        tmpProvider = new ethers.providers.Web3Provider(instance)
+        tmpSigner = tmpProvider.getSigner()
+        // setProvider(provider_)
+        // setSigner(signer_)
+        // setAccount(await signer_.getAddress())
+        // console.log('new provider is ', provider_)
+        // console.log('new signer is ', signer_)
+        // console.log('new address is ', await signer_.getAddress())
+        // console.log('connected??')
+        // console.log(setProvider, setSigner, setAccount)
+        
+        }).then(()=>{
+          console.log(tmpProvider, tmpSigner, tmpSigner.getAddress());
+          setProvider(tmpProvider)
+          setSigner(tmpSigner)
+        })
+          
     }
     }
+  // If there isn't a provider from WalletConnect/Web3modal, but window.ethereum is there, just use metamask:
+  // (for some reason, Web3Modal doesn't have the metamask option which would make this unecessary)
   if(!provider){
     if(window.ethereum){
       let provider_ = new ethers.providers.Web3Provider(window.ethereum)
@@ -551,24 +573,19 @@ function App() {
   //   return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
   // }
 
-  const connectWallet = async () => {
-    await provider.send('eth_requestAccounts', []);
-    setSigner(provider.getSigner());
-  }
+  // const LoginButton = () => {
+  //   const { loginWithRedirect } = useAuth0();
 
-  const LoginButton = () => {
-    const { loginWithRedirect } = useAuth0();
-
-    return <button onClick={() => loginWithRedirect()}>Log In</button>;
-  };
+  //   return <button onClick={() => loginWithRedirect()}>Log In</button>;
+  // };
   return (
-    <Auth0Provider 
-      domain='localhost:3000'
-      clientId='vDweibbnTY1aIV78RBJXGseIiD95sSFj'
-      redirectUri={window.location.origin}>
+    // <Auth0Provider 
+    //   domain='localhost:3000'
+    //   clientId='vDweibbnTY1aIV78RBJXGseIiD95sSFj'
+    //   redirectUri={window.location.origin}>
     <div className="App">
       <header className="App-header">
-              {account ? null : <button class='connect-wallet' onClick={connectWallet}>Connect Wallet</button>
+              {account ? <div class='address-truncated'>{`${account.slice(0,4)}...${account.slice(-2)}`}</div>: <button class='connect-wallet' onClick={connectWallet}>Connect Wallet</button>
           }
         <Router>
           <Routes>
@@ -599,9 +616,9 @@ function App() {
         </Router>
       
     </header>
-    <LoginButton />
+    {/* <LoginButton /> */}
     </div>
-    </Auth0Provider>
+    // </Auth0Provider>
   );
 }
 

@@ -57,6 +57,19 @@ p {
   
 }
 
+.address-truncated {
+  margin: 20px;
+  background-color: rgba(54, 57, 102, 0.534);
+  border: none;
+  color: lightgrey;
+  border-radius: 30px;
+  position: fixed;
+  top:0px;
+  right:0px;
+  font-size: 24px;
+  height: 42px;
+  width: 150px;
+}
 
 .connect-wallet {
   margin: 20px;
