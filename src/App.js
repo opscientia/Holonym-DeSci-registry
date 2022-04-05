@@ -494,21 +494,6 @@ function App() {
 
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
-  // useEffect(function(){
-  //   if(provider){
-  //     provider.on('accountsChanged', function (accounts) {
-  //       setAccount(accounts[0])
-    
-  //       });
-    
-  //       // make sure the current chain is always the desired network
-  //       provider.on('networkChanged', function (network) {
-  //         networkChanged(network)
-  //       });
-  //   }
-  //   console.log('pro vider is ', provider) 
-  // }, [provider]
-  // )
 
   const connectWallet = async () => {
     try {
@@ -538,35 +523,6 @@ function App() {
     }
   };  
 
-  // if(!provider){
-// 
-//     
-    // only run once, using connecting global variable to track whether it's been run -- this is to prevent annoying metamask error when connection to wallet is prompted twice
-    // if(!walletIsConnecting){
-    //   walletIsConnecting = true;
-    //   let tmpProvider; let tmpSigner;
-    //   web3Modal.connect().then(async (instance) => {
-    //     tmpProvider = new ethers.providers.Web3Provider(instance)
-    //     tmpSigner = tmpProvider.getSigner()
-    //     // setProvider(provider_)
-    //     // setSigner(signer_)
-    //     // setAccount(await signer_.getAddress())
-    //     // console.log('new provider is ', provider_)
-    //     // console.log('new signer is ', signer_)
-    //     // console.log('new address is ', await signer_.getAddress())
-    //     // console.log('connected??')
-    //     // console.log(setProvider, setSigner, setAccount)
-        
-    //     }).then(()=>{
-    //       console.log(tmpProvider, tmpSigner, tmpSigner.getAddress());
-    //       setProvider(tmpProvider)
-    //       setSigner(tmpSigner)
-    //     })
-          
-    // }
-    // }
-  // If there isn't a provider from WalletConnect/Web3modal, but window.ethereum is there, just use metamask:
-  // (for some reason, Web3Modal doesn't have the metamask option which would make this unecessary)
   if(!provider){
     console.log('provider isn\'t')
     connectWallet()
