@@ -511,63 +511,69 @@ function App() {
   // )
 
   const connectWallet = async () => {
-    await provider.send('eth_requestAccounts', []);
-    setSigner(provider.getSigner());
-  }
+    try {
+      // set walletConnect options
+      let wcOptions = {rpc:{}}
+      wcOptions.rpc[chainParams[desiredChain].chainId] = chainParams[desiredChain].rpcUrls[0]
 
-  if(!provider){
+      const providerOptions = {
+        walletconnect: {
+          package: WalletConnectProvider,
+          options: wcOptions,
+          chainId: 1
+        }
+      };
 
-    // set walletConnect options
-    let wcOptions = {rpc:{}}
-    wcOptions.rpc[chainParams[desiredChain].chainId] = chainParams[desiredChain].rpcUrls[0]
+      const web3Modal = new Web3Modal({
+        network: "mainnet", // optional
+        cacheProvider: true, // optional
+        providerOptions // required
+      });
+      const provider_ = new ethers.providers.Web3Provider(await web3Modal.connect());
+      setProvider(provider_);
+      setSigner(provider_.getSigner());
+      
+    } catch (error) {
+      console.error(error);
+    }
+  };  
 
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: wcOptions,
-        chainId: 1
-      }
-    };
-
-    const web3Modal = new Web3Modal({
-      network: "mainnet", // optional
-      cacheProvider: true, // optional
-      providerOptions // required
-    });
+  // if(!provider){
+// 
+//     
     // only run once, using connecting global variable to track whether it's been run -- this is to prevent annoying metamask error when connection to wallet is prompted twice
-    if(!walletIsConnecting){
-      walletIsConnecting = true;
-      let tmpProvider; let tmpSigner;
-      web3Modal.connect().then(async (instance) => {
-        tmpProvider = new ethers.providers.Web3Provider(instance)
-        tmpSigner = tmpProvider.getSigner()
-        // setProvider(provider_)
-        // setSigner(signer_)
-        // setAccount(await signer_.getAddress())
-        // console.log('new provider is ', provider_)
-        // console.log('new signer is ', signer_)
-        // console.log('new address is ', await signer_.getAddress())
-        // console.log('connected??')
-        // console.log(setProvider, setSigner, setAccount)
+    // if(!walletIsConnecting){
+    //   walletIsConnecting = true;
+    //   let tmpProvider; let tmpSigner;
+    //   web3Modal.connect().then(async (instance) => {
+    //     tmpProvider = new ethers.providers.Web3Provider(instance)
+    //     tmpSigner = tmpProvider.getSigner()
+    //     // setProvider(provider_)
+    //     // setSigner(signer_)
+    //     // setAccount(await signer_.getAddress())
+    //     // console.log('new provider is ', provider_)
+    //     // console.log('new signer is ', signer_)
+    //     // console.log('new address is ', await signer_.getAddress())
+    //     // console.log('connected??')
+    //     // console.log(setProvider, setSigner, setAccount)
         
-        }).then(()=>{
-          console.log(tmpProvider, tmpSigner, tmpSigner.getAddress());
-          setProvider(tmpProvider)
-          setSigner(tmpSigner)
-        })
+    //     }).then(()=>{
+    //       console.log(tmpProvider, tmpSigner, tmpSigner.getAddress());
+    //       setProvider(tmpProvider)
+    //       setSigner(tmpSigner)
+    //     })
           
-    }
-    }
+    // }
+    // }
   // If there isn't a provider from WalletConnect/Web3modal, but window.ethereum is there, just use metamask:
   // (for some reason, Web3Modal doesn't have the metamask option which would make this unecessary)
   if(!provider){
-    if(window.ethereum){
-      let provider_ = new ethers.providers.Web3Provider(window.ethereum)
-      setProvider(provider_)
-      setSigner(provider_.getSigner())
-    }
+    console.log('provider isn\'t')
+    connectWallet()
     return 'pls connect ur wallet'
-  }  
+  } else {
+    console.log('provider is', provider)
+  }
 
   // if (!onRightChain){
   //   return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
