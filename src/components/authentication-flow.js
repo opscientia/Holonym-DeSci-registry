@@ -223,10 +223,10 @@ const AuthenticationFlow = (props) => {
         <div className="spacer-large larger"></div>
         <h1 className="h1">Doxx your Holo</h1>
         <h2 className="p-1 white big">Define your Holonym by linking your profile and then uploading on the blockchain.</h2>
-        <div className="spacer-large"></div>
+        <div className="spacer-medium"></div>
         <div className="x-card small">
           <div className="card-heading">
-            <h3 className="h3">Link your profile</h3>
+            <h3 id="w-node-_7e19a9c8-ff94-4387-04bd-6aaf6d53a8ea-b12b29e5" className="h3 no-margin">Link your profile</h3>
             <InfoButton text='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere.' />
           </div>
           <div className="spacer-small"></div>

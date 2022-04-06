@@ -207,13 +207,13 @@ h6 {
 }
 h1 {
   font-size: 38px;
-  line-height: 44px;
-  margin-top: 20px;
+  /* line-height: 44px; */
+  margin-top: 0px;
 }
 h2 {
   font-size: 32px;
   line-height: 36px;
-  margin-top: 20px;
+  /* margin-top: 20px; */
 }
 h3 {
   font-size: 24px;

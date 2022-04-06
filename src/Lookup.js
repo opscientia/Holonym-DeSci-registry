@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import contractAddresses from './contractAddresses.json'
 import abi from './abi/VerifyJWT.json'
-import ToggleButton from 'react-bootstrap/ToggleButton'
-import ButtonGroup from 'react-bootstrap/ButtonGroup'
-import 'bootstrap/dist/css/bootstrap.css';
+// import ToggleButton from 'react-bootstrap/ToggleButton'
+// import ButtonGroup from 'react-bootstrap/ButtonGroup'
+// import 'bootstrap/dist/css/bootstrap.css';
 
 const { ethers } = require('ethers');  
   
@@ -36,7 +36,7 @@ const SearchBar = () => {
         { name: 'ORCID', value: 'orcid' },
       ];
     return <>
-            <ButtonGroup>
+            {/* <ButtonGroup>
                 {toggles.map((toggle, idx) => (
                 <ToggleButton
                     key={idx}
@@ -51,7 +51,7 @@ const SearchBar = () => {
                     {toggle.name}
                 </ToggleButton>
                 ))}
-            </ButtonGroup>
+            </ButtonGroup> */}
             <span style={{border:'5px dotted grey'}}>
                 <input placeholder='Search for someone' value={credentials} onChange={e=>setCredentials(e.target.value)} style={searchBarStyle} />
                 <button onClick={()=>navigate(`/lookup/${web2service}/${credentials}`)} style={searchButtonStyle}>Go</button>
