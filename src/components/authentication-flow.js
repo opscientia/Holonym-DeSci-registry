@@ -10,7 +10,16 @@ import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexT
 import abi from '../abi/VerifyJWT.json'
 import { LitCeramic } from './lit-ceramic.js'
 import { InfoButton } from './info-button.js';
+
+import Github from '../img/Github.svg';
+import Google from '../img/Google.svg';
+import CircleWavy from '../img/CircleWavy.svg';
+import CircleWavyCheck from '../img/CircleWavyCheck.svg';
+import Orcid from '../img/Orcid.svg';
+import TwitterLogo from '../img/TwitterLogo.svg';
+
 const { ethers } = require('ethers')
+
 
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
 const parseJWT = (JWT) => {
@@ -220,7 +229,6 @@ const AuthenticationFlow = (props) => {
         return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
     <div className="x-container w-container">
       <div className="x-wrapper small-center">
-        <div className="spacer-large larger"></div>
         <h1 className="h1">Doxx your Holo</h1>
         <h2 className="p-1 white big">Define your Holonym by linking your profile and then uploading on the blockchain.</h2>
         <div className="spacer-medium"></div>
@@ -231,31 +239,31 @@ const AuthenticationFlow = (props) => {
           </div>
           <div className="spacer-small"></div>
           <div className="card-text-wrapper">
-            <div className="card-text-div"><img src="../img/Google.svg" loading="lazy" alt="" className="card-logo" />
+            <div className="card-text-div"><img src={Google} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">youremail@gmail.com</div>
               <a href="#" className="card-link">Link</a>
-            </div><img src="../img/CircleWavyCheck.svg" loading="lazy" alt="" className="card-status" />
+            </div><img src={CircleWavyCheck} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
-            <div className="card-text-div"><img src="../img/Orcid.svg" loading="lazy" alt="" className="card-logo" />
+            <div className="card-text-div"><img src={Orcid} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">xxxx-xxxx-xxxx-xxxx</div>
               <a href="#" className="card-link">Link</a>
-            </div><img src="../img/CircleWavy.svg" loading="lazy" alt="" className="card-status" />
+            </div><img src={CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
-            <div className="card-text-div"><img src="../img/TwitterLogo.svg" loading="lazy" alt="" className="card-logo" />
+            <div className="card-text-div"><img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">@twitterusername</div>
               <a href="#" className="card-link">Link</a>
-            </div><img src="../img/CircleWavy.svg" loading="lazy" alt="" className="card-status" />
+            </div><img src={CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
-            <div className="card-text-div"><img src="../img/Github.svg" loading="lazy" alt="" className="card-logo" />
+            <div className="card-text-div"><img src={Github} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">@githubusername</div>
               <a href="#" className="card-link">Link</a>
-            </div><img src="../img/CircleWavy.svg" loading="lazy" alt="" className="card-status" />
+            </div><img src={CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
         </div>
         <div className="spacer-small"></div>
