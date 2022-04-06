@@ -86,7 +86,7 @@ p {
   height: 70vh;
   margin-top: -60px;
   background-color: #000;
-  background-image: url('./img//Holo-BG.jpg');
+  background-image: url('./img/Holo-BG.jpg');
   background-position: 50% 100%;
   background-size: cover;
 }
@@ -94,7 +94,7 @@ p {
 .x-section.bg-img {
   height: 100vh;
   margin-top: -75px;
-  background-image: url('./img//Holo-Background-.jpg');
+  background-image: url('./img/Holo-Background-.jpg');
   background-position: 0px 0px;
   background-size: cover;
 }
@@ -146,7 +146,7 @@ p {
 .x-container.blue.image {
   padding-top: 5%;
   padding-bottom: 5%;
-  background-image: url('./img//Holo-Blue-BG.jpg');
+  background-image: url('./img/Holo-Blue-BG.jpg');
   background-position: 100% 50%;
   background-size: cover;
   background-repeat: repeat;

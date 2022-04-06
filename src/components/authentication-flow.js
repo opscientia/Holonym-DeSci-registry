@@ -9,6 +9,7 @@ import contractAddresses from '../contractAddresses.json'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
 import abi from '../abi/VerifyJWT.json'
 import { LitCeramic } from './lit-ceramic.js'
+import { InfoButton } from './info-button.js';
 const { ethers } = require('ethers')
 
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
@@ -51,7 +52,7 @@ const parseJWT = (JWT) => {
         field = field.replace('_', ' ')
         field = field[0].toUpperCase() + field.substring(1)
   
-        return <p class='token-field'>{field + ': ' + props.section[x]}</p>
+        return <p className='token-field'>{field + ': ' + props.section[x]}</p>
       }
     })}
     </>
@@ -183,20 +184,20 @@ const AuthenticationFlow = (props) => {
         console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
         return onChainCreds ? 
         <>
-          <p class='success'>✓ You're successfully verified as {onChainCreds} :)</p>
+          <p className='success'>✓ You're successfully verified as {onChainCreds} :)</p>
           <br />
           <a href={'https://testnet.snowtrace.io/tx/' + txHash}>transaction hash</a>
           <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`}>look me up</a>
-        </> : <p class='warning'>Failed to verify JWT on-chain</p>
+        </> : <p className='warning'>Failed to verify JWT on-chain</p>
   
       case 'userApproveJWT':
         if(!JWTObject){return 'waiting for token to load'}
         return displayMessage ? displayMessage : <p>
                 <h1>If you're OK with this info being on-chain</h1>
                 {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
-                  <p class='success'>JWT is expired ✓ (that's a good thing)</p> 
+                  <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
                   : 
-                  <p class='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
+                  <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
                 {/*Header
                 <br />
                 <code>
@@ -208,29 +209,61 @@ const AuthenticationFlow = (props) => {
                   
                   props.account ? <>
                   Then<br />
-                  <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
+                  <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
                   <br />Otherwise<br />
-                  <button class='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
+                  <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
                   </>
                    : 
-                  <button class='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>}
+                  <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>}
               </p>
       default:
-        return <div className='x-section wf-section'>
-                  <h2>Login with a Web2 account to link it to your blockchain address</h2>
-                  <div class='message'>{displayMessage}</div>
-                  <GoogleLoginButton
-                      onSuccess={r=>navigate(`/google/token/id_token=${r.tokenId}`)}
-                    />
-                  {/*
-                  <FacebookLogin
-                      appId="1420829754999380"
-                      autoLoad={false}
-                      fields="name,email,picture"
-                      // onClick={componentClicked}
-                  callback={responseFacebook} />*/}
-                  <ORCIDLoginButton />
-                </div>
+        return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+    <div className="x-container w-container">
+      <div className="x-wrapper small-center">
+        <div className="spacer-large larger"></div>
+        <h1 className="h1">Doxx your Holo</h1>
+        <h2 className="p-1 white big">Define your Holonym by linking your profile and then uploading on the blockchain.</h2>
+        <div className="spacer-large"></div>
+        <div className="x-card small">
+          <div className="card-heading">
+            <h3 className="h3">Link your profile</h3>
+            <InfoButton text='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere.' />
+          </div>
+          <div className="spacer-small"></div>
+          <div className="card-text-wrapper">
+            <div className="card-text-div"><img src="../img/Google.svg" loading="lazy" alt="" className="card-logo" />
+              <div className="card-text">youremail@gmail.com</div>
+              <a href="#" className="card-link">Link</a>
+            </div><img src="../img/CircleWavyCheck.svg" loading="lazy" alt="" className="card-status" />
+          </div>
+          <div className="spacer-x-small"></div>
+          <div className="card-text-wrapper">
+            <div className="card-text-div"><img src="../img/Orcid.svg" loading="lazy" alt="" className="card-logo" />
+              <div className="card-text">xxxx-xxxx-xxxx-xxxx</div>
+              <a href="#" className="card-link">Link</a>
+            </div><img src="../img/CircleWavy.svg" loading="lazy" alt="" className="card-status" />
+          </div>
+          <div className="spacer-x-small"></div>
+          <div className="card-text-wrapper">
+            <div className="card-text-div"><img src="../img/TwitterLogo.svg" loading="lazy" alt="" className="card-logo" />
+              <div className="card-text">@twitterusername</div>
+              <a href="#" className="card-link">Link</a>
+            </div><img src="../img/CircleWavy.svg" loading="lazy" alt="" className="card-status" />
+          </div>
+          <div className="spacer-x-small"></div>
+          <div className="card-text-wrapper">
+            <div className="card-text-div"><img src="../img/Github.svg" loading="lazy" alt="" className="card-logo" />
+              <div className="card-text">@githubusername</div>
+              <a href="#" className="card-link">Link</a>
+            </div><img src="../img/CircleWavy.svg" loading="lazy" alt="" className="card-status" />
+          </div>
+        </div>
+        <div className="spacer-small"></div>
+        <a href="#" className="x-button secondary w-button">continue</a>
+        <a href="#" className="x-button secondary no-outline w-button">Learn more</a>
+      </div>
+   </div>                   
+</div>
   
               
     }
@@ -238,3 +271,10 @@ const AuthenticationFlow = (props) => {
   }
 
   export default AuthenticationFlow;
+
+  /*<h2>Login with a Web2 account to link it to your blockchain address</h2>
+                  <div className='message'>{displayMessage}</div>
+                  <GoogleLoginButton
+                      onSuccess={r=>navigate(`/google/token/id_token=${r.tokenId}`)}
+                    />
+                  <ORCIDLoginButton />*/
