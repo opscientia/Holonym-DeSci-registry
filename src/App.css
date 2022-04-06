@@ -1,4 +1,13 @@
-
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+  
 .cool-button {
   margin: 20px;
   background-color: rgba(54, 57, 102, 0.534);

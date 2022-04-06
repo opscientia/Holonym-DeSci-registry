@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Integration } from 'lit-ceramic-sdk'
-import contractAddresses from './contractAddresses.json'
-import abi from './abi/VerifyJWT.json'
+import contractAddresses from '../contractAddresses.json'
+import abi from '../abi/VerifyJWT.json'
 import { providers } from 'ethers'
 const { ethers } = require('ethers')
 
