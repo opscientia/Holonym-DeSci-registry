@@ -57,11 +57,16 @@ const parseJWT = (JWT) => {
         let field = x;
         // give a human readable name to important field:
         if(field == 'sub'){field='subject (ID)'}
+        if(field == 'given_name'){field='Given First Name'}
+        if(field == 'family_name'){field='Given Last Name'}
         // capitalize first letter:
         field = field.replace('_', ' ')
         field = field[0].toUpperCase() + field.substring(1)
   
-        return <p className='token-field'>{field + ': ' + props.section[x]}</p>
+        return <div>
+                <h3>{field}</h3>
+                <p class="identity-text">{props.section[x]}</p>
+            </div>
       }
     })}
     </>
@@ -73,7 +78,8 @@ const AuthenticationFlow = (props) => {
     const params = useParams();
     const navigate = useNavigate();
     let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-    const vjwt = props.web2service ? new ethers.Contract(contractAddresses[props.web2service], abi, props.provider.getSigner()) : null;
+    console.log(props)
+    const vjwt = props.web2service && props.provider ? new ethers.Contract(contractAddresses[props.web2service], abi, props.provider.getSigner()) : null;
     const [step, setStep] = useState(null);
     const [JWTText, setJWTText] = useState('');
     const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
@@ -208,8 +214,25 @@ const AuthenticationFlow = (props) => {
   
       case 'userApproveJWT':
         if(!JWTObject){return 'waiting for token to load'}
-        return displayMessage ? displayMessage : <p>
-                <h1>If you're OK with this info being on-chain</h1>
+        return displayMessage ? displayMessage : <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+        <div className="x-container w-container">
+          <div className="x-wrapper small-center">
+            <div className="spacer-small"></div>
+                <div class="x-wrapper no-flex">
+                <div class="spacer-large larger"></div>
+                <h1 class="h1">Confirm Submission</h1>
+                <div class="spacer-medium"></div>
+                    <DisplayJWTSection section={JWTObject.payload.parsed} />                
+                </div>
+                <div class="spacer-medium"></div>
+                <a href="#" class="x-button secondary w-button" onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>submit public holo</a>
+                <div class="spacer-small"></div>
+                <div class="identity-info-div">
+                
+                </div>
+                </div>
+                </div>
+            
                 {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
                   <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
                   : 
@@ -220,8 +243,8 @@ const AuthenticationFlow = (props) => {
                   <DisplayJWTSection section={JWTObject.header.parsed} />
                 </code>
                 */}
-                <code><DisplayJWTSection section={JWTObject.payload.parsed} /></code>
-                {
+                <DisplayJWTSection section={JWTObject.payload.parsed} />
+                {/* {
                   
                   props.account ? <>
                   Then<br />
@@ -230,8 +253,9 @@ const AuthenticationFlow = (props) => {
                   <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
                   </>
                    : 
-                  <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>}
-              </p>
+                  <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
+                  } */}
+              </div>
       default:
         return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
     <div className="x-container w-container">
@@ -243,7 +267,7 @@ const AuthenticationFlow = (props) => {
         <div className="x-card small">
           <div className="card-heading">
             <h3 id="w-node-_7e19a9c8-ff94-4387-04bd-6aaf6d53a8ea-b12b29e5" className="h3 no-margin">Link your profile</h3>
-            <InfoButton text='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam libero vitae erat. Aenean faucibus nibh et justo cursus id rutrum lorem imperdiet. Nunc ut sem vitae risus tristique posuere.' />
+            <InfoButton text={ `This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and don't submit any credential you don't want to doxx this account with. This is where the Web Token Forwarding protocol comes in, using or issuing cryptographic signatures which prove the veracity of your credentials from Google, Twitter, Github, etc. You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 ` } />
           </div>
           <div className="spacer-small"></div>
           <div className="card-text-wrapper">
@@ -275,8 +299,8 @@ const AuthenticationFlow = (props) => {
           </div>
         </div>
         <div className="spacer-small"></div>
-        <a href="#" className="x-button secondary w-button">continue</a>
-        <a href="#" className="x-button secondary no-outline w-button">Learn more</a>
+        {/* <a href="#" className="x-button secondary w-button">continue</a>
+        <a href="#" className="x-button secondary no-outline w-button">Learn more</a> */}
       </div>
    </div>                   
 </div>
