@@ -1,4 +1,4 @@
-import { GoogleLoginButton, ORCIDLoginButton } from './login-buttons.js'
+import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from './login-buttons.js'
 import {
     useParams,
     useNavigate,
@@ -81,6 +81,12 @@ const AuthenticationFlow = (props) => {
     const [onChainCreds, setOnChainCreds] = useState(null);
     const [txHash, setTxHash] = useState(null);
     const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
+    const [userHolo, setUserHolo] = useState({
+        google: null,
+        orcid: null,
+        github: null,
+        twitter: null,
+    });
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
     
@@ -229,8 +235,9 @@ const AuthenticationFlow = (props) => {
         return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
     <div className="x-container w-container">
       <div className="x-wrapper small-center">
+      <div className="spacer-small"></div>
         <h1 className="h1">Doxx your Holo</h1>
-        <h2 className="p-1 white big">Define your Holonym by linking your profile and then uploading on the blockchain.</h2>
+        <h2 className="p-1 white big">Define your Holonym by linking your accounts to the blockchain.</h2>
         <div className="spacer-medium"></div>
         <div className="x-card small">
           <div className="card-heading">
@@ -240,30 +247,30 @@ const AuthenticationFlow = (props) => {
           <div className="spacer-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Google} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">youremail@gmail.com</div>
-              <a href="#" className="card-link">Link</a>
-            </div><img src={CircleWavyCheck} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{userHolo.google || 'youremail@gmail.com'}</div>
+              <GoogleLoginButton />
+            </div><img src={userHolo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Orcid} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">xxxx-xxxx-xxxx-xxxx</div>
-              <a href="#" className="card-link">Link</a>
-            </div><img src={CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{userHolo.orcid || 'xxxx-xxxx-xxxx-xxxx'}</div>
+              <ORCIDLoginButton />
+            </div><img src={userHolo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">@twitterusername</div>
-              <a href="#" className="card-link">Link</a>
-            </div><img src={CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{`@${userHolo.twitter || 'twitterusername' }`}</div>
+              <TwitterLoginButton />
+            </div><img src={userHolo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Github} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">@githubusername</div>
-              <a href="#" className="card-link">Link</a>
-            </div><img src={CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{`@${userHolo.github || 'githubusername'}`}</div>
+              <GitHubLoginButton />
+            </div><img src={userHolo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
         </div>
         <div className="spacer-small"></div>
