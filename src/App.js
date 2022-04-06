@@ -1,5 +1,8 @@
-import logo from './logo.png';
+import { HomeLogo } from './components/logo.js';
 import './App.css';
+import './holo-wtf.webflow.css';
+import './normalize.css';
+import './webflow.css';
 import { LitCeramic } from './LitCeramic';
 import { Lookup } from './Lookup.js';
 import React, { useEffect, useRef, useState } from 'react';
@@ -546,6 +549,7 @@ function App() {
     //   clientId='vDweibbnTY1aIV78RBJXGseIiD95sSFj'
     //   redirectUri={window.location.origin}>
     <div className="App">
+      <HomeLogo />
       <header className="App-header">
               {account ? <div class='address-truncated'>{`${account.slice(0,4)}...${account.slice(-2)}`}</div>: <button class='connect-wallet' onClick={connectWallet}>Connect Wallet</button>
           }
