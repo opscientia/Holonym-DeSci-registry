@@ -86,7 +86,8 @@ const AuthenticationFlow = (props) => {
         orcid: null,
         github: null,
         twitter: null,
-    });
+    }); //should be useState(await wtf.getCredentialsForAddress(props.address))
+
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
     
