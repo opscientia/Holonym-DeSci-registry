@@ -41,16 +41,16 @@
 
 .connect-wallet {
   margin: 20px;
-  background-color: rgba(54, 57, 102, 0.534);
+  /* background-color: rgba(54, 57, 102, 0.534);
   border: 1px dashed magenta;
   color: magenta;
-  border-radius: 3px;
+  border-radius: 3px; */
   position: fixed;
   top:0px;
   right:0px;
-  font-size: 20px;
+  /* font-size: 20px;
   height:60px;
-  width: 150;
+  width: 150; */
 }
 
 .connect-wallet:hover {

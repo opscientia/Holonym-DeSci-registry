@@ -224,7 +224,6 @@ function App() {
   if(!provider){
     console.log('provider isn\'t')
     connectWallet()
-    return 'pls connect ur wallet'
   } else {
     console.log('provider is', provider)
   }
@@ -248,7 +247,7 @@ function App() {
       <div className='App x-section wf-section'>
       <header>
       <HomeLogo />
-              {account ? <div className='address-truncated'>{`${account.slice(0,4)}...${account.slice(-2)}`}</div>: <button class='connect-wallet' onClick={connectWallet}>Connect Wallet</button>
+              {account ? <div className='address-truncated'>{`${account.slice(0,4)}...${account.slice(-2)}`}</div>: <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
           }
       </header>
           <Router>
