@@ -213,7 +213,7 @@ const AuthenticationFlow = (props) => {
         console.log(onChainCreds);
         console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
         return onChainCreds ? 
-    <div class="x-section bg-img wf-section">
+    <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
         <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
             <div class="x-wrapper no-flex">
                 <div class="spacer-large larger"></div>
@@ -232,9 +232,9 @@ const AuthenticationFlow = (props) => {
                 </div>
                 <div class="spacer-small"></div>
                 <div class="identity-verified-btn-div">
-                <a href="#" class="x-button w-button">view transcation</a>
+                <a href="#" class="x-button secondary outline w-button">view transcation</a>
                 <div class="spacer-x-small"></div>
-                <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`} class="x-button secondary outline w-button">Go to my Holo</a>
+                <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`} class="x-button w-button">Go to my Holo</a>
                 </div>
             </div>
         </div>  
