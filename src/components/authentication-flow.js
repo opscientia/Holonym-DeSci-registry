@@ -72,6 +72,14 @@ const parseJWT = (JWT) => {
     </>
   }
 
+
+const MessageScreen = (props) => {
+    return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+                <div className="x-container w-container">
+                    <h3>{props.msg}</h3>
+                </div>
+            </div>
+}
 let pendingProofPopup = false; 
 
 const AuthenticationFlow = (props) => {
@@ -121,7 +129,7 @@ const AuthenticationFlow = (props) => {
       let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
       // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
       let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
-      setDisplayMessage('It may take some time for a block to be mined. You will be prompted a second time in about 10 seconds, once the transaction is confirmed. Depending on your chain\'s finality and confirmation times, you may want to wait even longer.')
+      setDisplayMessage("It should take about 10 seconds until the transaction is finalized, depending on the chain you're using. Once it's final, you'll see a new popup to finish verification")
       console.log(secretHashedMessage, props.account)
       // xor the values as bytes (without preceding 0x)
       let proofPt1 = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
@@ -200,7 +208,7 @@ const AuthenticationFlow = (props) => {
             })
           }
         }
-        return credentialsRPrivate ? <LitCeramic provider={props.provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <p>Waiting for block to be mined</p>
+        return credentialsRPrivate ? <LitCeramic provider={props.provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <MessageScreen msg='Waiting for block to be mined' />
       case 'success':
         console.log(onChainCreds);
         console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
@@ -214,48 +222,47 @@ const AuthenticationFlow = (props) => {
   
       case 'userApproveJWT':
         if(!JWTObject){return 'waiting for token to load'}
-        return displayMessage ? displayMessage : <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
-        <div className="x-container w-container">
-          <div className="x-wrapper small-center">
-            <div className="spacer-small"></div>
-                <div class="x-wrapper no-flex">
-                <div class="spacer-large larger"></div>
-                <h1 class="h1">Confirm Submission</h1>
-                <div class="spacer-medium"></div>
-                    <DisplayJWTSection section={JWTObject.payload.parsed} />                
+        return displayMessage ? <MessageScreen msg={displayMessage} /> : 
+        <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+            <div className="x-container w-container">
+                <div className="x-wrapper small-center">
+                    <div className="spacer-small"></div>
+                        <div class="x-wrapper no-flex">
+                            <div class="spacer-large larger"></div>
+                            <h1 class="h1">Confirm Submission</h1>
+                            <div class="spacer-medium"></div>
+                            <DisplayJWTSection section={JWTObject.payload.parsed} />                
+                        </div>
+                            <div class="spacer-medium"></div>
+                            <a href="#" class="x-button secondary w-button" onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>submit public holo</a>
+                            <div class="spacer-small"></div>
+                            <div class="identity-info-div"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="spacer-medium"></div>
-                <a href="#" class="x-button secondary w-button" onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>submit public holo</a>
-                <div class="spacer-small"></div>
-                <div class="identity-info-div">
+                    {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
+                    <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
+                    : 
+                    <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
+                    {/*Header
+                    <br />
+                    <code>
+                    <DisplayJWTSection section={JWTObject.header.parsed} />
+                    </code>
+                    
+                    <DisplayJWTSection section={JWTObject.payload.parsed} />
+                    {
+                    
+                    props.account ? <>
+                    Then<br />
+                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
+                    <br />Otherwise<br />
+                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
+                    </>
+                    : 
+                    <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
+                    } */}
                 
-                </div>
-                </div>
-                </div>
-            
-                {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
-                  <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
-                  : 
-                  <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
-                {/*Header
-                <br />
-                <code>
-                  <DisplayJWTSection section={JWTObject.header.parsed} />
-                </code>
-                */}
-                <DisplayJWTSection section={JWTObject.payload.parsed} />
-                {/* {
-                  
-                  props.account ? <>
-                  Then<br />
-                  <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
-                  <br />Otherwise<br />
-                  <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
-                  </>
-                   : 
-                  <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
-                  } */}
-              </div>
       default:
         return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
     <div className="x-container w-container">
