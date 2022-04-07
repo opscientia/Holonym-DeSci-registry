@@ -76,12 +76,6 @@ const SearchBar = () => {
           <form id="email-form" name="email-form" data-name="Email Form" method="get" class="form">
               <input onChange={e=>setCredentials(e.target.value)} type="email" class="text-field w-input" maxLength="256" name="email-3" data-name="Email 3" placeholder="Discover others by email, Twitter, etc." id="email-3" required="" />
             </form>
-          <div class="success w-form-done">
-            <div class="success-text">Thank you! Your submission has been received!</div>
-          </div>
-          <div class="error w-form-fail">
-            <div class="error-text">Oops! Something went wrong while submitting the form.</div>
-          </div>
         </div>
         <div class="spacer-small"></div>
         <div class="btn-wrapper">
@@ -90,6 +84,7 @@ const SearchBar = () => {
           <div class="spacer-small mobile"></div>
           <a href="#" class="x-button secondary outline w-button">learn more</a>
         </div>
+        <div class="spacer-large"></div>
         </>
 }
 const sendCrypto = (signer, to) => {
