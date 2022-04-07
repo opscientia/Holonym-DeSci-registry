@@ -3,6 +3,7 @@ import './holo-wtf.webflow.css';
 import './normalize.css';
 import './webflow.css';
 import AuthenticationFlow from './components/authentication-flow.js'
+import Registry from './components/registry.js'
 import { HomeLogo } from './components/logo.js';
 import { Lookup } from './components/lookup.js';
 import React, { useEffect, useRef, useState } from 'react';
@@ -276,6 +277,7 @@ function App() {
 
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} />} />
               <Route path='/lookup' element={<Lookup provider={provider} />} />
+              <Route path='/registry' element={<Registry provider={provider} />} />
               {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
               <Route path='/' element={<AuthenticationFlow 
                                           provider={provider}
