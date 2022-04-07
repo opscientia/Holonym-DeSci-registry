@@ -10,6 +10,7 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
+import profile from '../img/profile.svg'
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
 // import 'bootstrap/dist/css/bootstrap.css';
@@ -138,7 +139,7 @@ const Holo = (props) => {
     })
     return <div class="x-card profile">
     <div class="id-card profile">
-      <div class="id-card-1"><img src="images/Holo-Identity-2.png" loading="lazy" alt="" class="id-img" /></div>
+      <div class="id-card-1"><img src={profile} loading="lazy" alt="" class="id-img" /></div>
       <div class="id-card-2">
         <div class="id-profile-name-div">
           <h3 id="w-node-_0efb49bf-473f-0fcd-ca4f-da5c9faeac9a-4077819e" class="h3 no-margin">{holo.name}</h3>
@@ -148,12 +149,12 @@ const Holo = (props) => {
       </div>
     </div>
     <div class="spacer-small"></div>
-    <div class="card-heading">
+    {/* <div class="card-heading">
       <h3 class="h3 no-margin">Profile Strength</h3>
       <div class="v-spacer-small"></div>
       <h3 class="h3 no-margin active">Pro</h3>
       <InfoButton text='Profile Strength is stronger the more accounts you have, the more recently you link the accounts, and greater your social activity metrics (e.g., number of friends, followers, repositories, etc.)' />
-    </div>
+    </div> */}
     <div class="spacer-small"></div>
     {Object.keys(holo).map(k => {
         if(k != 'name' && k != 'bio') {

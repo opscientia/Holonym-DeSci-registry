@@ -1,5 +1,5 @@
 export const HomeLogo = () => {
-    return <a href="../index.html" className="nav-logo w-inline-block">
+    return <a href="https://whoisthis.wtf" className="nav-logo w-inline-block">
             <div className="logo w-embed"><svg width="83" height="30" viewBox="0 0 83 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 0H3.8V11C4.8 8.5 7.4 6.6 10.6 6.6C16.6 6.6 20 11.2 20 17.3V29.5H16.2V17.3C16.2 12.6 13.9 9.8 10.2 9.8C6.2 9.8 3.8 12.8 3.8 17.6V29.5H0V0Z" fill="white"></path>
                 <path d="M51.3 23V0H55.1V22.6C55.1 25.3 55.9 26.2 57.6 26.4V29.5C54.1 29.2 51.3 28 51.3 23Z" fill="white"></path>
