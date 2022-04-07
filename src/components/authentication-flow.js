@@ -213,12 +213,32 @@ const AuthenticationFlow = (props) => {
         console.log(onChainCreds);
         console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
         return onChainCreds ? 
-        <>
-          <p className='success'>✓ You're successfully verified as {onChainCreds} :)</p>
-          <br />
-          <a href={'https://testnet.snowtrace.io/tx/' + txHash}>transaction hash</a>
-          <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`}>look me up</a>
-        </> : <p className='warning'>Failed to verify JWT on-chain</p>
+    <div class="x-section bg-img wf-section">
+        <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
+            <div class="x-wrapper no-flex">
+                <div class="spacer-large larger"></div>
+                <h1 class="h1 small">Your identity is successfully verified</h1>
+                <div class="spacer-small"></div>
+                <div class="identity-wrapper">
+                <div class="identity-div-1">
+                    <div class="card-block">
+                    <div class="card-heading">
+                        <h3 class="h3 no-margin">{props.web2service.replace('orcid', 'ORC ID') /*hack to capitalize orcid lol this doesn't work for GOoole*/}</h3><img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
+                    </div>
+                    <div class="spacer-xx-small"></div>
+                    <p class="identity-text">{onChainCreds}</p>
+                    </div>
+                </div>
+                </div>
+                <div class="spacer-small"></div>
+                <div class="identity-verified-btn-div">
+                <a href="#" class="x-button w-button">view transcation</a>
+                <div class="spacer-x-small"></div>
+                <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`} class="x-button secondary outline w-button">Go to my Holo</a>
+                </div>
+            </div>
+        </div>  
+    </div> : <p className='warning'>Failed to verify JWT on-chain</p>
   
       case 'userApproveJWT':
         if(!JWTObject){return 'waiting for token to load'}
