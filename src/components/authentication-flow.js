@@ -56,7 +56,7 @@ const parseJWT = (JWT) => {
       } else {
         let field = x;
         // give a human readable name to important field:
-        if(field == 'sub'){field='subject (ID)'}
+        if(field == 'sub'){field=`${props.web2service} ID`}
         if(field == 'given_name'){field='Given First Name'}
         if(field == 'family_name'){field='Given Last Name'}
         // capitalize first letter:
@@ -249,9 +249,9 @@ const AuthenticationFlow = (props) => {
                     <div className="spacer-small"></div>
                         <div class="x-wrapper no-flex">
                             <div class="spacer-large larger"></div>
-                            <h1 class="h1">Confirm Submission</h1>
-                            <div class="spacer-medium"></div>
-                            <DisplayJWTSection section={JWTObject.payload.parsed} />                
+                            <h1 class="h1">Confirm Identity</h1>
+                            <h4 className="p-1 white">Confirm you would like to publicly link your address <code>{ props.account ? `${props.account.slice(0,4)}...${props.account.slice(-2)}` : null}</code> and its history with </h4>
+                            <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />                
                         </div>
                             <div class="spacer-medium"></div>
                             <a href="#" class="x-button secondary w-button" onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>submit public holo</a>
