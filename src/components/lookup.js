@@ -53,7 +53,7 @@ const SearchBar = () => {
     //   ];
 
     const search = () => {
-        let web2Service = null;
+        let web2Service = params.web2service;
 
         if(credentials.startsWith('@')){
             web2Service = 'Twitter'
@@ -62,7 +62,7 @@ const SearchBar = () => {
         } else if(credentials.includes('-')){
             web2Service = 'ORCID'
         }
-        navigate(`/lookup/${web2Service}/${credentials}`)
+        navigate(`/lookup/${web2Service}/${credentials || 'nobody'}`)
     }
     return <>
             {/* <ButtonGroup>
@@ -137,7 +137,7 @@ const Holo = (props) => {
         github: '@opscientia',
         orcid: '0000-6969-6969'
     })
-    return <div class="x-card profile">
+    return <div class="x-card">
     <div class="id-card profile">
       <div class="id-card-1"><img src={profile} loading="lazy" alt="" class="id-img" /></div>
       <div class="id-card-2">
@@ -160,7 +160,7 @@ const Holo = (props) => {
         if(k != 'name' && k != 'bio') {
             return <>
                 <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
-                    <div class="card-text">{holo[k] || 'not listed'}</div>
+                    <div class="card-text">{holo[k] || 'Not listed'}</div>
                     <img src={holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" class="id-verification-icon" />
                 </div>
                 <div class="spacer-x-small"></div>
@@ -183,13 +183,14 @@ export const Lookup = (props) => {
     vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
     return <Wrapper>
                     <SearchBar />
-                    {address == '0x0000000000000000000000000000000000000000' ? 'No address with these credentials was found on Avalanche testnet' : 
+                    {address == '0x0000000000000000000000000000000000000000' ? 'No address with these credentials was found on Polygon testnet' : 
                     <>
                         <Holo lookupBy={params.credentials}> </Holo>
-                        <button onClick={()=>sendCrypto(props.provider.getSigner(), address)}
-                                style={{color: 'grey', fontSize: '14px', background: 'yellow', border: 'none'}}>
-                            Send some $$$ to <b>{params.credentials}</b>
-                        </button>
+                        <div class="spacer-small"></div>
+                        <div class="btn-wrapper">
+                            <a href="/lookup" class="x-button secondary outline w-button">search again</a>
+                            <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button secondary no-outline w-button">send token</a>
+                        </div>
                     </>}
                 </Wrapper>
         
