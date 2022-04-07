@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Navigate, useNavigate } from 'react-router-dom'
-import contractAddresses from './contractAddresses.json'
-import abi from './abi/VerifyJWT.json'
+import contractAddresses from '../contractAddresses.json'
+import abi from '../abi/VerifyJWT.json'
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
 // import 'bootstrap/dist/css/bootstrap.css';

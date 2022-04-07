@@ -4,7 +4,7 @@ import './normalize.css';
 import './webflow.css';
 import AuthenticationFlow from './components/authentication-flow.js'
 import { HomeLogo } from './components/logo.js';
-import { Lookup } from './Lookup.js';
+import { Lookup } from './components/lookup.js';
 import React, { useEffect, useRef, useState } from 'react';
 // import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 // import FacebookLogin from 'react-facebook-login';
