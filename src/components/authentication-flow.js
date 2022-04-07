@@ -129,7 +129,7 @@ const AuthenticationFlow = (props) => {
       let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
       // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
       let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
-      setDisplayMessage("It should take about 10 seconds until the transaction is finalized, depending on the chain you're using. Once it's final, you'll see a new popup to finish verification")
+      setDisplayMessage("After you submit this transaction, you will receive another transaction in about 10 seconds once the block is mined. Once it's mined, you'll see a new popup to finish verification")
       console.log(secretHashedMessage, props.account)
       // xor the values as bytes (without preceding 0x)
       let proofPt1 = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
@@ -223,7 +223,7 @@ const AuthenticationFlow = (props) => {
                 <div class="identity-div-1">
                     <div class="card-block">
                     <div class="card-heading">
-                        <h3 class="h3 no-margin">{props.web2service.replace('orcid', 'ORC ID') /*hack to capitalize orcid lol this doesn't work for GOoole*/}</h3><img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
+                        <h3 class="h3 no-margin">{props.web2service + ' ID'}</h3><img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
                     </div>
                     <div class="spacer-xx-small"></div>
                     <p class="identity-text">{onChainCreds}</p>

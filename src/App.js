@@ -265,14 +265,14 @@ function App() {
                                                   token={window.location.href.split('/token/#')[1]/*It is safe to assume that the 1st item of the split is the token -- if not, nothing bad happens; the token will be rejected. 
                                                                                                     You may also be asking why we can't just get the token from the URL params. React router doesn't allow # in the URL params, so we have to do it manually*/}
                                                   credentialClaim={'sub'} 
-                                                  web2service={'orcid'} />} /> 
+                                                  web2service={'ORCID'} />} /> 
               {/*Google has a different syntax and redirect pattern than ORCID*/}
               <Route path='/google/token/:token' element={<AuthenticationFlow
                                                   provider={provider} 
                                                   account={account} 
                                                   connectWalletFunction={connectWallet}
                                                   credentialClaim={'email'}
-                                                  web2service={'google'} />} /> 
+                                                  web2service={'Google'} />} /> 
 
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} />} />
               <Route path='/lookup' element={<Lookup provider={provider} />} />
