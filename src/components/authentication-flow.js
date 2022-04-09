@@ -232,7 +232,7 @@ const AuthenticationFlow = (props) => {
                 </div>
                 <div class="spacer-small"></div>
                 <div class="identity-verified-btn-div">
-                <a href="#" class="x-button secondary outline w-button">view transcation</a>
+                <a href="#" class="x-button secondary outline w-button">view tranaction</a>
                 <div class="spacer-x-small"></div>
                 <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`} class="x-button w-button">Go to my Holo</a>
                 </div>
@@ -254,7 +254,7 @@ const AuthenticationFlow = (props) => {
                             <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />                
                         </div>
                             <div class="spacer-medium"></div>
-                            <a href="#" class="x-button secondary w-button" onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>submit public holo</a>
+                            <a href="#" class="x-button secondary" onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>submit public holo</a>
                             <div class="spacer-small"></div>
                             <div class="identity-info-div"></div>
                         </div>

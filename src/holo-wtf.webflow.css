@@ -375,6 +375,7 @@ p {
   transition: letter-spacing 500ms cubic-bezier(.23, 1, .32, 1), background-color 500ms cubic-bezier(.23, 1, .32, 1);
   font-family: 'Clover Medium', sans-serif;
   color: #02070c;
+  text-decoration: none;
   font-size: 18px;
   line-height: 1.2;
   letter-spacing: 1px;
