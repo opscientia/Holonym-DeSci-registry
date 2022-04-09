@@ -254,7 +254,16 @@ const AuthenticationFlow = (props) => {
     </div> : <p className='warning'>Failed to verify JWT on-chain</p>
   
       case 'userApproveJWT':
-        if(!JWTObject){return 'waiting for token to load'}
+        if(!JWTObject){
+          return 'waiting for token to load'
+        } 
+        vjwt.kid().then(kid=>{
+          if(JWTObject.header.parsed.kid != kid){
+            handleError(`KID does not match KID on-chain. This likely means ${props.web2service} has rotated their keys and those keeds need to be updated on-chain. Please check back later. We would appreciate it if you could email wtfprotocol@gmail.com about this error so we can get ${props.web2service} up and running`)
+          }
+        })
+        
+      
         return displayMessage ? <MessageScreen msg={displayMessage} /> : 
         <div className='bg-img x-section wf-section' style={{width:'100vw'}}>
             <div className="x-container w-container">
