@@ -20,7 +20,8 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 
 const { ethers } = require('ethers')
 
-
+// TODO: better error handling
+const handleError = (errorMessage) => alert('ERROR \n' + errorMessage)
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
 const parseJWT = (JWT) => {
     if(!JWT){return null}
@@ -137,18 +138,23 @@ const AuthenticationFlow = (props) => {
       let proofPt1 = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
       let proof = ethers.utils.sha256(proofPt1)
       console.log(proof.toString('hex'))
-      let tx = await vjwt.commitJWTProof(proof)
-      revealBlock = await props.provider.getBlockNumber() + 1
-      console.log('t', await props.provider.getBlockNumber() + 1, revealBlock)
-      let revealed = false 
-      props.provider.on('block', async () => {
-        console.log(revealed, 'revealed')
-        console.log(await props.provider.getBlockNumber(), revealBlock)
-        if(( await props.provider.getBlockNumber() >= revealBlock) && (!revealed)){
-          setStep('waitingForBlockCompletion')
-          revealed=true
-        }
-      })
+      try {
+        let tx = await vjwt.commitJWTProof(proof)
+        revealBlock = await props.provider.getBlockNumber() + 1
+        console.log('t', await props.provider.getBlockNumber() + 1, revealBlock)
+        let revealed = false 
+        props.provider.on('block', async () => {
+          console.log(revealed, 'revealed')
+          console.log(await props.provider.getBlockNumber(), revealBlock)
+          if(( await props.provider.getBlockNumber() >= revealBlock) && (!revealed)){
+            setStep('waitingForBlockCompletion')
+            revealed=true
+          }
+        })
+      } catch(err) {
+        handleError(err.message)
+      }
+      
       // setStep('waitingForBlockCompletion')
     }
   
@@ -164,11 +170,14 @@ const AuthenticationFlow = (props) => {
   
       console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
       console.log(vjwt.address)
-      let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
+      try {
+          let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
+          setTxHash(tx.hash)
+          return tx
+      } catch (err) {
+        handleError(err.message)
+      }
       
-      setTxHash(tx.hash)
-      return tx
-  
     }
   
     // vjwt is VerifyJWT smart contract as an ethers object, JWTObject is the parsed JWT
