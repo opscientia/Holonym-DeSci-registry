@@ -1,3 +1,6 @@
+// Uncomment below when you want to use it -- just made it empty for faster loading and to increase traffic on Lit protocol needlessly. In the future, it should be lazy-loaded instead of commented out
+
+
 // import React, { useState, useEffect } from 'react'
 // import { Integration } from 'lit-ceramic-sdk'
 // import contractAddresses from '../contractAddresses.json'
@@ -103,4 +106,6 @@
 //     </>
 // }
 
+
+// Uncomment above when you want to use it -- just made it empty for faster loading and to increase traffic on Lit protocol needlessly. In the future, it should be lazy-loaded instead of commented
 export const LitCeramic = () => <></>
