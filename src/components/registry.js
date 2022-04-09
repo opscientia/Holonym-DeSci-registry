@@ -96,7 +96,7 @@ const cards = [
 
 const Registry = (props) => {
     return <>
-            <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+            <div class="x-section bg-img wf-section" style={{width:'100vw'}}>
                 <div className="x-container w-container">
                     <div className="x-wrapper fullscreen-center" style={{marginLeft:'1.5vw', marginLeft:'1.5vw'}}>
                         <h1>DeSci Ape Yacht Club</h1>
