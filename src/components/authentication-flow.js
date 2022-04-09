@@ -74,7 +74,7 @@ const parseJWT = (JWT) => {
 
 
 const MessageScreen = (props) => {
-    return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+    return <div className='bg-img x-section wf-section' style={{width:'100vw'}}>
                 <div className="x-container w-container">
                     <h3>{props.msg}</h3>
                 </div>
@@ -213,7 +213,7 @@ const AuthenticationFlow = (props) => {
         console.log(onChainCreds);
         console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
         return onChainCreds ? 
-    <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+    <div class="x-section bg-img wf-section" style={{width:'100vw'}}>
         <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
             <div class="x-wrapper no-flex">
                 <div class="spacer-large larger"></div>
@@ -243,7 +243,7 @@ const AuthenticationFlow = (props) => {
       case 'userApproveJWT':
         if(!JWTObject){return 'waiting for token to load'}
         return displayMessage ? <MessageScreen msg={displayMessage} /> : 
-        <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+        <div className='bg-img x-section wf-section' style={{width:'100vw'}}>
             <div className="x-container w-container">
                 <div className="x-wrapper small-center">
                     <div className="spacer-small"></div>
@@ -284,7 +284,7 @@ const AuthenticationFlow = (props) => {
                     } */}
                 
       default:
-        return <div className='bg-img x-section wf-section' style={{width:'100vw', height:'100vh'}}>
+        return <div className='bg-img x-section wf-section' style={{width:'100vw'}}>
     <div className="x-container w-container">
       <div className="x-wrapper small-center">
       <div className="spacer-small"></div>
