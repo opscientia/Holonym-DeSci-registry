@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Error = (props) => {
     return <div className='bg-img x-section wf-section' style={{width:'100vw'}}>
                 <div className="x-container w-container" style={{display : "block"}}>

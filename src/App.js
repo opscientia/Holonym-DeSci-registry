@@ -246,8 +246,6 @@ function App() {
     //   domain='localhost:3000'
     //   clientId='vDweibbnTY1aIV78RBJXGseIiD95sSFj'
     //   redirectUri={window.location.origin}>
-
-      <>
       <div className='App x-section wf-section'>
       <header>
       <HomeLogo />
@@ -284,7 +282,6 @@ function App() {
           </Router>
           </div>
 
-    </>
     // </Auth0Provider>
   );
 }

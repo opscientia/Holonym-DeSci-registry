@@ -11,6 +11,9 @@ import abi from '../abi/VerifyJWT.json'
 import { LitCeramic } from './lit-ceramic.js'
 import { InfoButton } from './info-button.js';
 
+import Error from './errors.js'
+import { ErrorBoundary } from 'react-error-boundary'
+
 import Github from '../img/Github.svg';
 import Google from '../img/Google.svg';
 import CircleWavy from '../img/CircleWavy.svg';
@@ -21,7 +24,6 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 const { ethers } = require('ethers')
 
 // TODO: better error handling
-const handleError = (errorMessage) => alert('ERROR \n' + errorMessage)
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
 const parseJWT = (JWT) => {
     if(!JWT){return null}
@@ -85,7 +87,7 @@ const MessageScreen = (props) => {
 }
 let pendingProofPopup = false; 
 
-const AuthenticationFlow = (props) => {
+const InnerAuthenticationFlow = (props) => {
     const params = useParams();
     const navigate = useNavigate();
     let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
@@ -151,9 +153,12 @@ const AuthenticationFlow = (props) => {
             revealed=true
           }
         })
-      } catch(err) {
-        handleError(err.message)
+      } catch (error) {
+        console.log('commitment eror', error)
+        props.errorCallback(error.message)
       }
+      
+      
       
       // setStep('waitingForBlockCompletion')
     }
@@ -171,12 +176,14 @@ const AuthenticationFlow = (props) => {
       console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
       console.log(vjwt.address)
       try {
-          let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
-          setTxHash(tx.hash)
-          return tx
-      } catch (err) {
-        handleError(err.message)
+        let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
+        setTxHash(tx.hash)
+        return tx
+      } catch (error) {
+        props.errorCallback(error.message)
       }
+      
+
       
     }
   
@@ -184,9 +191,14 @@ const AuthenticationFlow = (props) => {
     const submitAnonymousCredentials = async (vjwt, JWTObject) => {
       let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
       let sig = JWTObject.signature.decoded
-      let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
-      setTxHash(tx.hash)
-      return tx
+      try {
+        let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
+        setTxHash(tx.hash)
+        return tx
+      } catch (error) {
+        props.errorCallback(error.message)
+      }
+      
     }
   
     // listen for the transaction to go to the mempool
@@ -259,7 +271,7 @@ const AuthenticationFlow = (props) => {
         } 
         vjwt.kid().then(kid=>{
           if(JWTObject.header.parsed.kid != kid){
-            handleError(`KID does not match KID on-chain. This likely means ${props.web2service} has rotated their keys and those keeds need to be updated on-chain. Please check back later. We would appreciate it if you could email wtfprotocol@gmail.com about this error so we can get ${props.web2service} up and running`)
+            props.errorCallback(<p>KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those keeds need to be updated on-chain. Please check back later. We would appreciate it if you could email <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running </p>)
           }
         })
         
@@ -357,6 +369,11 @@ const AuthenticationFlow = (props) => {
               
     }
     
+  }
+
+  const AuthenticationFlow = (props) => {
+    const [error, setError] = useState()
+    return error ? <Error msg={error} /> : <InnerAuthenticationFlow {...props} errorCallback={(err) => setError(err)} />
   }
 
   export default AuthenticationFlow;
