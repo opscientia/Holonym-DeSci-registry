@@ -6,7 +6,7 @@ export const SearchBar = () => {
     let params = useParams()
     let [credentials, setCredentials] = useState('')
     const search = () => {
-        let web2Service = params.web2service;
+        let web2Service = params.web2service || 'ORCID'; // Needn't be ORCID -- any web2service is fine. But this does feel hacky
 
         if(credentials.startsWith('@')){
             web2Service = 'Twitter'

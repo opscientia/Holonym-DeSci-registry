@@ -105,7 +105,7 @@ export const Lookup = (props) => {
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
-                    {address == '0x0000000000000000000000000000000000000000' ? 'No address with these credentials was found on Polygon testnet' : 
+                    {address == '0x0000000000000000000000000000000000000000' ? <p>No address with these credentials was found on Polygon testnet</p> : 
                     <>
                         <Holo lookupBy={params.credentials}> </Holo>
                         <div class="spacer-small"></div>
