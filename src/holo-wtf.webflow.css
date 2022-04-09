@@ -313,6 +313,15 @@ p {
   text-align: center;
 }
 
+.x-wrapper.fullscreen-center {
+  display: block;
+  width: 100vw;
+  position: absolute;
+  left: 0px;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
 .heading {
   font-family: 'Clover Semibold', sans-serif;
   font-size: 38px;
@@ -1059,7 +1068,7 @@ p {
 
 .slider-container {
   position: relative;
-  overflow: hidden;
+  overflow: scroll;
   max-width: 100%;
 }
 
