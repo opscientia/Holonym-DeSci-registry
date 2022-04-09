@@ -1262,6 +1262,10 @@ p {
     height: 200vh;
   }
 
+  .x-wrapper.small-center {
+    margin-top: 10vh;
+  }
+
   h3 {
     font-size:14px;
   }
@@ -1504,6 +1508,9 @@ p {
   }
   
   .x-wrapper.fullscreen-center {
+    margin-top: 10vh;
+  }
+  .x-wrapper.small-center {
     margin-top: 10vh;
   }
 
