@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { SmallCard } from './cards.js'
+import { SearchBar } from './search-bar.js'
 
 // Wraps everything on the registry screen with style
 const Wrapper = (props) => {
@@ -99,6 +100,10 @@ const Registry = (props) => {
                 <div className="x-container w-container">
                     <div className="x-wrapper fullscreen-center" style={{marginLeft:'1.5vw', marginLeft:'1.5vw'}}>
                         <h1>DeSci Ape Yacht Club</h1>
+                        <div className="x-wrapper small-center">
+                            <SearchBar />
+                            <div class="spacer-small"></div>
+                        </div>
                         <Wrapper>
                             {cards.map(x => <SmallCard holo={x} />)}
                         </Wrapper>

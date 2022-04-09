@@ -31,6 +31,5 @@ export const SearchBar = () => {
           <div class="spacer-small mobile"></div>
           <a href="#" class="x-button secondary outline w-button">learn more</a>
         </div>
-        <div class="spacer-large"></div>
         </>
 }

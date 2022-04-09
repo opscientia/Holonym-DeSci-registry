@@ -104,6 +104,7 @@ export const Lookup = (props) => {
     vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
     return <Wrapper>
                     <SearchBar />
+                    <div class="spacer-large"></div>
                     {address == '0x0000000000000000000000000000000000000000' ? 'No address with these credentials was found on Polygon testnet' : 
                     <>
                         <Holo lookupBy={params.credentials}> </Holo>
