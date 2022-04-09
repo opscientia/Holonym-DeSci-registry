@@ -93,27 +93,15 @@ const cards = [
     },
 ]
 
-const CardGrid = () => {
-    let outputElements = []
-    // Split the cards into chunks for row length 3
-    let rowLength = 3;
-    for (let i = 0; i < cards.length; i += rowLength){
-        outputElements.push(
-            <Wrapper>
-                {cards.slice(i, i + rowLength).map(x => <SmallCard holo={x} />)}
-            </Wrapper>
-        )
-    }
-    console.log(outputElements.length, 'OUTPUT ELEMENTS')
-    return outputElements
-}
 const Registry = (props) => {
     return <>
             <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
                 <div className="x-container w-container">
                     <div className="x-wrapper fullscreen-center" style={{marginLeft:'1.5vw', marginLeft:'1.5vw'}}>
-                        <h1>DeSci Reg</h1>
-                        <CardGrid />
+                        <h1>DeSci Ape Yacht Club</h1>
+                        <Wrapper>
+                            {cards.map(x => <SmallCard holo={x} />)}
+                        </Wrapper>
                     </div>
                 </div>
             </div>
