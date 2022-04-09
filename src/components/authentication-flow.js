@@ -232,9 +232,11 @@ const AuthenticationFlow = (props) => {
                 </div>
                 <div class="spacer-small"></div>
                 <div class="identity-verified-btn-div">
-                <a href="#" class="x-button secondary outline w-button">view tranaction</a>
+                {/* <a href="#" class="x-button secondary outline w-button">view tranaction</a> */}
+                {/* <div class="spacer-x-small"></div> */}
+                <a href={`/`} class="x-button w-button">Go to my Holo</a>
                 <div class="spacer-x-small"></div>
-                <a href={`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`} class="x-button w-button">Go to my Holo</a>
+                <a href={`/registry`} class="x-button secondary outline w-button">View All Holos</a>
                 </div>
             </div>
         </div>  
