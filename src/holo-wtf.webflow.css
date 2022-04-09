@@ -92,7 +92,7 @@ p {
 }
 
 .x-section.bg-img {
-  height: 110vh;
+  min-height: 110vh;
   width: 110vw;
   margin-top: 0;
   background-image: url('./img/Holo-Background-.jpg');
