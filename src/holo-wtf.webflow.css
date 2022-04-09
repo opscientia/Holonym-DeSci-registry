@@ -1385,6 +1385,13 @@ p {
 }
 
 @media screen and (max-width: 479px) {
+  .x-section.bg-img {
+    height: 200vh;
+  }
+
+  h3 {
+    font-size:14px;
+  }
   .x-wrapper.grid {
     grid-column-gap: 20px;
     grid-row-gap: 20px;
