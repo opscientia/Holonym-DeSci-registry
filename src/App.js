@@ -20,9 +20,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useParams,
-  useNavigate,
-  Navigate
 } from 'react-router-dom';
 
 import chainParams from './chainParams.json'

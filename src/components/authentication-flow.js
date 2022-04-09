@@ -45,27 +45,29 @@ const parseJWT = (JWT) => {
     }
   }
   
-  const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
+  const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce', 'email_verified'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
   // React component to display (part of) a JWT in the form of a javscript Object to the user
   const DisplayJWTSection = (props) => {
     return <>
-    {Object.keys(props.section).map(x => {
-      console.log(x)
-      if(ignoredFields.includes(x)){
+    {Object.keys(props.section).map(key => {
+      console.log(key)
+      if(ignoredFields.includes(key)){
         return null
       } else {
-        let field = x;
+        let field = key;
+        let value = props.section[key]
         // give a human readable name to important field:
         if(field == 'sub'){field=`${props.web2service} ID`}
         if(field == 'given_name'){field='Given First Name'}
         if(field == 'family_name'){field='Given Last Name'}
+        if(field == 'picture'){value=<img style={{borderRadius: '7px'}} src={value} />}
         // capitalize first letter:
         field = field.replace('_', ' ')
         field = field[0].toUpperCase() + field.substring(1)
   
         return <div>
                 <h3>{field}</h3>
-                <p class="identity-text">{props.section[x]}</p>
+                <p class="identity-text">{value}</p>
             </div>
       }
     })}
