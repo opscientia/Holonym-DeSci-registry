@@ -9,7 +9,9 @@ import contractAddresses from '../contractAddresses.json'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
 import abi from '../abi/VerifyJWT.json'
 import { LitCeramic } from './lit-ceramic.js'
-import { InfoButton } from './info-button.js';
+import { InfoButton } from './info-button.js'
+import { EditProfileButton } from './edit-profile.js';
+
 
 import Error from './errors.js'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -328,16 +330,16 @@ const InnerAuthenticationFlow = (props) => {
         <h2 className="p-1 white big">Define your Holonym by linking your accounts to the blockchain.</h2>
         <div className="spacer-medium"></div>
         <div className="x-card small">
-        <div className="card-heading">
-            <h3 className="h3 no-margin">Edit name and bio</h3>
-            {/* <EditProfileButton /> */}
+          <div className="card-heading">
+            <h3 className="h3 no-margin">Your Name<p className="no-margin">Your bio</p></h3>
+            <EditProfileButton />
           </div>
+          {/* <img src={profile} loading="lazy" alt="" style={{textAlign: "left"}} /> */}
+          
           <div className="spacer-small"></div>
 
-          <img src={profile} loading="lazy" alt="" style={{height : "50px", width: "50px", textAlign : "left"}} />
-          <h4>Vitalik Buterin</h4>
           <div className="card-heading">
-            <h3 id="w-node-_7e19a9c8-ff94-4387-04bd-6aaf6d53a8ea-b12b29e5" className="h3 no-margin">Link your profile</h3>
+            <h3 id="w-node-_7e19a9c8-ff94-4387-04bd-6aaf6d53a8ea-b12b29e5" className="h3 no-margin">Link your profiles</h3>
             <InfoButton text={ `This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and don't submit any credential you don't want to doxx this account with. This is where the Web Token Forwarding protocol comes in, using or issuing cryptographic signatures which prove the veracity of your credentials from Google, Twitter, Github, etc. You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 ` } />
           </div>
           <div className="spacer-small"></div>
