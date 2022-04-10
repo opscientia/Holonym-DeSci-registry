@@ -340,7 +340,7 @@ const InnerAuthenticationFlow = (props) => {
 
           <div className="card-heading">
             <h3 id="w-node-_7e19a9c8-ff94-4387-04bd-6aaf6d53a8ea-b12b29e5" className="h3 no-margin">Link your profiles</h3>
-            <InfoButton text={ `This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and don't submit any credential you don't want to doxx this account with. This is where the Web Token Forwarding protocol comes in, using or issuing cryptographic signatures which prove the veracity of your credentials from Google, Twitter, Github, etc. You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 ` } />
+            <InfoButton text={ `This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and only submit credentials you want visible in the "blockchain yellowpages." You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 ` } />
           </div>
           <div className="spacer-small"></div>
           <div className="card-text-wrapper">
