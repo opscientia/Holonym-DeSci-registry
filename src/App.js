@@ -12,7 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import WebFont from 'webfontloader';
-
+import { wtf } from 'wtf-lib';
 // import chainParams from './chainParams.json'
 
 
@@ -178,6 +178,10 @@ function App() {
       address = await signer.getAddress();
       console.log('address is', address)
       setAccount(address);
+      // get the signed-in user's Holo:
+      console.log('hey')
+      console.log('GET ALL ACCOUNTS', await wtf.getAllAccounts(address, 'ethereum'));
+      alert(wtf.getAllAccounts(address, 'ethereum'))
     }
     catch (err) {
       console.log('need to login to metamask')
