@@ -24,7 +24,7 @@ export const EditProfileButton = (props) => {
                 
                 <div className="spacer-medium" />
 
-                <p><i>Note: submitting these will link them with your wallet address {props.address}</i></p>
+                <p><i>Note: submitting these will publicly link them with your wallet address {props.address}. Feel free to be pseudonymous ;)</i></p>
                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
                       <a className='x-button' style={{width: '39%'}}>Submit</a> 
                       <a className='x-button secondary' style={{width: '39%'}}>Cancel</a>
