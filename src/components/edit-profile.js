@@ -27,7 +27,7 @@ export const EditProfileButton = (props) => {
                 <p><i>Note: submitting these will publicly link them with your wallet address {props.address}. Feel free to be pseudonymous ;)</i></p>
                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
                       <a className='x-button' style={{width: '39%'}}>Submit</a> 
-                      <a className='x-button secondary' style={{width: '39%'}}>Cancel</a>
+                      <a onClick={()=>setVisible(false)} className='x-button secondary' style={{width: '39%'}}>Cancel</a>
                 </div>
             </Modal> 
         </>   
