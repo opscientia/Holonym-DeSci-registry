@@ -11,7 +11,25 @@ export const EditProfileButton = (props) => {
                     </svg></div>
             </a>
 
-            <Modal visible={visible} setVisible={setVisible}>hey</Modal> 
+            <Modal visible={visible} setVisible={setVisible}>
+                <div className="card-heading"><h3 className="h3 no-margin">Your Name</h3></div>
+                <div className="spacer-small" />
+                <input onChange={e=>console.log(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="32" placeholder="Enter name ..." required="" />
+                
+                <div className="spacer-medium" />
+                
+                <div className="card-heading"><h3 className="h3 no-margin">Your Bio</h3></div>
+                <div className="spacer-small" />
+                <input onChange={e=>console.log(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="128" placeholder="Enter Bio ..." required="" />
+                
+                <div className="spacer-medium" />
+
+                <p><i>Note: submitting these will link them with your wallet address {props.address}</i></p>
+                <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
+                      <a className='x-button' style={{width: '39%'}}>Submit</a> 
+                      <a className='x-button secondary' style={{width: '39%'}}>Cancel</a>
+                </div>
+            </Modal> 
         </>   
 
 }
