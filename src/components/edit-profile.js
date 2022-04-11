@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { truncateAddress } from '../ui-helpers.js'
 import { Modal } from './modals.js'
 
 export const EditProfileButton = (props) => {
@@ -12,7 +13,7 @@ export const EditProfileButton = (props) => {
             </a>
 
             <Modal visible={visible} setVisible={setVisible}>
-                <div className="card-heading"><h3 className="h3 no-margin">Your Name</h3></div>
+                <div className="card-heading"><h3 className="h3 no-margin">Name / Pseudonym</h3></div>
                 <div className="spacer-small" />
                 <input onChange={e=>console.log(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="32" placeholder="Enter name ..." required="" />
                 
@@ -24,7 +25,7 @@ export const EditProfileButton = (props) => {
                 
                 <div className="spacer-medium" />
 
-                <p><i>Note: submitting these will publicly link them with your wallet address {props.address}. Feel free to be pseudonymous ;)</i></p>
+                <p><i>Note: proceeding will link this information publicly with your address {truncateAddress(props.account)} </i> <br /> But nothing stops you from being pseudonymous 😎</p>
                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
                       <a className='x-button' style={{width: '39%'}}>Submit</a> 
                       <a onClick={()=>setVisible(false)} className='x-button secondary' style={{width: '39%'}}>Cancel</a>
