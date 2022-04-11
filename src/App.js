@@ -23,6 +23,7 @@ import {
 } from 'react-router-dom';
 
 import chainParams from './chainParams.json'
+import { truncateAddress } from './ui-helpers';
 const { ethers } = require('ethers');
 
 let walletIsConnecting = false
@@ -253,7 +254,7 @@ function App() {
       <div className='App x-section wf-section'>
       <header>
       <HomeLogo />
-              {account ? <div className='address-truncated'>{`${account.slice(0,4)}...${account.slice(-2)}`}</div>: <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
+              {account ? <div className='address-truncated'>{truncateAddress(account)}</div>: <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
           }
       </header>
           <Router>

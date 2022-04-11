@@ -2,20 +2,16 @@ import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginBut
 import {
     useParams,
     useNavigate,
-    Navigate
   } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
+import { truncateAddress } from '../ui-helpers.js'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
 import abi from '../abi/VerifyJWT.json'
 import { LitCeramic } from './lit-ceramic.js'
 import { InfoButton } from './info-button.js'
 import { EditProfileButton } from './edit-profile.js';
-
-
 import Error from './errors.js'
-import { ErrorBoundary } from 'react-error-boundary'
-
 import Github from '../img/Github.svg';
 import Google from '../img/Google.svg';
 import CircleWavy from '../img/CircleWavy.svg';
@@ -23,7 +19,6 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
-
 const { ethers } = require('ethers')
 
 // TODO: better error handling
@@ -288,7 +283,7 @@ const InnerAuthenticationFlow = (props) => {
                         <div class="x-wrapper no-flex">
                             <div class="spacer-large larger"></div>
                             <h1 class="h1">Confirm Identity</h1>
-                            <h4 className="p-1 white">Confirm you would like to publicly link your address <code>{ props.account ? `${props.account.slice(0,4)}...${props.account.slice(-2)}` : null}</code> and its history with </h4>
+                            <h4 className="p-1 white">Confirm you would like to publicly link your address <code>{ props.account ? truncateAddress(props.account) : null}</code> and its history with </h4>
                             <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />                
                         </div>
                             <div class="spacer-medium"></div>
@@ -332,7 +327,7 @@ const InnerAuthenticationFlow = (props) => {
         <div className="x-card small">
           <div className="card-heading">
             <h3 className="h3 no-margin">Your Name<p className="no-margin">Your bio</p></h3>
-            <EditProfileButton />
+            <EditProfileButton {...props} />
           </div>
           {/* <img src={profile} loading="lazy" alt="" style={{textAlign: "left"}} /> */}
           
