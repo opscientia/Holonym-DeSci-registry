@@ -14,8 +14,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider';
 import WebFont from 'webfontloader';
 import { wtf } from 'wtf-lib';
 import chainParams from './chainParams.json'
-import { truncateAddress } from './ui-helpers';
-
+import Address from './components/address.js'
 import {
   BrowserRouter as Router,
   Routes,
@@ -252,7 +251,7 @@ function App() {
       <div className='App x-section wf-section'>
       <header>
       <HomeLogo />
-              {account ? <div className='address-truncated'>{truncateAddress(account)}</div>: <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
+              {account ? <Address address={account} /> : <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
           }
       </header>
           <Router>
