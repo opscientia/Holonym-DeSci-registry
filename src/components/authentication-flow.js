@@ -3,7 +3,7 @@ import {
     useParams,
     useNavigate,
   } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
@@ -19,7 +19,11 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
-const { ethers } = require('ethers')
+
+const wtf = require('wtf-lib');
+wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
+
+const { ethers } = require('ethers');
 
 // TODO: better error handling
 // takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
@@ -98,13 +102,17 @@ const InnerAuthenticationFlow = (props) => {
     const [onChainCreds, setOnChainCreds] = useState(null);
     const [txHash, setTxHash] = useState(null);
     const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
-    const [userHolo, setUserHolo] = useState({
-        google: null,
-        orcid: null,
-        github: null,
-        twitter: null,
-    }); //should be useState(await wtf.getCredentialsForAddress(props.address))
-
+    const defaultHolo = {
+      google: null,
+      orcid: null,
+      github: null,
+      twitter: null
+    }
+    const userHolo = useMemo(async () => {
+      console.log('WTF ', {...defaultHolo, ...(await wtf.getHolo(props.account))[props.desiredChain].creds})
+      return {...defaultHolo, ...(await wtf.getHolo(props.account))[props.desiredChain].creds}
+    }, [props.desiredChain, props.provider]);
+    
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
     
