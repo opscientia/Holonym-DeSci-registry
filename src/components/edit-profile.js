@@ -19,7 +19,7 @@ export const EditProfileButton = (props) => {
                 
                 <div className="spacer-medium" />
                 
-                <div className="card-heading"><h3 className="h3 no-margin">Your Bio</h3></div>
+                <div className="card-heading"><h3 className="h3 no-margin">About Me</h3></div>
                 <div className="spacer-small" />
                 <input onChange={e=>console.log(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="128" placeholder="Enter Bio ..." required="" />
                 

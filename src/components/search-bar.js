@@ -1,6 +1,12 @@
 import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import React, { useState } from 'react'
 
+const SearchArrow = () => {
+    return <div class="search-icon code w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3.125 10H16.875" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
+    <path d="M11.25 4.375L16.875 10L11.25 15.625" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
+</svg></div>
+}
 // Empty search bar, vs search bar style when credentials have been typed that shows suggestions
 const EmptySearch = (props) => {
     return <input onChange={props.onChange} class="text-field w-input" maxLength="256" placeholder="Discover others by email, Twitter, etc." />
@@ -19,14 +25,14 @@ const SearchWithSuggestions = (props) => {
                 </div>
                 {props.credentials ? <>
                     <div class="searchLine"></div>
-                    <div class="search-diiv">
+                    <div class="search-diiv" onClick={()=>props.searchWithService('Google')}>
                         <div class="search-int-div">
                         <div class="search-icon code w-embed"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M14.998 2.30957C14.1498 3.11598 13.3125 3.91208 12.4616 4.71849C12.4182 4.68242 12.3505 4.63347 12.2881 4.58194C11.5565 3.98422 10.711 3.62353 9.7544 3.49986C8.89808 3.38908 8.06073 3.46121 7.24777 3.73946C6.28847 4.06666 5.49448 4.61801 4.85495 5.36774C4.45931 5.83149 4.16935 6.35192 3.94443 6.91099C3.66531 7.61177 3.57047 8.33573 3.6355 9.07257C3.72764 10.134 4.13683 11.0873 4.83598 11.9221C5.38608 12.579 6.06355 13.0814 6.86838 13.4267C7.38597 13.6482 7.93065 13.7874 8.49702 13.8337C9.43463 13.9136 10.3452 13.8054 11.2204 13.4705C12.0632 13.1484 12.7569 12.6434 13.2637 11.9195C13.5672 11.4866 13.7704 11.01 13.8788 10.4999C13.887 10.4664 13.887 10.4329 13.8951 10.3814C12.261 10.3814 10.6378 10.3814 9.00647 10.3814C9.00647 9.2658 9.00647 8.16827 9.00647 7.063C11.8247 7.063 14.6349 7.063 17.4613 7.063C17.483 7.17893 17.5073 7.29745 17.5236 7.41338C17.6049 7.96731 17.651 8.52381 17.632 9.0803C17.5968 10.201 17.399 11.2908 16.9627 12.3343C16.6077 13.1845 16.1145 13.9522 15.4749 14.6376C14.7216 15.444 13.8219 16.0546 12.7867 16.4874C11.906 16.8558 10.9874 17.0697 10.0308 17.1573C9.54574 17.2036 9.05796 17.2191 8.57018 17.1959C7.04724 17.1238 5.63268 16.7141 4.32923 15.9618C3.64634 15.5676 3.02849 15.0936 2.47839 14.5422C1.57329 13.6431 0.912081 12.5996 0.486631 11.4197C0.272551 10.8297 0.123508 10.2242 0.055761 9.60331C0.0178228 9.25035 -0.00656608 8.89223 0.00156354 8.53669C0.0205327 7.50613 0.223773 6.50907 0.616705 5.54808C0.968988 4.68757 1.44864 3.90178 2.0692 3.19327C2.78189 2.37913 3.62195 1.71443 4.59209 1.19142C5.46467 0.72252 6.39687 0.405625 7.38055 0.233007C8.03905 0.11707 8.70568 0.0732718 9.37502 0.101612C10.2774 0.137681 11.1581 0.289688 12.0117 0.578243C13.0144 0.918325 13.9168 1.42072 14.7243 2.08027C14.8219 2.16014 14.914 2.24001 14.998 2.30957Z" fill="currentColor"></path>
                             </svg></div>
                         <div class="search-name">
-                            <div class="search-text">Vitalik Buterin</div>
-                            <div class="search-text highlight">vitalikbuterin@gmail.com</div>
+                            {/* <div class="search-text">Vitalik Buterin</div> */}
+                            <div class="search-text highlight">{props.credentials + '@gmail.com'}</div>
                         </div>
                         </div>
                         <div class="search-icon code w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,23 +40,20 @@ const SearchWithSuggestions = (props) => {
                             <path d="M11.25 4.375L16.875 10L11.25 15.625" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
                         </svg></div>
                     </div>
-                <div class="search-diiv">
+                <div class="search-diiv" onClick={()=>props.searchWithService('twitter')}>
                     <div class="search-int-div">
                     <div class="search-icon code w-embed"><svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.196 6.57039L16.8366 8.92195C16.3679 14.3829 11.7585 18.6251 6.2507 18.6251C5.11788 18.6251 4.18038 18.4454 3.46945 18.0938C2.89913 17.8048 2.66476 17.5001 2.60226 17.4063C2.55055 17.3278 2.51723 17.2386 2.50478 17.1454C2.49233 17.0522 2.50107 16.9573 2.53036 16.868C2.55964 16.7786 2.60872 16.697 2.67392 16.6293C2.73912 16.5615 2.81878 16.5093 2.90695 16.4766C2.92257 16.4688 4.76632 15.7657 5.96163 14.4141C5.22034 13.8863 4.56878 13.2427 4.03195 12.5079C2.96163 11.0548 1.82882 8.53132 2.50851 4.7657C2.52988 4.65375 2.58108 4.54965 2.65671 4.46439C2.73234 4.37913 2.82959 4.31589 2.9382 4.28132C3.04714 4.24565 3.16381 4.24063 3.27542 4.26681C3.38703 4.29299 3.48929 4.34936 3.57101 4.42976C3.59445 4.46101 6.19601 7.02351 9.3757 7.85164V7.37507C9.37876 6.87954 9.47941 6.38945 9.67188 5.93281C9.86436 5.47617 10.1449 5.06191 10.4975 4.71369C10.85 4.36547 11.2677 4.09011 11.7267 3.90332C12.1857 3.71653 12.677 3.62199 13.1726 3.62507C13.823 3.63435 14.4598 3.81193 15.0212 4.14053C15.5825 4.46912 16.0492 4.93751 16.3757 5.50007H18.7507C18.8741 5.49969 18.9948 5.53583 19.0977 5.60396C19.2006 5.67208 19.281 5.76913 19.3288 5.88289C19.3738 5.99833 19.3853 6.12416 19.3618 6.24583C19.3383 6.36749 19.2808 6.48002 19.196 6.57039V6.57039Z" fill="currentColor"></path>
                         </svg></div>
                     <div class="search-name">
-                        <div class="search-text">Vitalik Buterin</div>
-                        <div class="search-text highlight">@vitalik_buterin</div>
+                        {/* <div class="search-text">Vitalik Buterin</div> */}
+                        <div class="search-text highlight">{'@' + props.credentials}</div>
                     </div>
                     </div>
-                    <div class="search-icon code w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.125 10H16.875" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
-                        <path d="M11.25 4.375L16.875 10L11.25 15.625" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
-                    </svg></div>
+                    <SearchArrow />
                 </div>
 
-                <div class="search-diiv">
+                <div class="search-diiv" onClick={()=>props.searchWithService('ORCID')}>
                     <div class="search-int-div">
                     <div class="search-icon code w-embed"><svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_367_826)">
@@ -64,30 +67,24 @@ const SearchWithSuggestions = (props) => {
                         </defs>
                         </svg></div>
                     <div class="search-name">
-                        <div class="search-text">Vitalik Buterin</div>
-                        <div class="search-text highlight">0000...00</div>
+                        {/* <div class="search-text">Vitalik Buterin</div> */}
+                        <div class="search-text highlight">{props.credentials}</div>
                     </div>
                     </div>
-                    <div class="search-icon code w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.125 10H16.875" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
-                        <path d="M11.25 4.375L16.875 10L11.25 15.625" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
-                    </svg></div>
+                    <SearchArrow />
                 </div>
                 
-                <div class="search-diiv">
+                <div class="search-diiv" onClick={()=>props.searchWithService('github')}>
                     <div class="search-int-div">
                     <div class="search-icon code w-embed"><svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7.31973 19.8417C7.20354 19.8417 7.1106 19.8417 6.99441 19.8417C6.9247 19.8196 6.87822 19.7975 6.80851 19.7533C6.41348 19.5987 5.99521 19.444 5.62341 19.2673C5.06572 19.0022 4.53126 18.6929 4.04328 18.3394C3.48559 17.9417 2.97437 17.4778 2.50962 16.9697C2.11459 16.5278 1.76603 16.086 1.46395 15.5999C1.09215 15.0255 0.790066 14.429 0.557694 13.7883C0.325321 13.1476 0.162661 12.4849 0.092949 11.8C0.0464745 11.6233 0.0232372 11.4465 0 11.2919C0 10.8058 0 10.3198 0 9.85586C0 9.81167 0.0232372 9.74539 0.0232372 9.70121C0.0697117 9.10471 0.185898 8.5303 0.348559 7.9559C0.557694 7.20475 0.883015 6.49779 1.30129 5.81292C1.78927 5.01759 2.34696 4.28853 3.04408 3.64785C3.76443 2.98507 4.57774 2.41067 5.48399 1.96882C6.69232 1.37232 7.97037 1.01884 9.31813 0.908375C10.1314 0.842097 10.9447 0.86419 11.758 0.974653C12.4319 1.06302 13.1058 1.23976 13.7564 1.46069C14.5 1.7258 15.2204 2.07928 15.8943 2.49904C16.6611 2.98507 17.3582 3.55948 17.9856 4.24435C18.7989 5.15014 19.4263 6.14431 19.8678 7.27103C20.2396 8.2431 20.4488 9.23727 20.472 10.2756C20.4952 10.7837 20.472 11.2919 20.4023 11.8C20.3558 12.2419 20.2629 12.6837 20.1467 13.1035C19.8214 14.2744 19.2869 15.3569 18.5433 16.329C17.9856 17.0801 17.3117 17.7429 16.5682 18.2952C15.7548 18.8917 14.8951 19.3557 13.9423 19.7091C13.7797 19.7754 13.6403 19.8196 13.4776 19.8859C13.3614 19.8859 13.2685 19.8859 13.1523 19.8859C12.8734 19.7975 12.7805 19.5987 12.7572 19.3557C12.7572 19.2894 12.7572 19.2231 12.7572 19.1568C12.7572 18.4499 12.7572 17.7208 12.7572 17.0138C12.7572 16.7929 12.7572 16.5499 12.734 16.329C12.6875 15.8429 12.5249 15.379 12.1531 15.0034C12.1298 14.9813 12.1066 14.9592 12.0834 14.915C12.2693 14.893 12.4552 14.8488 12.6178 14.8267C13.3382 14.7383 14.0121 14.5395 14.6627 14.186C15.4992 13.7441 16.0569 13.1035 16.3823 12.2639C16.5449 11.8 16.6611 11.3361 16.7076 10.85C16.754 10.4303 16.754 10.0105 16.7076 9.59075C16.6146 8.86169 16.3358 8.2431 15.8478 7.69079C15.8013 7.62451 15.7548 7.58032 15.7084 7.51405C16.1034 6.51988 15.8478 5.43735 15.5689 4.92922C15.476 4.92922 15.3831 4.90713 15.2901 4.90713C14.988 4.90713 14.7092 4.9955 14.4536 5.10596C13.9191 5.30479 13.4311 5.54781 12.9431 5.85711C12.8502 5.92338 12.7572 5.94548 12.6411 5.90129C12.0137 5.74664 11.3862 5.65827 10.7356 5.61409C10.1314 5.5699 9.50403 5.61409 8.89986 5.68036C8.5513 5.72455 8.20275 5.81292 7.85419 5.8792C7.738 5.90129 7.64505 5.90129 7.52887 5.83501C7.27326 5.68037 7.04088 5.54781 6.76204 5.41525C6.32053 5.21642 5.87902 5.01759 5.41428 4.92922C5.22838 4.88503 5.04248 4.88503 4.85658 4.92922C4.50802 5.74664 4.41508 6.58616 4.76363 7.46986C4.69392 7.53614 4.62421 7.62451 4.57774 7.69079C4.06652 8.28729 3.78767 8.99425 3.7412 9.76749C3.71796 10.121 3.7412 10.4524 3.76443 10.8058C3.78767 11.3361 3.92709 11.8221 4.11299 12.3081C4.41508 13.0593 4.90306 13.6558 5.64665 14.0755C6.32053 14.4511 7.04088 14.672 7.80771 14.7825C7.99361 14.8046 8.17951 14.8267 8.38864 14.8709C8.34217 14.9371 8.29569 14.9813 8.24922 15.0255C8.20275 15.0918 8.13303 15.1581 8.08656 15.2243C7.9239 15.4674 7.80771 15.7325 7.76124 16.0197C7.738 16.1301 7.69153 16.1964 7.5521 16.2406C7.29649 16.329 7.04088 16.3953 6.78527 16.4173C6.5529 16.4394 6.29729 16.4394 6.06492 16.3953C5.64665 16.329 5.29809 16.086 5.01924 15.7767C4.87982 15.5999 4.78687 15.4232 4.64745 15.2464C4.29889 14.7825 3.85738 14.4953 3.25321 14.3848C3.11379 14.3627 2.95113 14.3627 2.81171 14.429C2.69552 14.4732 2.69552 14.5174 2.74199 14.6278C2.83494 14.7825 2.97437 14.893 3.11379 14.9813C3.34616 15.1139 3.53206 15.2906 3.69472 15.4895C3.92709 15.7767 4.08975 16.108 4.22918 16.4394C4.48479 17.058 4.99601 17.3894 5.64665 17.522C6.25082 17.6324 6.87822 17.6545 7.48239 17.5441C7.52887 17.5441 7.57534 17.5441 7.62181 17.522C7.62181 17.5882 7.64505 17.6545 7.64505 17.7208C7.64505 18.2289 7.64505 18.7371 7.66829 19.2452C7.71476 19.5324 7.59858 19.7533 7.31973 19.8417Z" fill="currentColor"></path>
                         </svg></div>
                     <div class="search-name">
-                        <div class="search-text">Vitalik Buterin</div>
-                        <div class="search-text highlight">@vitalik_buterin</div>
+                        {/* <div class="search-text">Vitalik Buterin</div> */}
+                        <div class="search-text highlight">{props.credentials}</div>
                     </div>
                     </div>
-                    <div class="search-icon code w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.125 10H16.875" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
-                        <path d="M11.25 4.375L16.875 10L11.25 15.625" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></path>
-                    </svg></div>
+                    <SearchArrow />
                 </div>
             </>
             : null }
@@ -100,36 +97,45 @@ export const SearchBar = () => {
     let navigate = useNavigate()
     let params = useParams()
     let [credentials, setCredentials] = useState('')
-    const search = () => {
-        let web2Service = params.web2service || 'ORCID'; // Needn't be ORCID -- any web2service is fine. But this does feel hacky
+    // const [web2Service, setWeb2Service] = useState(params.web2service || 'ORCID') // Needn't be ORCID -- any web2service is fine. But this does feel hacky)
+    const searchWithService = (service) => {
+        // let web2Service = service || 'ORCID'; // Needn't be ORCID -- any web2service is fine. But this does feel hacky
+        // if(credentials.startsWith('@')){
+        //     web2Service = 'Twitter'
+        // } else if(credentials.includes('@')){
+        //     web2Service = 'Google'
+        // } else if(credentials.includes('-')){
+        //     web2Service = 'ORCID'
+        // }
 
-        if(credentials.startsWith('@')){
-            web2Service = 'Twitter'
-        } else if(credentials.includes('@')){
-            web2Service = 'Google'
-        } else if(credentials.includes('-')){
-            web2Service = 'ORCID'
+        // Parse credential, ensuring sure it's the right format (i.e., add/remove @ or @gmail.com when appropriate)
+        let creds = credentials 
+        if(service == 'Google'){
+            if(!credentials.endsWith('@gmail.com')){
+                creds += '@gmail.com'
+            }
         }
-        navigate(`/lookup/${web2Service}/${credentials || 'nobody'}`)
+        setCredentials('') //reset credentials
+        navigate(`/lookup/${service}/${creds || 'nobody'}`)
     }
     return <>
         <div class="optin-form w-form">
             {/* TODO : this need not be a <form />*/}
           <form id="email-form" name="email-form" data-name="Email Form" method="get" class="form">
             {credentials ? 
-                <SearchWithSuggestions onChange={e=>setCredentials(e.target.value)} credentials={credentials} />
+                <SearchWithSuggestions credentials={credentials} onChange={e=>setCredentials(e.target.value)} searchWithService={searchWithService} />
                     : 
-                <SearchWithSuggestions onChange={e=>setCredentials(e.target.value)} credentials={credentials}/> 
+                <SearchWithSuggestions credentials={credentials} onChange={e=>setCredentials(e.target.value)} /> 
                 // <EmptySearch onChange={e=>setCredentials(e.target.value)}/>
             }
             </form>
         </div>
-        <div class="spacer-small"></div>
+        {/* <div class="spacer-small"></div>
         <div class="btn-wrapper">
           <a onClick={search} class="x-button w-button">search now</a>
           <div class="v-spacer-small"></div>
           <div class="spacer-small mobile"></div>
           <a href="#" class="x-button secondary outline w-button">learn more</a>
-        </div>
+        </div> */}
         </>
 }
