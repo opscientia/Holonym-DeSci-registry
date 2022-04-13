@@ -1,9 +1,27 @@
+import { ethers } from 'ethers'
 import { useState, useEffect, useRef } from 'react'
 import { truncateAddress } from '../ui-helpers.js'
 import { Modal } from './modals.js'
+import contractAddresses from '../contractAddressesNew.json'
+import abi from '../abi/WTFBios.json'
 
 export const EditProfileButton = (props) => {
     const [visible, setVisible] = useState(false)
+    const [name, setName] = useState('')
+    const [bio, setBio] = useState('')
+
+    const submitNameBio = async () => {
+        // console.log(contractAddresses, contractAddresses.production, contractAddresses.production.WTFBios, contractAddresses.production.WTFBios[props.desiredChain])
+        const contract = new ethers.Contract(contractAddresses.production.WTFBios[props.desiredChain], abi, props.provider.getSigner())
+        if(props.holo.bio){
+            console.log(await contract.modifyNameAndBio(name, bio))
+        } else {
+            console.log(await contract.addNameAndBio(name, bio))
+        }
+
+        
+        setVisible(false)
+    }
     return <>
             <a className="edit-icon-link w-inline-block" onClick={()=>setVisible(true)}>
                   <div class="edit-icon w-embed"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -15,19 +33,19 @@ export const EditProfileButton = (props) => {
             <Modal visible={visible} setVisible={setVisible}>
                 <div className="card-heading"><h3 className="h3 no-margin">Name / Pseudonym</h3></div>
                 <div className="spacer-small" />
-                <input onChange={e=>console.log(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="32" placeholder="Enter name ..." required="" />
+                <input onChange={e=>setName(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="32" placeholder="Enter name ..." required="" />
                 
                 <div className="spacer-medium" />
                 
                 <div className="card-heading"><h3 className="h3 no-margin">About Me</h3></div>
                 <div className="spacer-small" />
-                <input onChange={e=>console.log(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="128" placeholder="Enter Bio ..." required="" />
+                <input onChange={e=>setBio(e.target.value)} style={{height:"10px", width:"100%"}} type="email" class="text-field w-input" maxLength="128" placeholder="Enter Bio ..." required="" />
                 
                 <div className="spacer-medium" />
 
                 <p><i>Note: proceeding will link this information publicly with your address {truncateAddress(props.account)} </i> <br /> But nothing stops you from being pseudonymous 😎</p>
                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
-                      <a className='x-button' style={{width: '39%'}}>Submit</a> 
+                      <a onClick={submitNameBio} className='x-button' style={{width: '39%'}}>Submit</a> 
                       <a onClick={()=>setVisible(false)} className='x-button secondary' style={{width: '39%'}}>Cancel</a>
                 </div>
             </Modal> 

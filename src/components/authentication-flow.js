@@ -109,8 +109,11 @@ const InnerAuthenticationFlow = (props) => {
       twitter: null
     }
     const [userHolo, setUserHolo] = useState(defaultHolo)
-    useEffect(async () => setUserHolo({...defaultHolo, ...(await wtf.getHolo(props.account))[props.desiredChain].creds})
-    , [props.desiredChain, props.provider, props.account]);
+    useEffect(async () => {
+      let holo_ = (await wtf.getHolo(props.account))[props.desiredChain]
+
+      setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+    }, [props.desiredChain, props.provider, props.account]);
     
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
@@ -333,8 +336,8 @@ const InnerAuthenticationFlow = (props) => {
         <div className="spacer-medium"></div>
         <div className="x-card small">
           <div className="card-heading">
-            <h3 className="h3 no-margin">Your Name<p className="no-margin">Your bio</p></h3>
-            <EditProfileButton {...props} />
+            <h3 className="h3 no-margin">{userHolo.name || 'Your Name'}<p className="no-margin">{userHolo.bio || 'Your bio'}</p></h3>
+            <EditProfileButton {...props} holo={userHolo} />
           </div>
           {/* <img src={profile} loading="lazy" alt="" style={{textAlign: "left"}} /> */}
           
