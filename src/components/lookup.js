@@ -108,10 +108,10 @@ export const Lookup = (props) => {
                     {address == '0x0000000000000000000000000000000000000000' ? <p>No address with these credentials was found on Polygon testnet</p> : 
                     <>
                         <Holo lookupBy={params.credentials}> </Holo>
-                        <div class="spacer-small"></div>
+                        <div class="spacer-medium"></div>
                         <div class="btn-wrapper">
-                            <a href="/lookup" class="x-button secondary outline w-button">search again</a>
-                            <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button secondary no-outline w-button">send token</a>
+                            {/* <a href="/lookup" class="x-button primary outline">search again</a> */}
+                            <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button primary">Pay {params.credentials}</a>
                         </div>
                     </>}
                 </Wrapper>
