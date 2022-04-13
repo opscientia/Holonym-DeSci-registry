@@ -3,7 +3,7 @@ import {
     useParams,
     useNavigate,
   } from 'react-router-dom';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
@@ -108,10 +108,9 @@ const InnerAuthenticationFlow = (props) => {
       github: null,
       twitter: null
     }
-    const userHolo = useMemo(async () => {
-      console.log('WTF ', {...defaultHolo, ...(await wtf.getHolo(props.account))[props.desiredChain].creds})
-      return {...defaultHolo, ...(await wtf.getHolo(props.account))[props.desiredChain].creds}
-    }, [props.desiredChain, props.provider]);
+    const [userHolo, setUserHolo] = useState(defaultHolo)
+    useEffect(async () => setUserHolo({...defaultHolo, ...(await wtf.getHolo(props.account))[props.desiredChain].creds})
+    , [props.desiredChain, props.provider, props.account]);
     
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
