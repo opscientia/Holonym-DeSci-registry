@@ -65,7 +65,6 @@ const Holo = (props) => {
 
     useEffect(async () => {
         let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
-        alert(address)
         let holo_ = (await wtf.getHolo(address))[props.desiredChain]
   
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
