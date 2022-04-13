@@ -2022,6 +2022,47 @@ p {
     grid-column-end: span 2;
   }
 }
+.wallet-connected {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: 20px;
+  padding: 5px 15px;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #fff;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 14px;
+  margin: 10px;
+}
+
+.wallet-connected:hover {
+  border-color: #fac5c6;
+}
+
+.wallet-icon {
+  margin-right: 5px;
+}
+
+.wallet-text {
+  font-family: Montserrat, sans-serif;
+  color: #fff;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.wallet-text:hover {
+  text-decoration: none;
+}
+
+
+
 
 .search-wrapper {
   padding: 1% 2%;

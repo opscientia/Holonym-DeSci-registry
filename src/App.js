@@ -251,7 +251,7 @@ function App() {
       <div className='App x-section wf-section'>
       <header>
       <HomeLogo />
-              {account ? <Address address={account} /> : <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
+              {account ? <Address address={account} provider={provider} /> : <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
           }
       </header>
           <Router>
