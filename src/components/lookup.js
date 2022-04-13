@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import contractAddresses from '../contractAddresses.json'
 import abi from '../abi/VerifyJWT.json'
@@ -11,6 +11,7 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg'
+import { lookup } from 'dns';
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
 // import 'bootstrap/dist/css/bootstrap.css';
@@ -23,7 +24,10 @@ const icons = {
 
 }
 const { ethers } = require('ethers');  
-  
+
+const wtf = require('wtf-lib');
+wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
+
 const sendCrypto = (signer, to) => {
     if(!signer || !to) {
         alert('Error! make sure MetaMask is set to Avalanche C testnet and you specify a recipient')
@@ -51,13 +55,22 @@ const Wrapper = (props) => {
 // Looks up and displays user Holo
 const Holo = (props) => {
     const [holo, setHolo] = useState({
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: '@VitalikButerin',
+        name: 'Anonymous',
+        bio: 'No information provided',
+        twitter: '',
         google: '',
-        github: '@opscientia',
+        github: '',
         orcid: '0000-6969-6969'
     })
+
+    useEffect(async () => {
+        let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        alert(address)
+        let holo_ = (await wtf.getHolo(address))[props.desiredChain]
+  
+        setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+      }, [props.desiredChain, props.provider, props.account]);
+      
     return <div class="x-card">
     <div class="id-card profile">
       <div class="id-card-1"><img src={profile} loading="lazy" alt="" class="id-img" /></div>
@@ -107,7 +120,7 @@ export const Lookup = (props) => {
                     <div class="spacer-large"></div>
                     {address == '0x0000000000000000000000000000000000000000' ? <p>No address with these credentials was found on Polygon testnet</p> : 
                     <>
-                        <Holo lookupBy={params.credentials}> </Holo>
+                        <Holo {...props} lookupBy={params.credentials} service={params.web2service} > </Holo>
                         <div class="spacer-medium"></div>
                         <div class="btn-wrapper">
                             {/* <a href="/lookup" class="x-button primary outline">search again</a> */}
