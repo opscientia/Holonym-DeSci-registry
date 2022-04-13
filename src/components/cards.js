@@ -31,27 +31,27 @@ const linkFor = (service, username) => {
 }
 
 export const BigCard = (props) => {
-return <div class="x-card">
-        <div class="id-card profile">
-        <div class="id-card-1"><img src={profile} loading="lazy" alt="" class="id-img" /></div>
-        <div class="id-card-2">
-            <div class="id-profile-name-div">
-            <h3 id="w-node-_0efb49bf-473f-0fcd-ca4f-da5c9faeac9a-4077819e" class="h3 no-margin">{props.holo.name}</h3>
+return <div className="x-card">
+        <div className="id-card profile">
+        <div className="id-card-1"><img src={profile} loading="lazy" alt="" className="id-img" /></div>
+        <div className="id-card-2">
+            <div className="id-profile-name-div">
+            <h3 id="w-node-_0efb49bf-473f-0fcd-ca4f-da5c9faeac9a-4077819e" className="h3 no-margin">{props.holo.name}</h3>
             </div>
-            <div class="spacer-xx-small"></div>
-            <p class="id-designation">{props.holo.bio}</p>
+            <div className="spacer-xx-small"></div>
+            <p className="id-designation">{props.holo.bio}</p>
         </div>
         </div>
-        <div class="spacer-small"></div>
-        <div class="spacer-small"></div>
+        <div className="spacer-small"></div>
+        <div className="spacer-small"></div>
         {Object.keys(props.holo).map(k => {
             if(k != 'name' && k != 'bio') {
                 return <>
-                    <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
-                        <div class="card-text">{props.holo[k] || 'Not listed'}</div>
-                        <img src={props.holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" class="id-verification-icon" />
+                    <div className="card-text-div"><img src={icons[k]} loading="lazy" alt="" className="card-logo" />
+                        <div className="card-text">{props.holo[k] || 'Not listed'}</div>
+                        <img src={props.holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
                     </div>
-                    <div class="spacer-x-small"></div>
+                    <div className="spacer-x-small"></div>
                 </>
             }
         })}
@@ -60,21 +60,21 @@ return <div class="x-card">
 
 
 export const SmallCard = (props) => {
-    return <div class="x-card">
-            <div class="id-card profile">
-            <div class="id-card-1"><img src={profile} loading="lazy" alt="" class="id-img" /></div>
-            <div class="id-card-2">
-                <div class="id-profile-name-div">
-                <h3 id="w-node-_0efb49bf-473f-0fcd-ca4f-da5c9faeac9a-4077819e" class="h3 no-margin">{props.holo.name}</h3>
+    return <div className="x-card">
+            <div className="id-card profile">
+            <div className="id-card-1"><img src={profile} loading="lazy" alt="" className="id-img" /></div>
+            <div className="id-card-2">
+                <div className="id-profile-name-div">
+                <h3 id="w-node-_0efb49bf-473f-0fcd-ca4f-da5c9faeac9a-4077819e" className="h3 no-margin">{props.holo.name}</h3>
                 </div>
-                <div class="spacer-xx-small"></div>
-                <p class="id-designation">{props.holo.bio}</p>
+                <div className="spacer-xx-small"></div>
+                <p className="id-designation">{props.holo.bio}</p>
             </div>
             </div>
             {Object.keys(props.holo).map(k => {
                 if(props.holo[k] && (k != 'name') && (k != 'bio')) {
                     return <a href={linkFor(k, props.holo[k])}>
-                                <img src={icons[k]} style={{paddingLeft:'30px'}}loading="lazy" alt="" class="card-logo" />
+                                <img src={icons[k]} style={{paddingLeft:'30px'}}loading="lazy" alt="" className="card-logo" />
                             </a>
                 }
             })}

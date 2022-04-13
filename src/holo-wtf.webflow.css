@@ -1027,6 +1027,7 @@ p {
 }
 
 .id-designation {
+  width: 90%;
   color: #fff;
   font-size: 12px;
 }
