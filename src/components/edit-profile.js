@@ -13,11 +13,7 @@ export const EditProfileButton = (props) => {
     const submitNameBio = async () => {
         // console.log(contractAddresses, contractAddresses.production, contractAddresses.production.WTFBios, contractAddresses.production.WTFBios[props.desiredChain])
         const contract = new ethers.Contract(contractAddresses.production.WTFBios[props.desiredChain], abi, props.provider.getSigner())
-        if(props.holo.bio){
-            console.log(await contract.modifyNameAndBio(name, bio))
-        } else {
-            console.log(await contract.addNameAndBio(name, bio))
-        }
+        await contract.setNameAndBio(name, bio)
 
         
         setVisible(false)
