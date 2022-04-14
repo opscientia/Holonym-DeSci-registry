@@ -15,10 +15,10 @@ export const Modal = (props) => {
   }, [ref]);
   
   return <div style={{display : props.visible ? 'block' : 'none'}}>
-          <div className='bg-img x-section wf-section' style={{position : 'fixed', zIndex: 1000, left: '0px', top: '0px', width:'100vw'}}>
-            <div className="x-container w-container">
-              <div ref={ref} className="x-card small">
-                <div className="card-heading">
+          <div className={'bg-img x-section wf-section ' + (props.blur ? 'blur' : '')} style={{position : 'fixed', zIndex: 1000, left: '0px', top: '0px', width:'100vw'}}>
+            <div className='x-container w-container'>
+              <div ref={ref} className={'x-card small ' + (props.blur ? 'large-blur' : '')}>
+                <div className='card-heading'>
                   <div text={'hey'}>{props.children}</div>
                 </div>
               </div>

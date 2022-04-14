@@ -276,7 +276,7 @@ function App() {
 
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} desiredChain={desiredChain} />} />
               <Route path='/lookup' element={<Lookup provider={provider} />} />
-              <Route path='/registry' element={<Registry provider={provider} desiredChain={desiredChain} />} />
+              <Route path='/registry' element={<Registry provider={provider} address={account} desiredChain={desiredChain} />} />
               {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
               <Route path='/' element={<AuthenticationFlow 
                                           provider={provider}

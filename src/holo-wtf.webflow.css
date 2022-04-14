@@ -100,6 +100,19 @@ p {
   background-size: cover;
 }
 
+.x-section.bg-img.blur {
+  background-image: none;
+  background: transparent;
+  backdrop-filter: blur(17px);
+}
+
+/* for blurred modals to be extra blurred  */
+.large-blur {
+  background-color: rgba(19,30,38,0.5);
+  /* : 0.5; */
+  backdrop-filter: blur(1px);
+}
+
 .x-container {
   display: -webkit-box;
   display: -webkit-flex;
