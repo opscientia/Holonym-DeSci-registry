@@ -351,28 +351,28 @@ const InnerAuthenticationFlow = (props) => {
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Google} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">{userHolo.google || 'youremail@gmail.com'}</div>
-              <GoogleLoginButton />
+              <GoogleLoginButton creds={userHolo.google} />
             </div><img src={userHolo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Orcid} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">{userHolo.orcid || 'xxxx-xxxx-xxxx-xxxx'}</div>
-              <ORCIDLoginButton />
+              <ORCIDLoginButton creds={userHolo.orcid} />
             </div><img src={userHolo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">{`@${userHolo.twitter || 'twitterusername' }`}</div>
-              <TwitterLoginButton />
+              <TwitterLoginButton creds={userHolo.twitter} />
             </div><img src={userHolo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Github} loading="lazy" alt="" className="card-logo" />
               <div className="card-text">{`@${userHolo.github || 'githubusername'}`}</div>
-              <GitHubLoginButton />
+              <GitHubLoginButton creds={userHolo.github} />
             </div><img src={userHolo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
         </div>

@@ -3,26 +3,36 @@ import {
   useNavigate,
   Navigate
 } from 'react-router-dom';
+
+// import Refresh from '../img/refresh.svg';
+
 /** ORCID **/
 export const ORCIDLoginButton = (props)=>{
-    return <a className="card-link"href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>Link ORCID</a>
+    return <a className="card-link"href='https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever'>
+              {props.creds ? 'Update ORCID' : 'Link ORCID'}
+            </a>
   }
   
 /** Twitter **/
 export const TwitterLoginButton = (props)=>{
-    return <a className="card-link"href='https://localhost:8081/twitter/polygon/verify'>Link Twitter</a>
+    return <a className="card-link"href='https://localhost:8081/twitter/polygon/verify'>
+              {props.creds ? 'Update Twitter' : 'Link Twitter'}
+            </a>
   }
   
-  export const GitHubLoginButton = (props)=>{
-    return <a className="card-link"href='https://localhost:8081/twitter/polygon/verify'>Link GitHub</a>
-  }
+export const GitHubLoginButton = (props)=>{
+  return <a className="card-link"href='https://localhost:8081/twitter/polygon/verify'>
+            {props.creds ? 'Update GitHub' : 'Link GitHub'}
+        </a>
+}
 
 /** Google **/
 const InnerGoogleLoginButton = (renderProps)=> {
 return <a className="card-link" 
             onClick={renderProps.onClick} 
             disabled={renderProps.disabled}
-            >Link Google
+            >
+              {renderProps.creds ? 'Update Google' : 'Link Google'}
         </a>
   }
 
