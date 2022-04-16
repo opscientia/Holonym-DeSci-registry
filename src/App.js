@@ -146,17 +146,40 @@ function App() {
   const [account, setAccount] = useState(null);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(provider ? provider.getSigner() : provider);
-  const [onRightChain, setOnRightChain] = useState(false);
+  const [onRightChain, setOnRightChain] = useState(true);
   
-  // Get metamask on the right network
-  const switchToChain = (chainName, provider_) => {
-    provider_.request({
+  // Add right network to metamask
+  const addChain = (chainName, provider) => {
+    // make sure provider exists and has request method
+    if(!provider || !provider.request || !provider.provider.request){return}
+    console.log('PROVIDER', provider)
+    provider.request({
             method: "wallet_addEthereumChain",
             params: [chainParams[chainName]]
           }
         )
+      
   }
-  // switchToChain(desiredChain, provider)
+
+  // Get metamask on the right network
+  const switchToChain = (chainName) => {
+     // make sure provider exists and has request method
+     if(!provider){return}
+     // find request function regardless of whether provider is nested in another provider wrapper: (i imagine this has general use-case so should be its own function)
+     let request;
+     if (provider.request) {
+       request = provider.request
+    } else if (provider.provider && provider.provider.request) {
+      request = provider.provider.request
+    }
+    if(!request){return}
+    console.log('PARAM1', chainParams[chainName].chainId)
+    console.log('PARAM2', {chainId : chainParams[chainName].chainId})
+    request({
+      method: 'wallet_switchEthereumChain',
+      params: [{chainId : chainParams[chainName].chainId}]
+    })
+  }
     
   const networkChanged = (network) => {
     console.log('network changed')
@@ -164,7 +187,7 @@ function App() {
       setOnRightChain(true)
     } else {
       setOnRightChain(false)
-      try{switchToChain(desiredChain)}catch{}
+      try{switchToChain(desiredChain, provider)}catch{}
     }
   }
 
@@ -196,6 +219,7 @@ function App() {
     
   }
 
+  useEffect(()=>{console.log('PROVIDER IS', provider); addChain(desiredChain, provider); switchToChain(desiredChain, provider)}, [provider]);
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
 
@@ -232,11 +256,12 @@ function App() {
     connectWallet()
   } else {
     console.log('provider is', provider)
+    switchToChain(desiredChain, provider)
   }
 
-  // if (!onRightChain){
-  //   return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
-  // }
+  if (!onRightChain){
+    return 'Please make sure metamask is installed and switched to Polygon Mumbai Testnet'
+  }
 
   // const LoginButton = () => {
   //   const { loginWithRedirect } = useAuth0();
