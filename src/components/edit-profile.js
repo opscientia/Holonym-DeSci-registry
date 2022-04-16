@@ -39,7 +39,7 @@ export const EditProfileButton = (props) => {
                 
                 <div className="spacer-medium" />
 
-                <p><i>Note: proceeding will link this information publicly with your address {truncateAddress(props.account)} </i> <br /> But nothing stops you from being pseudonymous 😎</p>
+                <p><b>Proceeding will link this information publicly with your address {truncateAddress(props.account)} 👀</b><br /> If you don't want that, try making a new address or being pseudonymous 😎</p>
                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
                       <a onClick={submitNameBio} className='x-button' style={{width: '39%'}}>Submit</a> 
                       <a onClick={()=>setVisible(false)} className='x-button secondary' style={{width: '39%'}}>Cancel</a>

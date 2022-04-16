@@ -274,11 +274,11 @@ function App() {
     //   clientId='vDweibbnTY1aIV78RBJXGseIiD95sSFj'
     //   redirectUri={window.location.origin}>
       <div className='App x-section wf-section'>
-      <header>
+      <div className='x-container nav w-container'>
       <HomeLogo />
               {account ? <Address address={account} provider={provider} /> : <button class='connect-wallet x-button secondary outline-menu w-button' onClick={connectWallet}>Connect Wallet</button>
           }
-      </header>
+      </div>
           <Router>
             <Routes>
               <Route path='/orcid/token/*' element={<AuthenticationFlow 
@@ -301,9 +301,9 @@ function App() {
 
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} desiredChain={desiredChain} />} />
               <Route path='/lookup' element={<Lookup provider={provider} />} />
-              <Route path='/registry' element={<Registry provider={provider} address={account} desiredChain={desiredChain} />} />
+              <Route path='/' element={<Registry provider={provider} address={account} desiredChain={desiredChain} />} />
               {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
-              <Route path='/' element={<AuthenticationFlow 
+              <Route path='/myholo' element={<AuthenticationFlow 
                                           provider={provider}
                                           account={account} 
                                           connectWalletFunction={connectWallet}

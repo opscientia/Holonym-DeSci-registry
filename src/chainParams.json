@@ -20,6 +20,19 @@
     },
     "rpcUrls": ["https://rpc-mumbai.maticvigil.com"],
     "blockExplorerUrls": ["https://mumbai.polygonscan.com/"]
+  }, 
+
+  "gnosis" : {
+    "chainId": "0x64",
+    "chainName": "Gnosis Chain",
+    "nativeCurrency": {
+        "name": "xDai",
+        "symbol": "xDai",
+        "decimals": 18
+    },
+    "rpcUrls": ["https://xdai-rpc.gateway.pokt.network"],
+    "blockExplorerUrls": ["https://blockscout.com/xdai/mainnet/"]
   }
-  }
+  
+}
   
