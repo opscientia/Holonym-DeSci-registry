@@ -219,6 +219,9 @@ function App() {
     
   }
 
+  // lookup page doesn't need login (this is a weak check of the path but an exact check of the path doesn't matter that much)
+  const needsLogin = !window.location.href.includes('/lookup')
+
   useEffect(()=>{console.log('PROVIDER IS', provider); addChain(desiredChain, provider); switchToChain(desiredChain, provider)}, [provider]);
   useEffect(signerChanged, [signer]);
   useEffect(signerChanged, []); //also update initially when the page loads
@@ -251,7 +254,7 @@ function App() {
     }
   };  
 
-  if(!provider){
+  if(!provider && needsLogin){
     console.log('provider isn\'t')
     connectWallet()
   } else {
@@ -268,6 +271,7 @@ function App() {
 
   //   return <button onClick={() => loginWithRedirect()}>Log In</button>;
   // };
+
   return (
     // <Auth0Provider 
     //   domain='localhost:3000'

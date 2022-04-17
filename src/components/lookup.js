@@ -134,7 +134,11 @@ export const Lookup = (props) => {
                         <div class="spacer-medium"></div>
                         <div class="btn-wrapper">
                             {/* <a href="/lookup" class="x-button primary outline">search again</a> */}
-                            <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button primary">Pay {params.web2service == 'address' ? truncateAddress(params.credentials) : params.credentials}</a>
+                            {props.provider ? 
+                                <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button primary">Pay {params.web2service == 'address' ? truncateAddress(params.credentials) : params.credentials}</a>
+                                : 
+                                null 
+                            }
                         </div>
                     </>}
                 </Wrapper>
