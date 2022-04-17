@@ -7,9 +7,10 @@ import React, { useEffect, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
-import abi from '../abi/VerifyJWT.json'
-import { LitCeramic } from './lit-ceramic.js'
-import { InfoButton } from './info-button.js'
+import abi from '../abi/VerifyJWT.json';
+import { LitCeramic } from './lit-ceramic.js';
+import { InfoButton } from './info-button.js';
+import QRCode from 'react-qr-code';
 import { EditProfileButton } from './edit-profile.js';
 import Error from './errors.js'
 import Github from '../img/Github.svg';
@@ -18,7 +19,6 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
-import profile from '../img/profile.svg';
 
 const wtf = require('wtf-lib');
 wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
@@ -376,7 +376,12 @@ const InnerAuthenticationFlow = (props) => {
             </div><img src={userHolo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
         </div>
-        <div className="spacer-small"></div>
+        <div className="spacer-large larger"></div>
+        <div className="spacer-large larger"></div>
+        <div className="spacer-medium"></div>
+        <p>You can be disovered by: </p>
+        <QRCode value={`https://whoisthis.wtf/lookup/address/${props.account}`} />
+        {/* <a onClick className="x-button secondary"><img src={QR} /></a> */}
         {/* <a href="#" className="x-button secondary w-button">continue</a>
         <a href="#" className="x-button secondary no-outline w-button">Learn more</a> */}
       </div>
