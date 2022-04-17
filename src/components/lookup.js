@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { truncateAddress } from '../ui-helpers';
 import contractAddresses from '../contractAddresses.json'
 import abi from '../abi/VerifyJWT.json'
 import { InfoButton } from './info-button';
@@ -60,12 +61,16 @@ const Holo = (props) => {
         twitter: '',
         google: '',
         github: '',
-        orcid: '0000-6969-6969'
+        orcid: ''
     })
 
     useEffect(async () => {
-        let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
+        let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        console.log('address', address)
+        console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
         let holo_ = (await wtf.getHolo(address))[props.desiredChain]
+        console.log('holo', holo_)
   
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       }, [props.desiredChain, props.provider, props.account]);
@@ -111,19 +116,25 @@ export const Lookup = (props) => {
     if (!params.web2service || !params.credentials) {
         return <Wrapper><SearchBar /></Wrapper>
     }
-    const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
-    console.log(contractAddresses[params.web2service])
-    vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+
+    try {
+        const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
+        console.log(contractAddresses[params.web2service])
+        vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+    } catch(e) {
+        console.log(e)
+    }
+    
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
                     {address == '0x0000000000000000000000000000000000000000' ? <p>No address with these credentials was found on Polygon testnet</p> : 
                     <>
-                        <Holo {...props} lookupBy={params.credentials} service={params.web2service} > </Holo>
+                        <Holo {...props} lookupBy={params.credentials} service={params.web2service} />
                         <div class="spacer-medium"></div>
                         <div class="btn-wrapper">
                             {/* <a href="/lookup" class="x-button primary outline">search again</a> */}
-                            <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button primary">Pay {params.credentials}</a>
+                            <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button primary">Pay {params.web2service == 'address' ? truncateAddress(params.credentials) : params.credentials}</a>
                         </div>
                     </>}
                 </Wrapper>
