@@ -28,8 +28,6 @@ const icons = {
 }
 const { ethers } = require('ethers');  
 
-const wtf = require('wtf-lib');
-wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
 
 const sendCrypto = (signer, to) => {
     if(!signer || !to) {
@@ -72,8 +70,6 @@ const Holo = (props) => {
       }
       else {
         async function getHolo() {
-          // let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
-          // return (await wtf.getHolo(address))[props.desiredChain]
           const url = `http://127.0.0.1:3000/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`
           const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
           const holoData = await response.json()
@@ -171,12 +167,6 @@ export const SearchedHolos = (props) => {
     let response = await fetch(url)
     const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
     const addrsWithNameOrBio = addrsObj['allAddrs'][props.desiredChain]['nameAndBio'] 
-
-    // const wtfBiosAddr = contractAddressesNew['production']['WTFBios']['polygon']
-    // const nameAndBioContract = new ethers.Contract(wtfBiosAddr, wtfBiosABI, props.provider)
-    // console.log('Calling nameAndBioContract.getRegisteredAddresses() in lookup.js')
-    // const addrsWithNameOrBio = await nameAndBioContract.getRegisteredAddresses()
-    // const addrsWithNameOrBio = ['0xcaFe2eF59688187EE312C8aca10CEB798338f7e3']
   
     console.log('addrsWithNameOrBio...', addrsWithNameOrBio)
 
@@ -184,7 +174,6 @@ export const SearchedHolos = (props) => {
     let allHolos = []
     for (const address of addrsWithNameOrBio) {
       console.log('Getting holo for address...', address)
-      // const holoData = await wtf.getHolo(address)
       url = `http://127.0.0.1:3000/getHolo?address=${address}`
       response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
       let holoData = await response.json()

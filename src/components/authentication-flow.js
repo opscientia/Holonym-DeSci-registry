@@ -20,8 +20,6 @@ import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
 
-const wtf = require('wtf-lib');
-wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
 
 const { ethers } = require('ethers');
 
@@ -111,11 +109,9 @@ const InnerAuthenticationFlow = (props) => {
     const [userHolo, setUserHolo] = useState(defaultHolo)
     useEffect(() => {
       async function func() {
-        // const holo_ = (await wtf.getHolo(props.account))[props.desiredChain]
         const url = `http://127.0.0.1:3000/getHolo?address=${props.account}`
         const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
         const holoData = await response.json()
-        console.log('holoData at line 118 in authentication-flow..', holoData)
         const holo_ = holoData['holo'][props.desiredChain]
   
         setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
