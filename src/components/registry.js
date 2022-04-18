@@ -137,14 +137,20 @@ const Registry = (props) => {
 
     const init = async () => {
         if(!props.provider){return}
-        console.log('THIS RAN')
-        let addresses = await getAllAddresses()
-        console.log('ALL ADDRESSES', addresses)
 
-        setHolos(await getAllHolos(addresses))
-        // Only show the modal if the user doesn't have a Holo: 
-        let address = props.address || await props.provider.getSigner().getAddress()
-        if(addresses.includes(address)){setModalVisible(false)}
+        try{
+            console.log('THIS RAN')
+            let addresses = await getAllAddresses()
+            console.log('ALL ADDRESSES', addresses)
+
+            setHolos(await getAllHolos(addresses))
+            // Only show the modal if the user doesn't have a Holo: 
+            let address = props.address || await props.provider.getSigner().getAddress()
+            if(addresses.includes(address)){setModalVisible(false)}
+        } catch(err) {
+            console.log('ERROR: ', err)
+        }
+        
     }
     const [holos, setHolos] = useState([])
     const [modalVisible, setModalVisible] = useState(true)
