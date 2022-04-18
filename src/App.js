@@ -12,7 +12,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import Web3Modal from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import WebFont from 'webfontloader';
-import { wtf } from 'wtf-lib';
 import chainParams from './chainParams.json'
 import Address from './components/address.js'
 import {

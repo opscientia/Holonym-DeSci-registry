@@ -178,8 +178,6 @@ export const SearchedHolos = (props) => {
       response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
       let holoData = await response.json()
       holoData = holoData['holo'][props.desiredChain]
-      console.log('holoData at line 192 in lookup.js...', holoData)
-      console.log('searchStr==', props.searchStr)
 
       let name = holoData['name']
       let bio = holoData['bio']
@@ -197,7 +195,6 @@ export const SearchedHolos = (props) => {
       }
     }
     const userHolosTemp = allHolos.map(userHolo => (<Holo filledHolo={userHolo} {...props} />))
-    console.log('userHolosTemp at line 200...', userHolosTemp)
     return userHolosTemp
   }
 
