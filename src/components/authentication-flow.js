@@ -20,9 +20,9 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 
-const wtf = require('wtf-lib');
-wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
-
+import wtf from 'wtf-lib';
+console.log(wtf)
+wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
 const { ethers } = require('ethers');
 
 // TODO: better error handling
@@ -109,9 +109,14 @@ const InnerAuthenticationFlow = (props) => {
       twitter: null
     }
     const [userHolo, setUserHolo] = useState(defaultHolo)
-    useEffect(async () => {
-      let holo_ = (await wtf.getHolo(props.account))[props.desiredChain]
 
+    useEffect(async () => {
+      // if props has provider but not account for some reason, get the account:
+      let account = props.account || await props.provider.getSigner().getAddress()
+      wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
+      let holo_ = (await wtf.getHolo(account))[props.desiredChain]
+      console.log('account is ', account)
+      console.log('hqllq', account, await wtf.getHolo(account), holo_)
       setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
     }, [props.desiredChain, props.provider, props.account]);
     

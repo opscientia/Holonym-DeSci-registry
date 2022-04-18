@@ -3,7 +3,8 @@ import { SmallCard } from './cards.js'
 import { SearchBar } from './search-bar.js'
 import { Modal } from './modals.js'
 import { useNavigate  } from 'react-router-dom'
-const wtf = require('wtf-lib')
+import wtf from 'wtf-lib'
+wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
 
 
 // Wraps everything on the registry screen with style
@@ -112,19 +113,18 @@ const defaultHolo = {
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
+        console.log('this ran 2')
         const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
         let allAddresses = []
         for (const [service, addresses] of Object.entries(allAddressesByService)){
-            
             allAddresses = [...new Set([...allAddresses, ...addresses])]
         }
+        console.log('this ran 3')
         return allAddresses
     }
 
     // can optionally supply addresses to get holos from. otherwise, gets from all addresses registered on Holo:
     const getAllHolos = async (addresses) => {
-        await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
         let allAddresses = addresses || (await getAllAddresses())
         console.log('WHAT IS THIS', allAddresses)
         const allHolos = allAddresses.map(async (address) => {
@@ -137,7 +137,10 @@ const Registry = (props) => {
 
     const init = async () => {
         if(!props.provider){return}
+        console.log('THIS RAN')
         let addresses = await getAllAddresses()
+        console.log('ALL ADDRESSES', addresses)
+
         setHolos(await getAllHolos(addresses))
         // Only show the modal if the user doesn't have a Holo: 
         let address = props.address || await props.provider.getSigner().getAddress()

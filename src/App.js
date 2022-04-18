@@ -23,6 +23,18 @@ import {
 
 const { ethers } = require('ethers');
 
+const desiredChain = 'polygon'
+
+try{
+  window.ethereum.request({
+    method: "wallet_addEthereumChain",
+    params: [chainParams[desiredChain]]
+  })
+} catch(e) {
+  console.log(e)
+}
+
+
 let walletIsConnecting = false
 // const provider = new ethers.providers.Web3Provider(window.ethereum);
 // const initMetamaskOnNetwork = async (desiredChainID) => {
@@ -131,7 +143,6 @@ const searchSubtextInText = (subtext, text) => {
 // }
 
 function App() {
-  const desiredChain = 'polygon'
   // apiRequest(2000);
   
   // const orig = 'access_token=117a16aa-f766-4079-ba50-faaf0a09c864&token_type=bearer&expires_in=599&tokenVersion=1&persistent=true&id_token=eyJraWQiOiJwcm9kdWN0aW9uLW9yY2lkLW9yZy03aGRtZHN3YXJvc2czZ2p1am84YWd3dGF6Z2twMW9qcyIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiX1RCT2VPZ2VZNzBPVnBHRWNDTi0zUSIsImF1ZCI6IkFQUC1NUExJMEZRUlVWRkVLTVlYIiwic3ViIjoiMDAwMC0wMDAyLTIzMDgtOTUxNyIsImF1dGhfdGltZSI6MTY0NDgzMDE5MSwiaXNzIjoiaHR0cHM6XC9cL29yY2lkLm9yZyIsImV4cCI6MTY0NDkxODUzNywiZ2l2ZW5fbmFtZSI6Ik5hbmFrIE5paGFsIiwiaWF0IjoxNjQ0ODMyMTM3LCJmYW1pbHlfbmFtZSI6IktoYWxzYSIsImp0aSI6IjcxM2RjMGZiLTMwZTAtNDM0Mi05ODFjLTNlYjJiMTRiODM0OCJ9.VXNSFbSJSdOiX7n-hWB6Vh30L1IkOLiNs2hBTuUDZ4oDB-cL6AJ8QjX7wj9Nj_lGcq1kjIfFLhowo8Jy_mzMGIFU8KTZvinSA-A-tJkXOUEvjUNjd0OfQJnVVJ63wvp9gSEj419HZ13Lc2ci9CRY7efQCYeelvQOQvpdrZsRLiQ_XndeDw2hDLAmI7YrYrLMy1zQY9rD4uAlBa56RVD7me6t47jEOOJJMAs3PC8UZ6pYyNc0zAjQ8Vapqz7gxeCN-iya91YI1AIE8Ut19hGgVRa9N7l-aUielPAlzss0Qbeyvl0KTRuZWnLUSrOz8y9oGxVBCUmStEOrVrAhmkMS8A&tokenId=254337461'
@@ -173,12 +184,17 @@ function App() {
       request = provider.provider.request
     }
     if(!request){return}
-    console.log('PARAM1', chainParams[chainName].chainId)
-    console.log('PARAM2', {chainId : chainParams[chainName].chainId})
-    request({
-      method: 'wallet_switchEthereumChain',
-      params: [{chainId : chainParams[chainName].chainId}]
-    })
+   
+    try {
+      request({
+        method: 'wallet_switchEthereumChain',
+        params: [{chainId : chainParams[chainName].chainId}]
+      })
+    } catch(e) {
+      console.log(e)
+      addChain(desiredChain, provider)
+    }
+    
   }
     
   const networkChanged = (network) => {
@@ -187,7 +203,7 @@ function App() {
       setOnRightChain(true)
     } else {
       setOnRightChain(false)
-      try{switchToChain(desiredChain, provider)}catch{}
+      try{addChain(desiredChain, provider); switchToChain(desiredChain, provider)}catch{}
     }
   }
 
@@ -259,6 +275,7 @@ function App() {
     connectWallet()
   } else {
     console.log('provider is', provider)
+    addChain(desiredChain, provider)
     switchToChain(desiredChain, provider)
   }
 
