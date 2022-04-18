@@ -72,8 +72,13 @@ const Holo = (props) => {
       }
       else {
         async function getHolo() {
-          let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
-          return (await wtf.getHolo(address))[props.desiredChain]
+          // let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+          // return (await wtf.getHolo(address))[props.desiredChain]
+          const url = `http://127.0.0.1:3000/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`
+          const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+          const holoData = await response.json()
+          console.log('holoData at line 80 in lookup.js...', holoData)
+          return holoData['holo'][props.desiredChain]
         }
         let holo_ = getHolo()
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
@@ -162,10 +167,15 @@ export const SearchedHolos = (props) => {
 
     // Get all addresses with name/bio
     console.log('Entered getHolos in lookup.js')
-    const wtfBiosAddr = contractAddressesNew['production']['WTFBios']['polygon']
-    const nameAndBioContract = new ethers.Contract(wtfBiosAddr, wtfBiosABI, props.provider)
-    console.log('Calling nameAndBioContract.getRegisteredAddresses() in lookup.js')
-    const addrsWithNameOrBio = await nameAndBioContract.getRegisteredAddresses()
+    let url = 'http://127.0.0.1:3000/getAllUserAddresses'
+    let response = await fetch(url)
+    const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
+    const addrsWithNameOrBio = addrsObj['allAddrs'][props.desiredChain]['nameAndBio'] 
+
+    // const wtfBiosAddr = contractAddressesNew['production']['WTFBios']['polygon']
+    // const nameAndBioContract = new ethers.Contract(wtfBiosAddr, wtfBiosABI, props.provider)
+    // console.log('Calling nameAndBioContract.getRegisteredAddresses() in lookup.js')
+    // const addrsWithNameOrBio = await nameAndBioContract.getRegisteredAddresses()
     // const addrsWithNameOrBio = ['0xcaFe2eF59688187EE312C8aca10CEB798338f7e3']
   
     console.log('addrsWithNameOrBio...', addrsWithNameOrBio)
@@ -174,11 +184,18 @@ export const SearchedHolos = (props) => {
     let allHolos = []
     for (const address of addrsWithNameOrBio) {
       console.log('Getting holo for address...', address)
-      const holoData = await wtf.getHolo(address)
-      let name = holoData[props.desiredChain]['name']
-      let bio = holoData[props.desiredChain]['bio']
-      if (props.searchStr.includes(name) || props.searchStr.includes(bio)) {
-        let creds = holoData[props.desiredChain]['creds']
+      // const holoData = await wtf.getHolo(address)
+      url = `http://127.0.0.1:3000/getHolo?address=${address}`
+      response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+      let holoData = await response.json()
+      holoData = holoData['holo'][props.desiredChain]
+      console.log('holoData at line 192 in lookup.js...', holoData)
+      console.log('searchStr==', props.searchStr)
+
+      let name = holoData['name']
+      let bio = holoData['bio']
+      if (name.includes(props.searchStr) || bio.includes(props.searchStr)) {
+        let creds = holoData['creds']
         let holoTemp = {
           'name': name,
           'bio': bio,
@@ -201,7 +218,7 @@ export const SearchedHolos = (props) => {
       setUserHolos(userHolosTemp)
       setLoading(false)
     })
-  }, []) // searchStr == what the user inputed to search bar
+  }, [props.searchStr]) // searchStr == what the user inputed to search bar
 
   return (
     <>

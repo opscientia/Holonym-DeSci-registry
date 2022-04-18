@@ -112,8 +112,13 @@ const defaultHolo = {
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
-        const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
+        // await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
+        // const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
+
+        // Get all addresses with name/bio
+        let response = await fetch('http://127.0.0.1:3000/getAllUserAddresses')
+        const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
+        const allAddressesByService = addrsObj['allAddrs'][props.desiredChain]
         let allAddresses = []
         for (const [service, addresses] of Object.entries(allAddressesByService)){
             
@@ -124,7 +129,7 @@ const Registry = (props) => {
 
     // can optionally supply addresses to get holos from. otherwise, gets from all addresses registered on Holo:
     const getAllHolos = async (addresses) => {
-        await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
+        // await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
         let allAddresses = addresses || (await getAllAddresses())
         console.log('WHAT IS THIS', allAddresses)
         const allHolos = allAddresses.map(async (address) => {
