@@ -60,7 +60,7 @@ return <div className="x-card">
 
 
 export const SmallCard = (props) => {
-    return <div className="x-card">
+    return <div className="x-card" style={{minHeight:'100%'}}>
             <div className="id-card profile">
             <div className="id-card-1"><img src={profile} loading="lazy" alt="" className="id-img" /></div>
             <div className="id-card-2">
