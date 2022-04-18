@@ -23,7 +23,7 @@ import {
 
 const { ethers } = require('ethers');
 
-const desiredChain = 'polygon'
+const desiredChain = 'gnosis'
 
 try{
   window.ethereum.request({
