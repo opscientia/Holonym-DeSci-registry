@@ -22,7 +22,7 @@ const Address = (props)=>{
 
     const onMyHolo = window.location.href.endsWith('myholo') 
     console.log('onMyHolo', onMyHolo)
-    return <div class="nav-btn">
+    return <div class="nav-btn" style={{maxHeight:'64px'}}>
                 {/* <a href="#" class="x-button secondary outline-menu w-button">connect wallet</a> */}
                 {/* <div onClick={switchAccounts} className="wallet-connected"> */}
                 {onMyHolo ? 
