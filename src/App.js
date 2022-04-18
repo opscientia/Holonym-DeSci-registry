@@ -205,7 +205,7 @@ function App() {
       const holoData = await response.json()
       const holo = holoData['holo']['ethereum']
       console.log('GET ALL ACCOUNTS', holo);
-      alert(holo)
+      // alert(holo)
     }
     catch (err) {
       console.log('need to login to metamask')

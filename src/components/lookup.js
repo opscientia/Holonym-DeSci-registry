@@ -44,7 +44,8 @@ const sendCrypto = (signer, to) => {
 
 // Wraps everything on the lookup screen with style
 const Wrapper = (props) => {
-    return <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+    // return <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+    return <div class="x-section bg-img wf-section" >
                 <div className="x-container w-container">
                     <div className="x-wrapper small-center">
                         {props.children}
@@ -56,6 +57,7 @@ const Wrapper = (props) => {
 // Looks up and displays user Holo
 const Holo = (props) => {
     const [holo, setHolo] = useState({
+        address: '',
         name: 'Anonymous',
         bio: 'No information provided',
         twitter: '',
@@ -101,7 +103,7 @@ const Holo = (props) => {
     </div> */}
     <div class="spacer-small"></div>
     {Object.keys(holo).map(k => {
-        if(k != 'name' && k != 'bio') {
+        if(k != 'name' && k != 'bio' && k != 'address') {
             return <>
                 <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
                     <div class="card-text">{holo[k] || 'Not listed'}</div>
@@ -173,6 +175,12 @@ export const SearchedHolos = (props) => {
     // Get all creds of every account with a name/bio that includes search string
     let allHolos = []
     for (const address of addrsWithNameOrBio) {
+      // TODO: Remove the following check when new bio contract is deployed!!
+      let viewedAddrs = allHolos.map(holo => holo.address)
+      if (viewedAddrs.indexOf(address) != -1) {
+        continue;
+      }
+
       console.log('Getting holo for address...', address)
       url = `http://127.0.0.1:3000/getHolo?address=${address}`
       response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
@@ -184,20 +192,25 @@ export const SearchedHolos = (props) => {
       if (name.includes(props.searchStr) || bio.includes(props.searchStr)) {
         let creds = holoData['creds']
         let holoTemp = {
+          'address': address,
           'name': name,
           'bio': bio,
           'twitter': creds['twitter'],
           'google': creds['google'],
           'github': creds['github'],
-          'orcid': creds['orcid'] || '0000-6969-6969'
+          'orcid': creds['orcid']
         }
         allHolos.push(holoTemp)
       }
     }
-    const userHolosTemp = allHolos.map(userHolo => (<Holo filledHolo={userHolo} {...props} />))
+    const userHolosTemp = allHolos.map(userHolo => (
+      <div key={userHolo.address}>
+        <div class="spacer-small"></div>
+        <Holo filledHolo={userHolo} {...props} />
+      </div>
+    ))
     return userHolosTemp
   }
-
 
   useEffect(() => {
     getHolos().then(userHolosTemp => {
