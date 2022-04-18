@@ -29,11 +29,11 @@ const { ethers } = require('ethers');
 const wtf = require('wtf-lib');
 wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
 
-const sendCrypto = (signer, to) => {
-    if(!signer || !to) {
-        alert('Error! make sure MetaMask is set to Avalanche C testnet and you specify a recipient')
+const sendCrypto = (provider, to) => {
+    if(!provider || !to) {
+        alert('Error: Please connect your wallet, set it to the right network, and specify a recipient')
     } else {
-        signer.sendTransaction({
+        provider.getSigner().sendTransaction({
             to: to,
             // Convert currency unit from ether to wei
             value: ethers.utils.parseEther('.1')
@@ -134,8 +134,9 @@ export const Lookup = (props) => {
                         <div class="spacer-medium"></div>
                         <div class="btn-wrapper">
                             {/* <a href="/lookup" class="x-button primary outline">search again</a> */}
-                            {props.provider ? 
-                                <a onClick={()=>sendCrypto(props.provider.getSigner(), address)} class="x-button primary">Pay {params.web2service == 'address' ? truncateAddress(params.credentials) : params.credentials}</a>
+                            {/* Only demo the payment feature when looking up by email, orcid, etc. address isn't interesting */}
+                            {params.web2service != 'address' ? 
+                                <a onClick={()=>sendCrypto(props.provider, address)} class="x-button primary">Pay {params.credentials}</a>
                                 : 
                                 null 
                             }
