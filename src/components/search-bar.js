@@ -85,6 +85,18 @@ const SearchWithSuggestions = (props) => {
                     </div>
                     <SearchArrow />
                 </div>
+
+                <div class="search-diiv" onClick={()=>props.searchWithService('namebio')}>
+                    <div class="search-int-div">
+                    <div class="search-icon code w-embed"><svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        </svg></div>
+                    <div class="search-name">
+                        {/* <div class="search-text">Vitalik Buterin</div> */}
+                        <div class="search-text highlight">{props.credentials}</div>
+                    </div>
+                    </div>
+                    <SearchArrow />
+                </div>
             </>
             : null }
             </div>

@@ -201,8 +201,8 @@ function App() {
       setAccount(address);
       // get the signed-in user's Holo:
       console.log('hey')
-      console.log('GET ALL ACCOUNTS', await wtf.getAllAccounts(address, 'ethereum'));
-      alert(wtf.getAllAccounts(address, 'ethereum'))
+      // console.log('GET ALL ACCOUNTS', await wtf.getAllAccounts(address, 'ethereum'));
+      // alert(wtf.getAllAccounts(address, 'ethereum'))
     }
     catch (err) {
       console.log('need to login to metamask')

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import contractAddresses from '../contractAddresses.json'
+import contractAddressesNew from '../contractAddressesNew.json' // TODO: collapse contractAddresses and contractAddressesNew into one
 import abi from '../abi/VerifyJWT.json'
+import wtfBiosABI from '../abi/WTFBios.json'
+import idAggABI from '../abi/IdentityAggregator.json'
 import { InfoButton } from './info-button';
 import { SearchBar } from './search-bar';
 import Github from '../img/Github.svg';
@@ -63,12 +66,24 @@ const Holo = (props) => {
         orcid: '0000-6969-6969'
     })
 
-    useEffect(async () => {
-        let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
-        let holo_ = (await wtf.getHolo(address))[props.desiredChain]
-  
+    useEffect(() => {
+      if (props.filledHolo) {
+        setHolo(props.filledHolo)
+      }
+      else {
+        async function getHolo() {
+          // let address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+          // return (await wtf.getHolo(address))[props.desiredChain]
+          const url = `http://127.0.0.1:3000/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`
+          const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+          const holoData = await response.json()
+          console.log('holoData at line 80 in lookup.js...', holoData)
+          return holoData['holo'][props.desiredChain]
+        }
+        let holo_ = getHolo()
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
-      }, [props.desiredChain, props.provider, props.account]);
+      }
+    }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
       
     return <div class="x-card">
     <div class="id-card profile">
@@ -111,6 +126,17 @@ export const Lookup = (props) => {
     if (!params.web2service || !params.credentials) {
         return <Wrapper><SearchBar /></Wrapper>
     }
+
+    if (params.web2service.includes('namebio')) {
+      return (
+        <>
+          <Wrapper>
+            <SearchBar />
+            <SearchedHolos searchStr={params.credentials} desiredChain={props.desiredChain} provider={props.provider} {...props} />
+          </Wrapper>
+        </>
+      )
+    }
     const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
     console.log(contractAddresses[params.web2service])
     vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
@@ -129,4 +155,74 @@ export const Lookup = (props) => {
                 </Wrapper>
         
     
+}
+
+export const SearchedHolos = (props) => {
+  const [userHolos, setUserHolos] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  async function getHolos() {
+    console.log('Provier...', props.provider)
+    setLoading(true)
+
+    // Get all addresses with name/bio
+    console.log('Entered getHolos in lookup.js')
+    let url = 'http://127.0.0.1:3000/getAllUserAddresses'
+    let response = await fetch(url)
+    const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
+    const addrsWithNameOrBio = addrsObj['allAddrs'][props.desiredChain]['nameAndBio'] 
+
+    // const wtfBiosAddr = contractAddressesNew['production']['WTFBios']['polygon']
+    // const nameAndBioContract = new ethers.Contract(wtfBiosAddr, wtfBiosABI, props.provider)
+    // console.log('Calling nameAndBioContract.getRegisteredAddresses() in lookup.js')
+    // const addrsWithNameOrBio = await nameAndBioContract.getRegisteredAddresses()
+    // const addrsWithNameOrBio = ['0xcaFe2eF59688187EE312C8aca10CEB798338f7e3']
+  
+    console.log('addrsWithNameOrBio...', addrsWithNameOrBio)
+
+    // Get all creds of every account with a name/bio that includes search string
+    let allHolos = []
+    for (const address of addrsWithNameOrBio) {
+      console.log('Getting holo for address...', address)
+      // const holoData = await wtf.getHolo(address)
+      url = `http://127.0.0.1:3000/getHolo?address=${address}`
+      response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+      let holoData = await response.json()
+      holoData = holoData['holo'][props.desiredChain]
+      console.log('holoData at line 192 in lookup.js...', holoData)
+      console.log('searchStr==', props.searchStr)
+
+      let name = holoData['name']
+      let bio = holoData['bio']
+      if (name.includes(props.searchStr) || bio.includes(props.searchStr)) {
+        let creds = holoData['creds']
+        let holoTemp = {
+          'name': name,
+          'bio': bio,
+          'twitter': creds['twitter'],
+          'google': creds['google'],
+          'github': creds['github'],
+          'orcid': creds['orcid'] || '0000-6969-6969'
+        }
+        allHolos.push(holoTemp)
+      }
+    }
+    const userHolosTemp = allHolos.map(userHolo => (<Holo filledHolo={userHolo} {...props} />))
+    console.log('userHolosTemp at line 200...', userHolosTemp)
+    return userHolosTemp
+  }
+
+
+  useEffect(() => {
+    getHolos().then(userHolosTemp => {
+      setUserHolos(userHolosTemp)
+      setLoading(false)
+    })
+  }, [props.searchStr]) // searchStr == what the user inputed to search bar
+
+  return (
+    <>
+      {loading ? <p>Loading...</p> : userHolos}
+    </>
+  )
 }

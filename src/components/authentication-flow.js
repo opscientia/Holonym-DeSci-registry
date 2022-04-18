@@ -109,10 +109,18 @@ const InnerAuthenticationFlow = (props) => {
       twitter: null
     }
     const [userHolo, setUserHolo] = useState(defaultHolo)
-    useEffect(async () => {
-      let holo_ = (await wtf.getHolo(props.account))[props.desiredChain]
-
-      setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+    useEffect(() => {
+      async function func() {
+        // const holo_ = (await wtf.getHolo(props.account))[props.desiredChain]
+        const url = `http://127.0.0.1:3000/getHolo?address=${props.account}`
+        const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+        const holoData = await response.json()
+        console.log('holoData at line 118 in authentication-flow..', holoData)
+        const holo_ = holoData['holo'][props.desiredChain]
+  
+        setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+      }
+      func()
     }, [props.desiredChain, props.provider, props.account]);
     
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
