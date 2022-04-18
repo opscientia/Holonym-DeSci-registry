@@ -112,7 +112,8 @@ const InnerAuthenticationFlow = (props) => {
 
     useEffect(async () => {
       // if props has provider but not account for some reason, get the account:
-      let account = props.account || await props.provider.getSigner().getAddress()
+      let account; 
+      if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
       wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
       let holo_ = (await wtf.getHolo(account))[props.desiredChain]
       console.log('account is ', account)
