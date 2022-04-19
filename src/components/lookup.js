@@ -203,10 +203,7 @@ export const SearchedHolos = (props) => {
           'address': address,
           'name': name,
           'bio': bio,
-          'twitter': creds['twitter'],
-          'google': creds['google'],
-          'github': creds['github'],
-          'orcid': creds['orcid']
+          ...creds
         }
         allHolos.push(holoTemp)
       }
