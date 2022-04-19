@@ -173,11 +173,13 @@ const Registry = (props) => {
                             {holos.length ? holos.map(x => <SmallCard holo={x} />) : null}
                         </Wrapper>
                         <Modal visible={modalVisible} setVisible={()=>{}} blur={true}>
-                            <h3 className="h3 white">Create your own identity to join the community</h3>
-                            <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
-                                <a onClick={()=>navigate('/myholo')} className='x-button' style={{width: '45%'}}>Create My ID</a> 
-                                <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
-                            </div>
+                            {holos.length ? <>
+                                <h3 className="h3 white">Create your own identity to join the community</h3>
+                                <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
+                                    <a onClick={()=>navigate('/myholo')} className='x-button' style={{width: '45%'}}>Create My ID</a> 
+                                    <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
+                                </div>
+                            </> : <h3 className="h3 white">Loading data from smart-contracts...</h3>}
                         </Modal>
                     </div>
                 </div>
