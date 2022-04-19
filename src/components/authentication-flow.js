@@ -250,8 +250,10 @@ const InnerAuthenticationFlow = (props) => {
         }
         return credentialsRPrivate ? <LitCeramic provider={props.provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <MessageScreen msg='Waiting for block to be mined' />
       case 'success':
-        console.log(onChainCreds);
-        console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
+        // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
+        console.log('NU CREDS', JWTObject.payload.parsed[props.credentialClaim])
+        let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim]
+        console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`)
         return onChainCreds ? 
     <div class="x-section bg-img wf-section" style={{width:'100vw'}}>
         <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
@@ -266,7 +268,7 @@ const InnerAuthenticationFlow = (props) => {
                         <h3 class="h3 no-margin">{props.web2service + ' ID'}</h3><img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
                     </div>
                     <div class="spacer-xx-small"></div>
-                    <p class="identity-text">{onChainCreds}</p>
+                    <p class="identity-text">{creds}</p>
                     </div>
                 </div>
                 </div>
