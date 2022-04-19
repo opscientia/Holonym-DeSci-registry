@@ -104,12 +104,14 @@ const Holo = (props) => {
     {Object.keys(holo).map(k => {
         if(!['name', 'bio', 'address', 'discord'].includes(k)) { //ignore discord too for now
             return <>
-                <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
-                    <div class="card-text">{holo[k] || 'Not listed'}</div>
-                    <a href={linkFor(k, holo[k])}>
-                      <img src={holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" class="id-verification-icon" />
-                    </a>
-                </div>
+                <a style={{textDecoration: 'none'}} href={linkFor(k, holo[k])}>
+                  <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
+                      <div class="card-text">{holo[k] || 'Not listed'}</div>
+                      <a>
+                        <img src={holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" class="id-verification-icon" />
+                      </a>
+                  </div>
+                </a>
                 <div class="spacer-x-small"></div>
             </>
         }
