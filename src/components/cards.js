@@ -7,27 +7,14 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
-import profile from '../img/profile.svg'
+import profile from '../img/profile.svg';
+import { linkFor } from '../link-for.js';
 const icons = {
     google : Google,
     github : Github,
     orcid : Orcid,
     twitter : TwitterLogo
 
-}
-
-// this should perhaps be in a separate file
-const linkFor = (service, username) => {
-    switch(service) {
-        case 'google' : 
-            return 'mailto:' + username
-        case 'orcid' : 
-            return 'https://orcid.org/' + username
-        case 'twitter' : 
-            return 'https://twitter.com/' + username
-        case 'github' : 
-            return 'https://github.com/' + username
-    }
 }
 
 export const BigCard = (props) => {

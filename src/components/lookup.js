@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { truncateAddress } from '../ui-helpers';
 import contractAddresses from '../contractAddresses.json'
+import contractAddressesNew from '../contractAddressesNew.json' // TODO: collapse contractAddresses and contractAddressesNew into one
 import abi from '../abi/VerifyJWT.json'
+import wtfBiosABI from '../abi/WTFBios.json'
+import idAggABI from '../abi/IdentityAggregator.json'
 import { InfoButton } from './info-button';
 import { SearchBar } from './search-bar';
 import Github from '../img/Github.svg';
@@ -11,8 +14,9 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
-import profile from '../img/profile.svg'
-import { lookup } from 'dns';
+import profile from '../img/profile.svg';
+import { linkFor } from '../link-for.js';
+
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
 // import 'bootstrap/dist/css/bootstrap.css';
@@ -26,8 +30,6 @@ const icons = {
 }
 const { ethers } = require('ethers');  
 
-const wtf = require('wtf-lib');
-wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'});
 
 const sendCrypto = (provider, to) => {
     if(!provider || !to) {
@@ -44,7 +46,8 @@ const sendCrypto = (provider, to) => {
 
 // Wraps everything on the lookup screen with style
 const Wrapper = (props) => {
-    return <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+    // return <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+    return <div class="x-section bg-img wf-section" >
                 <div className="x-container w-container">
                     <div className="x-wrapper small-center">
                         {props.children}
@@ -56,6 +59,7 @@ const Wrapper = (props) => {
 // Looks up and displays user Holo
 const Holo = (props) => {
     const [holo, setHolo] = useState({
+        address: '',
         name: 'Anonymous',
         bio: 'No information provided',
         twitter: '',
@@ -64,16 +68,22 @@ const Holo = (props) => {
         orcid: ''
     })
 
-    useEffect(async () => {
-        // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
-        let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
-        console.log('address', address)
-        console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
-        let holo_ = (await wtf.getHolo(address))[props.desiredChain]
-        console.log('holo', holo_)
-  
+    useEffect(() => {
+      if (props.filledHolo) {
+        setHolo(props.filledHolo)
+      }
+      else {
+        async function getHolo() {
+          const url = `https://sciverse.id/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`
+          const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+          const holoData = await response.json()
+          console.log('holoData at line 80 in lookup.js...', holoData)
+          return holoData['holo'][props.desiredChain]
+        }
+        let holo_ = getHolo()
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
-      }, [props.desiredChain, props.provider, props.account]);
+      }
+    }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
       
     return <div class="x-card">
     <div class="id-card profile">
@@ -95,11 +105,13 @@ const Holo = (props) => {
     </div> */}
     <div class="spacer-small"></div>
     {Object.keys(holo).map(k => {
-        if(k != 'name' && k != 'bio') {
+        if(k != 'name' && k != 'bio' && k != 'address') {
             return <>
                 <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
                     <div class="card-text">{holo[k] || 'Not listed'}</div>
-                    <img src={holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" class="id-verification-icon" />
+                    <a href={linkFor(k, holo[k])}>
+                      <img src={holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" class="id-verification-icon" />
+                    </a>
                 </div>
                 <div class="spacer-x-small"></div>
             </>
@@ -117,14 +129,19 @@ export const Lookup = (props) => {
         return <Wrapper><SearchBar /></Wrapper>
     }
 
-    try {
-        const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
-        console.log(contractAddresses[params.web2service])
-        vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
-    } catch(e) {
-        console.log(e)
+    if (params.web2service.includes('namebio')) {
+      return (
+        <>
+          <Wrapper>
+            <SearchBar />
+            <SearchedHolos searchStr={params.credentials} desiredChain={props.desiredChain} provider={props.provider} {...props} />
+          </Wrapper>
+        </>
+      )
     }
-    
+    const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
+    console.log(contractAddresses[params.web2service])
+    vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
@@ -145,4 +162,75 @@ export const Lookup = (props) => {
                 </Wrapper>
         
     
+}
+
+export const SearchedHolos = (props) => {
+  const [userHolos, setUserHolos] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  async function getHolos() {
+    console.log('Provier...', props.provider)
+    setLoading(true)
+
+    // Get all addresses with name/bio
+    console.log('Entered getHolos in lookup.js')
+    let url = 'https://sciverse.id/getAllUserAddresses'
+    let response = await fetch(url)
+    const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
+    const addrsWithNameOrBio = addrsObj['allAddrs'][props.desiredChain]['nameAndBio'] 
+  
+    console.log('addrsWithNameOrBio...', addrsWithNameOrBio)
+
+    // Get all creds of every account with a name/bio that includes search string
+    let allHolos = []
+    for (const address of addrsWithNameOrBio) {
+      // TODO: Remove the following check when new bio contract is deployed!!
+      let viewedAddrs = allHolos.map(holo => holo.address)
+      if (viewedAddrs.indexOf(address) != -1) {
+        continue;
+      }
+
+      console.log('Getting holo for address...', address)
+      url = `http://sciverse.id/getHolo?address=${address}`
+      response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+      let holoData = await response.json()
+      holoData = holoData['holo'][props.desiredChain]
+
+      let name = holoData['name']
+      let bio = holoData['bio']
+      if (name.includes(props.searchStr) || bio.includes(props.searchStr)) {
+        let creds = holoData['creds']
+        let holoTemp = {
+          'address': address,
+          'name': name,
+          'bio': bio,
+          'twitter': creds['twitter'],
+          'google': creds['google'],
+          'github': creds['github'],
+          'orcid': creds['orcid']
+        }
+        allHolos.push(holoTemp)
+      }
+    }
+    const userHolosTemp = allHolos.map(userHolo => (
+      <div key={userHolo.address}>
+        <div class="spacer-small"></div>
+        <Holo filledHolo={userHolo} {...props} />
+      </div>
+    ))
+    return userHolosTemp
+  }
+
+  useEffect(() => {
+    getHolos().then(userHolosTemp => {
+      setUserHolos(userHolosTemp)
+      setLoading(false)
+    })
+  }, [props.searchStr]) // searchStr == what the user inputed to search bar
+
+  return (
+    <>
+      {loading ? <p>Loading...</p> : userHolos}
+    </>
+  )
 }
