@@ -138,9 +138,11 @@ export const Lookup = (props) => {
         </>
       )
     }
-    const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
-    console.log(contractAddresses[params.web2service])
-    vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+    // const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
+    // console.log(contractAddresses[params.web2service])
+    // vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+    console.log('calling wtf.addressForCredentials')
+    wtf.addressForCredentials(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
@@ -156,6 +158,9 @@ export const Lookup = (props) => {
                                 : 
                                 null 
                             }
+                        </div>
+                        <div>
+                          {address && <DisplayPOAPs address={address}/>}
                         </div>
                     </>}
                 </Wrapper>
@@ -173,10 +178,12 @@ export const SearchedHolos = (props) => {
 
     // Get all addresses with name/bio
     console.log('Entered getHolos in lookup.js')
-    let url = 'https://sciverse.id/getAllUserAddresses'
-    let response = await fetch(url)
-    const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
-    const addrsWithNameOrBio = addrsObj['allAddrs'][props.desiredChain]['nameAndBio'] 
+    const addrsObj = await wtf.getAllUserAddresses()
+
+    // let url = 'https://sciverse.id/getAllUserAddresses'
+    // let response = await fetch(url)
+    // const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
+    const addrsWithNameOrBio = addrsObj[props.desiredChain]['nameAndBio'] 
   
     console.log('addrsWithNameOrBio...', addrsWithNameOrBio)
 
@@ -190,10 +197,12 @@ export const SearchedHolos = (props) => {
       }
 
       console.log('Getting holo for address...', address)
-      url = `http://sciverse.id/getHolo?address=${address}`
-      response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
-      let holoData = await response.json()
-      holoData = holoData['holo'][props.desiredChain]
+      // url = `http://sciverse.id/getHolo?address=${address}`
+      // response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+      // let holoData = await response.json()
+      let holoData = await wtf.getHolo(address)
+      console.log('holoData...', holoData)
+      holoData = holoData[props.desiredChain]
 
       let name = holoData['name']
       let bio = holoData['bio']
@@ -217,6 +226,8 @@ export const SearchedHolos = (props) => {
         <Holo filledHolo={userHolo} {...props} />
       </div>
     ))
+    console.log('Holos with these addresses matched search...')
+    console.log(allHolos)
     return userHolosTemp
   }
 
@@ -229,7 +240,43 @@ export const SearchedHolos = (props) => {
 
   return (
     <>
-      {loading ? <p>Loading...</p> : userHolos}
+      {loading ? <p>Loading...</p> : 
+      userHolos ? userHolos : <p>No users found</p>}
+    </>
+  )
+}
+
+
+export const DisplayPOAPs = (props) => {
+  const [poaps, setPoaps] = useState([])
+
+  console.log('Entered DisplayPOAPs')
+
+  const getPoaps = async (address) => {
+    console.log('Entered getPoaps')
+
+    const url = `https://api.poap.xyz/actions/scan/${address}`; 
+    const resp = await fetch(url);
+    const poaps = await resp.json();
+
+    console.log(`address ${address} has the following poaps...`, poaps)
+
+    const poapDisplay = poaps.map(poap => (
+      <div>
+        <img src={poap['event']['image_url']} alt={`POAP for ${poap['event']['name']}`} />
+        {poap['event']['name']}
+      </div>
+    ))
+    return poapDisplay;
+  }
+
+  useEffect(() => {
+    getPoaps(props.address).then(poaps => setPoaps(poaps))
+  }, [props.address])
+
+  return (
+    <>
+    {poaps}
     </>
   )
 }
