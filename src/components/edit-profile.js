@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 import { useState, useEffect, useRef } from 'react'
 import { truncateAddress } from '../ui-helpers.js'
 import { Modal } from './modals.js'
-import contractAddresses from '../contractAddressesNew.json'
+import contractAddresses from '../contractAddresses.json'
 import abi from '../abi/WTFBios.json'
 
 export const EditProfileButton = (props) => {
@@ -11,8 +11,7 @@ export const EditProfileButton = (props) => {
     const [bio, setBio] = useState('')
 
     const submitNameBio = async () => {
-        // console.log(contractAddresses, contractAddresses.production, contractAddresses.production.WTFBios, contractAddresses.production.WTFBios[props.desiredChain])
-        const contract = new ethers.Contract(contractAddresses.production.WTFBios[props.desiredChain], abi, props.provider.getSigner())
+        const contract = new ethers.Contract(contractAddresses.WTFBios, abi, props.provider.getSigner())
         await contract.setNameAndBio(name, bio)
 
         

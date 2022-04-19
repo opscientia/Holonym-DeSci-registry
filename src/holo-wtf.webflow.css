@@ -2128,6 +2128,7 @@ p {
   line-height: 1.5;
   font-weight: 400;
   text-align: left;
+  width: 100%;
 }
 
 .search-text.highlight {
@@ -2143,6 +2144,7 @@ p {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  width: 100%;
 }
 
 .search-line {

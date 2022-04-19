@@ -7,9 +7,10 @@ import React, { useEffect, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
-import abi from '../abi/VerifyJWT.json'
-import { LitCeramic } from './lit-ceramic.js'
-import { InfoButton } from './info-button.js'
+import abi from '../abi/VerifyJWT.json';
+import { LitCeramic } from './lit-ceramic.js';
+import { InfoButton } from './info-button.js';
+import QRCode from 'react-qr-code';
 import { EditProfileButton } from './edit-profile.js';
 import Error from './errors.js'
 import Github from '../img/Github.svg';
@@ -18,9 +19,7 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
-import profile from '../img/profile.svg';
-
-
+import wtf from '../wtf-configured';
 const { ethers } = require('ethers');
 
 // TODO: better error handling
@@ -30,7 +29,8 @@ const parseJWT = (JWT) => {
     let parsedToJSON = {}
     JWT.split('&').map(x=>{let [key, value] = x.split('='); parsedToJSON[key] = value});
     let [rawHead, rawPay, rawSig] = parsedToJSON['id_token'].split('.');
-    let [head, pay] = [rawHead, rawPay].map(x => JSON.parse(atob(x)));
+    console.log(rawHead, rawPay, 'RAWR')
+    let [head, pay] = [rawHead, rawPay].map(x => x ? JSON.parse(atob(x)) : null);
     let [sig] = [Buffer.from(rawSig.replaceAll('-', '+').replaceAll('_', '/'), 'base64')] //replaceAlls convert it from base64url to base64
     return {
       'header' :  {
@@ -48,7 +48,7 @@ const parseJWT = (JWT) => {
     }
   }
   
-  const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce', 'email_verified'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
+  const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce', 'email_verified', 'rand'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
   // React component to display (part of) a JWT in the form of a javscript Object to the user
   const DisplayJWTSection = (props) => {
     return <>
@@ -60,6 +60,7 @@ const parseJWT = (JWT) => {
         let field = key;
         let value = props.section[key]
         // give a human readable name to important field:
+        if(field == 'creds'){field='Credentials'}
         if(field == 'sub'){field=`${props.web2service} ID`}
         if(field == 'given_name'){field='Given First Name'}
         if(field == 'family_name'){field='Given Last Name'}
@@ -106,17 +107,21 @@ const InnerAuthenticationFlow = (props) => {
       github: null,
       twitter: null
     }
-    const [userHolo, setUserHolo] = useState(defaultHolo)
-    useEffect(() => {
-      async function func() {
-        const url = `http://127.0.0.1:3000/getHolo?address=${props.account}`
-        const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
-        const holoData = await response.json()
-        const holo_ = holoData['holo'][props.desiredChain]
-  
-        setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+    const [holo, setHolo] = useState(defaultHolo)
+    // Load the user's Holo when the page loads
+    useEffect(async () => {
+      try {
+        // if props has provider but not account for some reason, get the account:
+        let account; 
+        if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
+        const holoIsEmpty = Object.values(holo).every(x => !x)
+        if(!holoIsEmpty || !account) {return} //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
+        let holo_ = (await wtf.getHolo(account))[props.desiredChain]
+        setHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+      } catch(err) {
+        console.log('Error:', err)
       }
-      func()
+      
     }, [props.desiredChain, props.provider, props.account]);
     
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
@@ -245,8 +250,10 @@ const InnerAuthenticationFlow = (props) => {
         }
         return credentialsRPrivate ? <LitCeramic provider={props.provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <MessageScreen msg='Waiting for block to be mined' />
       case 'success':
-        console.log(onChainCreds);
-        console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${onChainCreds}`)
+        // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
+        console.log('NU CREDS', JWTObject.payload.parsed[props.credentialClaim])
+        let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim]
+        console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`)
         return onChainCreds ? 
     <div class="x-section bg-img wf-section" style={{width:'100vw'}}>
         <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
@@ -261,7 +268,7 @@ const InnerAuthenticationFlow = (props) => {
                         <h3 class="h3 no-margin">{props.web2service + ' ID'}</h3><img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
                     </div>
                     <div class="spacer-xx-small"></div>
-                    <p class="identity-text">{onChainCreds}</p>
+                    <p class="identity-text">{creds}</p>
                     </div>
                 </div>
                 </div>
@@ -340,8 +347,8 @@ const InnerAuthenticationFlow = (props) => {
         <div className="spacer-medium"></div>
         <div className="x-card small">
           <div className="card-heading">
-            <h3 className="h3 no-margin">{userHolo.name || 'Your Name'}<p className="no-margin">{userHolo.bio || 'Your bio'}</p></h3>
-            <EditProfileButton {...props} holo={userHolo} />
+            <h3 className="h3 no-margin">{holo.name || 'Your Name'}<p className="no-margin">{holo.bio || 'Your bio'}</p></h3>
+            <EditProfileButton {...props} holo={holo} />
           </div>
           {/* <img src={profile} loading="lazy" alt="" style={{textAlign: "left"}} /> */}
           
@@ -354,33 +361,38 @@ const InnerAuthenticationFlow = (props) => {
           <div className="spacer-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Google} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{userHolo.google || 'youremail@gmail.com'}</div>
-              <GoogleLoginButton creds={userHolo.google} />
-            </div><img src={userHolo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{holo.google || 'youremail@gmail.com'}</div>
+              <GoogleLoginButton creds={holo.google} />
+            </div><img src={holo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Orcid} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{userHolo.orcid || 'xxxx-xxxx-xxxx-xxxx'}</div>
-              <ORCIDLoginButton creds={userHolo.orcid} />
-            </div><img src={userHolo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{holo.orcid || 'xxxx-xxxx-xxxx-xxxx'}</div>
+              <ORCIDLoginButton creds={holo.orcid} />
+            </div><img src={holo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{`@${userHolo.twitter || 'twitterusername' }`}</div>
-              <TwitterLoginButton creds={userHolo.twitter} />
-            </div><img src={userHolo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{`@${holo.twitter || 'twitterusername' }`}</div>
+              <TwitterLoginButton creds={holo.twitter} />
+            </div><img src={holo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Github} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{`@${userHolo.github || 'githubusername'}`}</div>
-              <GitHubLoginButton creds={userHolo.github} />
-            </div><img src={userHolo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{`@${holo.github || 'githubusername'}`}</div>
+              <GitHubLoginButton creds={holo.github} />
+            </div><img src={holo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
         </div>
-        <div className="spacer-small"></div>
+        <div className="spacer-large larger"></div>
+        <div className="spacer-large larger"></div>
+        <div className="spacer-medium"></div>
+        <p>You can be disovered by: </p>
+        <QRCode value={`https://whoisthis.wtf/lookup/address/${props.account}`} />
+        {/* <a onClick className="x-button secondary"><img src={QR} /></a> */}
         {/* <a href="#" className="x-button secondary w-button">continue</a>
         <a href="#" className="x-button secondary no-outline w-button">Learn more</a> */}
       </div>
