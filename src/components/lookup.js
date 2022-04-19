@@ -261,7 +261,7 @@ export const DisplayPOAPs = (props) => {
     const resp = await fetch(url);
     const poaps = await resp.json();
     const poapDisplay = poaps.map(poap => (
-      <div>
+      <div key={poap['event']['id']} >
         <div class="spacer-small"></div>
         <img src={poap['event']['image_url']} alt={`POAP for ${poap['event']['name']}`} />
       </div>
