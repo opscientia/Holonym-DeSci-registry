@@ -19,10 +19,7 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
-
-import wtf from 'wtf-lib';
-console.log(wtf)
-wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
+import wtf from '../wtf-configured';
 const { ethers } = require('ethers');
 
 // TODO: better error handling
@@ -110,16 +107,17 @@ const InnerAuthenticationFlow = (props) => {
       github: null,
       twitter: null
     }
-    const [userHolo, setUserHolo] = useState(defaultHolo)
+    const [holo, setHolo] = useState(defaultHolo)
     // Load the user's Holo when the page loads
     useEffect(async () => {
       try {
         // if props has provider but not account for some reason, get the account:
         let account; 
         if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
-        wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
+        const holoIsEmpty = Object.values(holo).every(x => !x)
+        if(!holoIsEmpty || !account) {return} //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
         let holo_ = (await wtf.getHolo(account))[props.desiredChain]
-        setUserHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+        setHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       } catch(err) {
         console.log('Error:', err)
       }
@@ -347,8 +345,8 @@ const InnerAuthenticationFlow = (props) => {
         <div className="spacer-medium"></div>
         <div className="x-card small">
           <div className="card-heading">
-            <h3 className="h3 no-margin">{userHolo.name || 'Your Name'}<p className="no-margin">{userHolo.bio || 'Your bio'}</p></h3>
-            <EditProfileButton {...props} holo={userHolo} />
+            <h3 className="h3 no-margin">{holo.name || 'Your Name'}<p className="no-margin">{holo.bio || 'Your bio'}</p></h3>
+            <EditProfileButton {...props} holo={holo} />
           </div>
           {/* <img src={profile} loading="lazy" alt="" style={{textAlign: "left"}} /> */}
           
@@ -361,30 +359,30 @@ const InnerAuthenticationFlow = (props) => {
           <div className="spacer-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Google} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{userHolo.google || 'youremail@gmail.com'}</div>
-              <GoogleLoginButton creds={userHolo.google} />
-            </div><img src={userHolo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{holo.google || 'youremail@gmail.com'}</div>
+              <GoogleLoginButton creds={holo.google} />
+            </div><img src={holo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Orcid} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{userHolo.orcid || 'xxxx-xxxx-xxxx-xxxx'}</div>
-              <ORCIDLoginButton creds={userHolo.orcid} />
-            </div><img src={userHolo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{holo.orcid || 'xxxx-xxxx-xxxx-xxxx'}</div>
+              <ORCIDLoginButton creds={holo.orcid} />
+            </div><img src={holo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{`@${userHolo.twitter || 'twitterusername' }`}</div>
-              <TwitterLoginButton creds={userHolo.twitter} />
-            </div><img src={userHolo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{`@${holo.twitter || 'twitterusername' }`}</div>
+              <TwitterLoginButton creds={holo.twitter} />
+            </div><img src={holo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
           <div className="spacer-x-small"></div>
           <div className="card-text-wrapper">
             <div className="card-text-div"><img src={Github} loading="lazy" alt="" className="card-logo" />
-              <div className="card-text">{`@${userHolo.github || 'githubusername'}`}</div>
-              <GitHubLoginButton creds={userHolo.github} />
-            </div><img src={userHolo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+              <div className="card-text">{`@${holo.github || 'githubusername'}`}</div>
+              <GitHubLoginButton creds={holo.github} />
+            </div><img src={holo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
           </div>
         </div>
         <div className="spacer-large larger"></div>
