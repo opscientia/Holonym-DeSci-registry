@@ -138,9 +138,13 @@ export const Lookup = (props) => {
         </>
       )
     }
-    const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
-    console.log(contractAddresses[params.web2service])
-    vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+    // Find the user's address
+    if(props.service == 'address') {
+      setAddress(props.lookupBy) 
+    } else {
+      wtf.addressForCredentials(props.lookupBy, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+    }
+
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>

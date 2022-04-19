@@ -47,7 +47,13 @@ const Registry = (props) => {
         for (const address of addresses) {
             // wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
             const holo_ = (await wtf.getHolo(address))[props.desiredChain]
-            const newHolo = {...defaultHolo, ...holo_.creds, 'name' : holo_.name || 'Anonymous', 'bio' : holo_.bio || 'No information provided'}
+            const newHolo = {
+                ...defaultHolo, 
+                ...holo_.creds, 
+                'name' : holo_.name || 'Anonymous', 
+                'bio' : holo_.bio || 'No information provided', 
+                'address' : address
+            }
             const holoIsEmpty = Object.values(newHolo).every(x => !x)
             console.log('NEW HOLO', newHolo)
             console.log('abc')
@@ -98,7 +104,7 @@ const Registry = (props) => {
                             <div class="spacer-large"></div>
                         </div>
                         <Wrapper>
-                            {holos.length ? holos.map(x => <SmallCard holo={x} />) : null}
+                            {holos.length ? holos.map(x => <SmallCard holo={x} href={`/lookup/address/${x.address}`} />) : null}
                         </Wrapper>
                         <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
                             {holos.length ? <>
