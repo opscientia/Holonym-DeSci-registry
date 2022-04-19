@@ -123,6 +123,15 @@ const Holo = (props) => {
 export const Lookup = (props) => {
     const [address, setAddress] = useState(null)
     let params = useParams()
+
+    useEffect(() => {
+      if (!params.web2service || !params.credentials) {
+        return;
+      }
+      wtf.addressForCredentials(Buffer.from(params.credentials), params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+      console.log(`Successfully retrieved address from credentials for address ${address}`)
+    }, [])
+
     // if the URL is just /lookup or something malformed, just return the search bar
     if (!params.web2service || !params.credentials) {
         return <Wrapper><SearchBar /></Wrapper>
@@ -138,11 +147,10 @@ export const Lookup = (props) => {
         </>
       )
     }
+    // NOTE: The following three lines were replaced with useEffect(). Uncomment these if useEffect() doesn't work.
     // const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
     // console.log(contractAddresses[params.web2service])
     // vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
-    console.log('calling wtf.addressForCredentials')
-    wtf.addressForCredentials(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
@@ -173,7 +181,6 @@ export const SearchedHolos = (props) => {
   const [loading, setLoading] = useState(true)
 
   async function getHolos() {
-    console.log('Provier...', props.provider)
     setLoading(true)
 
     // Get all addresses with name/bio
@@ -247,21 +254,16 @@ export const SearchedHolos = (props) => {
 export const DisplayPOAPs = (props) => {
   const [poaps, setPoaps] = useState([])
 
-  console.log('Entered DisplayPOAPs')
-
   const getPoaps = async (address) => {
-    console.log('Entered getPoaps')
+    console.log(`Calling api.poap.xyz for POAPs claimed by ${address}`)
 
     const url = `https://api.poap.xyz/actions/scan/${address}`; 
     const resp = await fetch(url);
     const poaps = await resp.json();
-
-    console.log(`address ${address} has the following poaps...`, poaps)
-
     const poapDisplay = poaps.map(poap => (
       <div>
+        <div class="spacer-small"></div>
         <img src={poap['event']['image_url']} alt={`POAP for ${poap['event']['name']}`} />
-        {poap['event']['name']}
       </div>
     ))
     return poapDisplay;
