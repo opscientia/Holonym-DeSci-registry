@@ -320,6 +320,21 @@ function App() {
                                                   web2service={'Google'}
                                                   desiredChain={desiredChain} />} /> 
 
+               <Route path='/twitter/token/:token' element={<AuthenticationFlow
+                                                  provider={provider} 
+                                                  account={account} 
+                                                  connectWalletFunction={connectWallet}
+                                                  credentialClaim={'creds'}
+                                                  web2service={'Twitter'}
+                                                  desiredChain={desiredChain} />} /> 
+              <Route path='/GitHub/token/:token' element={<AuthenticationFlow
+                                                  provider={provider} 
+                                                  account={account} 
+                                                  connectWalletFunction={connectWallet}
+                                                  credentialClaim={'creds'}
+                                                  web2service={'Github'}
+                                                  desiredChain={desiredChain} />} /> 
+
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} desiredChain={desiredChain} />} />
               <Route path='/lookup' element={<Lookup provider={provider} />} />
               <Route path='/' element={<Registry provider={provider} address={account} desiredChain={desiredChain} />} />
