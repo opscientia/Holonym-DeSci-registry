@@ -3,8 +3,7 @@ import { SmallCard } from './cards.js'
 import { SearchBar } from './search-bar.js'
 import { Modal } from './modals.js'
 import { useNavigate  } from 'react-router-dom'
-import wtf from 'wtf-lib'
-wtf.setProviderURL({polygon : 'https://speedy-nodes-nyc.moralis.io/a1167200f0a0e81dd757304e/polygon/mumbai'})
+import wtf from '../wtf-configured'
 
 
 // Wraps everything on the registry screen with style
