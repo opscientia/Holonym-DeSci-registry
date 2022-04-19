@@ -33,7 +33,7 @@ const SearchWithSuggestions = (props) => {
                         </svg></div>
                     <div class="search-name">
                         {/* <div class="search-text">Vitalik Buterin</div> */}
-                        <div class="search-text highlight">{props.credentials + '@gmail.com'}</div>
+                        <div class="search-text highlight">{props.credentials + (props.credentials.includes('@') ? '' : '@gmail.com')}</div>
                     </div>
                     </div>
                     <SearchArrow />

@@ -3,6 +3,7 @@ import { SmallCard } from './cards.js'
 import { SearchBar } from './search-bar.js'
 import { Modal } from './modals.js'
 import { useNavigate  } from 'react-router-dom'
+import wtf from '../wtf-configured'
 
 
 // Wraps everything on the registry screen with style
@@ -111,14 +112,13 @@ const defaultHolo = {
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        let response = await fetch('http://127.0.0.1:3000/getAllUserAddresses')
-        const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
-        const allAddressesByService = addrsObj['allAddrs'][props.desiredChain]
+        console.log('this ran 2')
+        const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
         let allAddresses = []
         for (const [service, addresses] of Object.entries(allAddressesByService)){
-            
             allAddresses = [...new Set([...allAddresses, ...addresses])]
         }
+        console.log('this ran 3')
         return allAddresses
     }
 
@@ -139,11 +139,20 @@ const Registry = (props) => {
 
     const init = async () => {
         if(!props.provider){return}
-        let addresses = await getAllAddresses()
-        setHolos(await getAllHolos(addresses))
-        // Only show the modal if the user doesn't have a Holo: 
-        let address = props.address || await props.provider.getSigner().getAddress()
-        if(addresses.includes(address)){setModalVisible(false)}
+
+        try{
+            console.log('THIS RAN')
+            let addresses = await getAllAddresses()
+            console.log('ALL ADDRESSES', addresses)
+
+            setHolos(await getAllHolos(addresses))
+            // Only show the modal if the user doesn't have a Holo: 
+            let address = props.address || await props.provider.getSigner().getAddress()
+            if(addresses.includes(address)){setModalVisible(false)}
+        } catch(err) {
+            console.log('ERROR: ', err)
+        }
+        
     }
     const [holos, setHolos] = useState([])
     const [modalVisible, setModalVisible] = useState(true)
