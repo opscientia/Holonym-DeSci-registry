@@ -16,6 +16,7 @@ import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
 import { linkFor } from '../link-for.js';
+import wtf from '../wtf-configured'
 
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -68,19 +69,15 @@ const Holo = (props) => {
         orcid: ''
     })
 
-    useEffect(() => {
+    useEffect(async () => {
       if (props.filledHolo) {
         setHolo(props.filledHolo)
-      }
-      else {
-        async function getHolo() {
-          const url = `https://sciverse.id/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`
-          const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
-          const holoData = await response.json()
-          console.log('holoData at line 80 in lookup.js...', holoData)
-          return holoData['holo'][props.desiredChain]
-        }
-        let holo_ = getHolo()
+      } else {
+        // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
+        let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        console.log('address', address)
+        console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
+        let holo_ = (await wtf.getHolo(address))[props.desiredChain]
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       }
     }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
@@ -105,7 +102,7 @@ const Holo = (props) => {
     </div> */}
     <div class="spacer-small"></div>
     {Object.keys(holo).map(k => {
-        if(k != 'name' && k != 'bio' && k != 'address') {
+        if(!['name', 'bio', 'address', 'discord'].includes(k)) { //ignore discord too for now
             return <>
                 <div class="card-text-div"><img src={icons[k]} loading="lazy" alt="" class="card-logo" />
                     <div class="card-text">{holo[k] || 'Not listed'}</div>
