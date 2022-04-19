@@ -33,7 +33,14 @@ let hasBeenRun = false
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
+        let allAddressesByService = {}
+        try { // Try getting user addrs from cache. If it fails, call chain directly.
+          const response = await fetch(`https://sciverse.id/getAllUserAddresses`)
+          allAddressesByService = (await response.json())[props.desiredChain]
+        }
+        catch (err) {
+          allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
+        }
         let allAddresses = []
         for (const [service, addresses] of Object.entries(allAddressesByService)){
             allAddresses = [...new Set([...allAddresses, ...addresses])]
@@ -46,8 +53,17 @@ const Registry = (props) => {
         let allAddresses = addresses || (await getAllAddresses())
         console.log('WHAT IS THIS', allAddresses)
         const allHolos = allAddresses.map(async (address) => {
-            wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
-            let holo_ = (await wtf.getHolo(address))[props.desiredChain]
+            let holo_ = {}
+            try { // Try getting holo from cache. If it fails, call chain directly.
+              console.log(`Retrieving holo for address ${address}...`)
+              const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
+              holo_ = (await response.json())[props.desiredChain]
+              console.log(`Retrieved holo for address ${address}...`)
+            }
+            catch (err) {
+              wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
+              holo_ = (await wtf.getHolo(address))[props.desiredChain]
+            }
             console.log('one holo is ', address, await wtf.getHolo(address))
             return {...defaultHolo, ...holo_.creds, 'name' : holo_.name || 'Anonymous', 'bio' : holo_.bio || 'No information provided'}
         })
