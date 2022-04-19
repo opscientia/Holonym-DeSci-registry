@@ -3,7 +3,6 @@ import { SmallCard } from './cards.js'
 import { SearchBar } from './search-bar.js'
 import { Modal } from './modals.js'
 import { useNavigate  } from 'react-router-dom'
-const wtf = require('wtf-lib')
 
 
 // Wraps everything on the registry screen with style
@@ -112,10 +111,6 @@ const defaultHolo = {
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        // await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
-        // const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
-
-        // Get all addresses with name/bio
         let response = await fetch('http://127.0.0.1:3000/getAllUserAddresses')
         const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
         const allAddressesByService = addrsObj['allAddrs'][props.desiredChain]
@@ -129,12 +124,14 @@ const Registry = (props) => {
 
     // can optionally supply addresses to get holos from. otherwise, gets from all addresses registered on Holo:
     const getAllHolos = async (addresses) => {
-        // await wtf.setProviderURL({polygon : 'https://rpc-mumbai.maticvigil.com'})
         let allAddresses = addresses || (await getAllAddresses())
         console.log('WHAT IS THIS', allAddresses)
         const allHolos = allAddresses.map(async (address) => {
-            let holo_ = (await wtf.getHolo(address))[props.desiredChain]
-            return {...defaultHolo, ...holo_.creds, 'name' : holo_.name || 'Anonymous', 'bio' : holo_.bio || 'No information provided'}
+          const url = `http://127.0.0.1:3000/getHolo?address=${props.account}`
+          const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+          const holoData = await response.json()
+          const holo_ = holoData['holo'][props.desiredChain]
+          return {...defaultHolo, ...holo_.creds, 'name' : holo_.name || 'Anonymous', 'bio' : holo_.bio || 'No information provided'}
         })
 
         return Promise.all(allHolos)
