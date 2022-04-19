@@ -20,85 +20,6 @@ const Wrapper = (props) => {
     
 }
 
-const cards = [
-    {
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },
-    {
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },{
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },
-    {
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },{
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },
-    {
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },{
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },
-    {
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },{
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },
-    {
-        name: 'Vitalik Buterin',
-        bio: 'Interested in DeSci, Marine Biology, and Gardening',
-        twitter: 'VitalikButerin',
-        google: '',
-        github: 'opscientia',
-        orcid: '0000-6969-6969'
-    },
-]
-
 const defaultHolo = {
     name: '',
     bio: '',
@@ -108,17 +29,15 @@ const defaultHolo = {
     orcid: ''
 }
 
-
+let hasBeenRun = false
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        console.log('this ran 2')
         const allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
         let allAddresses = []
         for (const [service, addresses] of Object.entries(allAddressesByService)){
             allAddresses = [...new Set([...allAddresses, ...addresses])]
         }
-        console.log('this ran 3')
         return allAddresses
     }
 
@@ -127,22 +46,25 @@ const Registry = (props) => {
         let allAddresses = addresses || (await getAllAddresses())
         console.log('WHAT IS THIS', allAddresses)
         const allHolos = allAddresses.map(async (address) => {
+            wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
             let holo_ = (await wtf.getHolo(address))[props.desiredChain]
+            console.log('one holo is ', address, await wtf.getHolo(address))
             return {...defaultHolo, ...holo_.creds, 'name' : holo_.name || 'Anonymous', 'bio' : holo_.bio || 'No information provided'}
         })
-
+        console.log(allHolos, 'ARE ALL OF DHE HOLOS')
         return Promise.all(allHolos)
     }
 
     const init = async () => {
-        if(!props.provider){return}
-
+        if(!props.provider || hasBeenRun){return}
+        hasBeenRun = true
         try{
             console.log('THIS RAN')
             let addresses = await getAllAddresses()
             console.log('ALL ADDRESSES', addresses)
-
-            setHolos(await getAllHolos(addresses))
+            let allHolos = await getAllHolos(addresses)
+            console.log('ALL HOLOS', allHolos)
+            setHolos(allHolos)
             // Only show the modal if the user doesn't have a Holo: 
             let address = props.address || await props.provider.getSigner().getAddress()
             if(addresses.includes(address)){setModalVisible(false)}
