@@ -17,6 +17,7 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
 import { linkFor } from '../link-for.js';
 import wtf from '../wtf-configured'
+import { DisplayPOAPs } from './poaps';
 
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -140,9 +141,9 @@ export const Lookup = (props) => {
     }
     // Find the user's address
     if(props.service == 'address') {
-      setAddress(props.lookupBy) 
+      setAddress(params.credentials) 
     } else {
-      wtf.addressForCredentials(props.lookupBy, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+      wtf.addressForCredentials(params.credentials, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
     }
 
     return <Wrapper>
@@ -162,6 +163,7 @@ export const Lookup = (props) => {
                             }
                         </div>
                     </>}
+                    {/* { address ? <><h3 class='h3 white'>POAPs</h3><DisplayPOAPs address={address} /></> : null } */}
                 </Wrapper>
         
     
