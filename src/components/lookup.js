@@ -197,7 +197,7 @@ export const SearchedHolos = (props) => {
 
       let name = holoData['name']
       let bio = holoData['bio']
-      if (name.includes(props.searchStr) || bio.includes(props.searchStr)) {
+      if (name.toLowerCase().includes(props.searchStr.toLowerCase()) || bio.toLowerCase().includes(props.searchStr.toLowerCase())) {
         let creds = holoData['creds']
         let holoTemp = {
           'address': address,
