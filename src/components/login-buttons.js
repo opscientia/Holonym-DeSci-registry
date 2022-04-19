@@ -15,13 +15,13 @@ export const ORCIDLoginButton = (props)=>{
   
 /** Twitter **/
 export const TwitterLoginButton = (props)=>{
-    return <a className="card-link"href='https://localhost:8081/twitter/polygon/verify'>
+    return <a className="card-link"href='http://143.198.251.86:8081/twitter/gnosis/verify'>
               {props.creds ? 'Update Twitter' : 'Link Twitter'}
             </a>
   }
   
 export const GitHubLoginButton = (props)=>{
-  return <a className="card-link"href='https://localhost:8081/twitter/polygon/verify'>
+  return <a className="card-link"href='http://143.198.251.86:8081/auth/github'>
             {props.creds ? 'Update GitHub' : 'Link GitHub'}
         </a>
 }
