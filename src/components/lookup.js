@@ -190,7 +190,7 @@ export const SearchedHolos = (props) => {
       }
 
       console.log('Getting holo for address...', address)
-      url = `http://sciverse.id/getHolo?address=${address}`
+      url = `https://sciverse.id/getHolo?address=${address}`
       response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
       let holoData = await response.json()
       holoData = holoData['holo'][props.desiredChain]
