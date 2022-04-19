@@ -31,7 +31,7 @@ try{
     params: [chainParams[desiredChain]]
   })
 } catch(e) {
-  console.log(e)
+  console.log('error was', e)
 }
 
 
@@ -208,6 +208,7 @@ function App() {
   }
 
   const signerChanged = async () => {
+    if(!provider){return}
     console.log('SIGNER WAS CHANGED', provider, signer)
     let address;
     try {

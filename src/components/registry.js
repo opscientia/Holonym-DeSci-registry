@@ -100,7 +100,7 @@ const Registry = (props) => {
                         <Wrapper>
                             {holos.length ? holos.map(x => <SmallCard holo={x} />) : null}
                         </Wrapper>
-                        <Modal visible={modalVisible} setVisible={()=>{}} blur={true}>
+                        <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
                             {holos.length ? <>
                                 <h3 className="h3 white">Create your own identity to join the community</h3>
                                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
