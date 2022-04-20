@@ -70,38 +70,17 @@ const Holo = (props) => {
         orcid: ''
     })
 
-    useEffect(() => {
-      const getHolo = async () => {
-        if (props.filledHolo) {
-          return props.filledHolo
-        } else {
-          // If address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
-          let address = ''
-          if (props.service == 'address') {
-            address = props.lookupBy
-          } else {
-            try { // Try getting address from cache. If fetch fails, call chain directly (using wtf).
-              const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`)
-              address = (await response.json())[props.desiredChain]
-            }
-            catch (err) {
-              address = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
-            }
-          }
-          console.log('address', address)
-          console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
-          let holo_ = {}
-          try { // Try getting holo from cache. If fetch fails, call chain directly (using wtf).
-            const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
-            holo_ = (await response.json())[props.desiredChain]
-          }
-          catch (err) {
-            holo_ = (await wtf.getHolo(address))[props.desiredChain]
-          }
-          return {...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio}
-        }
+    useEffect(async () => {
+      if (props.filledHolo) {
+        setHolo(props.filledHolo)
+      } else {
+        // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
+        let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        console.log('address', address)
+        console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
+        let holo_ = (await wtf.getHolo(address))[props.desiredChain]
+        setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       }
-      getHolo().then(holo_ => setHolo(holo_))
     }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
       
     return <div class="x-card">
@@ -150,21 +129,9 @@ export const Lookup = (props) => {
       if (!params.web2service || !params.credentials) {
         return;
       }
-      const getAddress = async () => {
-        // Try getting address from cache. If fetch fails, call chain directly (using wtf).
-        let creds = Buffer.from(params.credentials)
-        let service = params.web2service.toLowerCase()
-        try {
-          const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${creds}&service=${service}`)
-          return (await response.json())[props.desiredChain]
-        }
-        catch (err) {
-          return await wtf.addressForCredentials(creds, service)
-        }
-      }
-      getAddress().then(addr => setAddress(addr))
+      wtf.addressForCredentials(Buffer.from(params.credentials), params.web2service.toLowerCase()).then(addr=>setAddress(addr))
       console.log(`Successfully retrieved address from credentials for address ${address}`)
-    }, [params.credentials, params.web2service])
+    }, [])
 
     // if the URL is just /lookup or something malformed, just return the search bar
     if (!params.web2service || !params.credentials) {
@@ -186,19 +153,6 @@ export const Lookup = (props) => {
       setAddress(params.credentials) 
     } else {
       wtf.addressForCredentials(params.credentials, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
-      // const getAddress = async () => {
-      //   // Try getting address from cache. If fetch fails, call chain directly (using wtf).
-      //   let creds = Buffer.from(params.credentials)
-      //   let service = params.web2service.toLowerCase()
-      //   try {
-      //     const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${creds}&service=${service}`)
-      //     return (await response.json())[props.desiredChain]
-      //   }
-      //   catch (err) {
-      //     return await wtf.addressForCredentials(creds, service)
-      //   }
-      // }
-      // getAddress().then(addr => setAddress(addr))
     }
 
     return <Wrapper>
