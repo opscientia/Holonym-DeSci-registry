@@ -150,9 +150,21 @@ export const Lookup = (props) => {
       if (!params.web2service || !params.credentials) {
         return;
       }
-      wtf.addressForCredentials(Buffer.from(params.credentials), params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+      const getAddress = async () => {
+        // Try getting address from cache. If fetch fails, call chain directly (using wtf).
+        let creds = Buffer.from(params.credentials)
+        let service = params.web2service.toLowerCase()
+        try {
+          const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${creds}&service=${service}`)
+          return (await response.json())[props.desiredChain]
+        }
+        catch (err) {
+          return await wtf.addressForCredentials(creds, service)
+        }
+      }
+      getAddress().then(addr => setAddress(addr))
       console.log(`Successfully retrieved address from credentials for address ${address}`)
-    }, [])
+    }, [params.credentials, params.web2service])
 
     // if the URL is just /lookup or something malformed, just return the search bar
     if (!params.web2service || !params.credentials) {
@@ -174,6 +186,19 @@ export const Lookup = (props) => {
       setAddress(params.credentials) 
     } else {
       wtf.addressForCredentials(params.credentials, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+      // const getAddress = async () => {
+      //   // Try getting address from cache. If fetch fails, call chain directly (using wtf).
+      //   let creds = Buffer.from(params.credentials)
+      //   let service = params.web2service.toLowerCase()
+      //   try {
+      //     const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${creds}&service=${service}`)
+      //     return (await response.json())[props.desiredChain]
+      //   }
+      //   catch (err) {
+      //     return await wtf.addressForCredentials(creds, service)
+      //   }
+      // }
+      // getAddress().then(addr => setAddress(addr))
     }
 
     return <Wrapper>
