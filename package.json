@@ -38,10 +38,11 @@
     "react-scripts": "4.0.3",
     "stream": "^0.0.2",
     "typescript": "^4.6.2",
+    "upgrade": "^1.1.0",
     "web-vitals": "^2.1.4",
     "web3modal": "^1.9.5",
     "webfontloader": "^1.6.28",
-    "wtf-lib": "^1.0.25",
+    "wtf-lib": "^1.0.26",
     "wtfprotocol-helpers": "^1.0.0"
   },
   "scripts": {

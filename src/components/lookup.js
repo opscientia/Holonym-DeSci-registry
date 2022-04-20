@@ -17,6 +17,7 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
 import { linkFor } from '../link-for.js';
 import wtf from '../wtf-configured'
+import { DisplayPOAPs } from './poaps';
 
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -147,10 +148,13 @@ export const Lookup = (props) => {
         </>
       )
     }
-    // NOTE: The following three lines were replaced with useEffect(). Uncomment these if useEffect() doesn't work.
-    // const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
-    // console.log(contractAddresses[params.web2service])
-    // vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+    // Find the user's address
+    if(props.service == 'address') {
+      setAddress(params.credentials) 
+    } else {
+      wtf.addressForCredentials(params.credentials, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+    }
+
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
@@ -171,6 +175,7 @@ export const Lookup = (props) => {
                           {address && <DisplayPOAPs address={address}/>}
                         </div>
                     </>}
+                    {/* { address ? <><h3 class='h3 white'>POAPs</h3><DisplayPOAPs address={address} /></> : null } */}
                 </Wrapper>
         
     
@@ -204,12 +209,10 @@ export const SearchedHolos = (props) => {
       }
 
       console.log('Getting holo for address...', address)
-      // url = `http://sciverse.id/getHolo?address=${address}`
-      // response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
-      // let holoData = await response.json()
-      let holoData = await wtf.getHolo(address)
-      console.log('holoData...', holoData)
-      holoData = holoData[props.desiredChain]
+      let url = `https://sciverse.id/getHolo?address=${address}`
+      let response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+      let holoData = await response.json()
+      holoData = holoData['holo'][props.desiredChain]
 
       let name = holoData['name']
       let bio = holoData['bio']
@@ -250,32 +253,3 @@ export const SearchedHolos = (props) => {
   )
 }
 
-
-export const DisplayPOAPs = (props) => {
-  const [poaps, setPoaps] = useState([])
-
-  const getPoaps = async (address) => {
-    console.log(`Calling api.poap.xyz for POAPs claimed by ${address}`)
-
-    const url = `https://api.poap.xyz/actions/scan/${address}`; 
-    const resp = await fetch(url);
-    const poaps = await resp.json();
-    const poapDisplay = poaps.map(poap => (
-      <div key={poap['event']['id']} >
-        <div class="spacer-small"></div>
-        <img src={poap['event']['image_url']} alt={`POAP for ${poap['event']['name']}`} />
-      </div>
-    ))
-    return poapDisplay;
-  }
-
-  useEffect(() => {
-    getPoaps(props.address).then(poaps => setPoaps(poaps))
-  }, [props.address])
-
-  return (
-    <>
-    {poaps}
-    </>
-  )
-}

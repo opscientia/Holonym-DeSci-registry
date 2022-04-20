@@ -41,35 +41,47 @@ const Registry = (props) => {
         return allAddresses
     }
 
-    // can optionally supply addresses to get holos from. otherwise, gets from all addresses registered on Holo:
-    const getAllHolos = async (addresses) => {
-        let allAddresses = addresses || (await getAllAddresses())
-        console.log('WHAT IS THIS', allAddresses)
-        const allHolos = allAddresses.map(async (address) => {
-            wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
-            let holo_ = (await wtf.getHolo(address))[props.desiredChain]
-            console.log('one holo is ', address, await wtf.getHolo(address))
-            return {...defaultHolo, ...holo_.creds, 'name' : holo_.name || 'Anonymous', 'bio' : holo_.bio || 'No information provided'}
-        })
-        console.log(allHolos, 'ARE ALL OF DHE HOLOS')
-        return Promise.all(allHolos)
+    // fetches holos one-by-one from addresses and appends them to holos live
+    const setHolosAsyncFromAddresses = async (addresses) => {
+        let tmpHolos = []
+        for (const address of addresses) {
+            // wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
+            const holo_ = (await wtf.getHolo(address))[props.desiredChain]
+            const newHolo = {
+                ...defaultHolo, 
+                ...holo_.creds, 
+                'name' : holo_.name || 'Anonymous', 
+                'bio' : holo_.bio || 'No information provided', 
+                'address' : address
+            }
+            const holoIsEmpty = Object.values(newHolo).every(x => !x)
+            console.log('NEW HOLO', newHolo)
+            console.log('abc')
+            if (!holoIsEmpty) {
+                
+                tmpHolos.push(newHolo)
+                // remove duplicates
+                tmpHolos = [...new Set([...tmpHolos])]
+                console.log('NEW SET', tmpHolos)
+                setHolos(tmpHolos)
+            }
+        }
     }
+
 
     const init = async () => {
         if(!props.provider || hasBeenRun){return}
         hasBeenRun = true
         try{
-            console.log('THIS RAN')
             let addresses = await getAllAddresses()
-            console.log('ALL ADDRESSES', addresses)
-            let allHolos = await getAllHolos(addresses)
-            console.log('ALL HOLOS', allHolos)
-            setHolos(allHolos)
             // Only show the modal if the user doesn't have a Holo: 
             let address = props.address || await props.provider.getSigner().getAddress()
             if(addresses.includes(address)){setModalVisible(false)}
+            await setHolosAsyncFromAddresses(addresses)
+            // setHolos(allHolos)
+
         } catch(err) {
-            console.log('ERROR: ', err)
+            console.error('ERROR: ', err)
         }
         
     }
@@ -92,9 +104,9 @@ const Registry = (props) => {
                             <div class="spacer-large"></div>
                         </div>
                         <Wrapper>
-                            {holos.length ? holos.map(x => <SmallCard holo={x} />) : null}
+                            {holos.length ? holos.map(x => <SmallCard holo={x} href={`/lookup/address/${x.address}`} />) : null}
                         </Wrapper>
-                        <Modal visible={modalVisible} setVisible={()=>{}} blur={true}>
+                        <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
                             {holos.length ? <>
                                 <h3 className="h3 white">Create your own identity to join the community</h3>
                                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
