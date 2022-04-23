@@ -76,6 +76,15 @@ const Holo = (props) => {
       } else {
         // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
         let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        // let address = ''
+        // if (props.service =='address') {
+        //   address = props.lookupBy
+        // }
+        // else {
+        //   const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`)
+        //   address = await response.json()
+        //   console.log('addresss at line 86 in lookup.js...', address)
+        // }
         console.log('address', address)
         console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
         const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
@@ -152,7 +161,7 @@ export const Lookup = (props) => {
         </>
       )
     }
-    
+
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
