@@ -41,6 +41,7 @@ const Registry = (props) => {
         catch (err) {
           allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
         }
+        allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
         let allAddresses = []
         for (const [service, addresses] of Object.entries(allAddressesByService)){
             allAddresses = [...new Set([...allAddresses, ...addresses])]
