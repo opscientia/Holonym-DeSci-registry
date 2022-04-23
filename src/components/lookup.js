@@ -17,6 +17,7 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
 import { linkFor } from '../link-for.js';
 import wtf from '../wtf-configured'
+import { DisplayPOAPs } from './poaps';
 
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -75,9 +76,19 @@ const Holo = (props) => {
       } else {
         // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
         let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        // let address = ''
+        // if (props.service =='address') {
+        //   address = props.lookupBy
+        // }
+        // else {
+        //   const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`)
+        //   address = await response.json()
+        //   console.log('addresss at line 86 in lookup.js...', address)
+        // }
         console.log('address', address)
         console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
-        let holo_ = (await wtf.getHolo(address))[props.desiredChain]
+        const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
+        let holo_ = (await response.json())[props.desiredChain]
         setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       }
     }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
@@ -128,7 +139,10 @@ export const Lookup = (props) => {
       if (!params.web2service || !params.credentials) {
         return;
       }
-      wtf.addressForCredentials(Buffer.from(params.credentials), params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+      let url = `https://sciverse.id/addressForCredentials?credentials=${params.credentials}&service=${params.web2service.toLowerCase()}`
+      fetch(url).then(response => response.json()).then(address => {
+        setAddress(address)
+      })
       console.log(`Successfully retrieved address from credentials for address ${address}`)
     }, [])
 
@@ -147,10 +161,7 @@ export const Lookup = (props) => {
         </>
       )
     }
-    // NOTE: The following three lines were replaced with useEffect(). Uncomment these if useEffect() doesn't work.
-    // const vjwt = new ethers.Contract(contractAddresses[params.web2service], abi, props.provider)
-    // console.log(contractAddresses[params.web2service])
-    // vjwt.addressForCreds(Buffer.from(params.credentials)).then(addr=>setAddress(addr))
+
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
@@ -168,9 +179,10 @@ export const Lookup = (props) => {
                             }
                         </div>
                         <div>
-                          {address && <DisplayPOAPs address={address}/>}
+                          {/* {address && <DisplayPOAPs address={address}/>} */}
                         </div>
                     </>}
+                    {/* { address ? <><h3 class='h3 white'>POAPs</h3><DisplayPOAPs address={address} /></> : null } */}
                 </Wrapper>
         
     
@@ -185,30 +197,19 @@ export const SearchedHolos = (props) => {
 
     // Get all addresses with name/bio
     console.log('Entered getHolos in lookup.js')
-    const addrsObj = await wtf.getAllUserAddresses()
+    // const addrsObj = await wtf.getAllUserAddresses()
 
-    // let url = 'https://sciverse.id/getAllUserAddresses'
-    // let response = await fetch(url)
-    // const addrsObj = await response.json() // TODO: try-catch. Need to catch timeouts and such
-    const addrsWithNameOrBio = addrsObj[props.desiredChain]['nameAndBio'] 
-  
-    console.log('addrsWithNameOrBio...', addrsWithNameOrBio)
+    let url = 'https://sciverse.id/getAllUserAddresses'
+    let response = await fetch(url)
+    const allAddresses = await response.json() // TODO: try-catch. Need to catch timeouts and such
 
     // Get all creds of every account with a name/bio that includes search string
     let allHolos = []
-    for (const address of addrsWithNameOrBio) {
-      // TODO: Remove the following check when new bio contract is deployed!!
-      let viewedAddrs = allHolos.map(holo => holo.address)
-      if (viewedAddrs.indexOf(address) != -1) {
-        continue;
-      }
-
+    for (const address of allAddresses) {
       console.log('Getting holo for address...', address)
-      // url = `http://sciverse.id/getHolo?address=${address}`
-      // response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
-      // let holoData = await response.json()
-      let holoData = await wtf.getHolo(address)
-      console.log('holoData...', holoData)
+      let url = `https://sciverse.id/getHolo?address=${address}`
+      let response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
+      let holoData = await response.json()
       holoData = holoData[props.desiredChain]
 
       let name = holoData['name']
@@ -250,32 +251,3 @@ export const SearchedHolos = (props) => {
   )
 }
 
-
-export const DisplayPOAPs = (props) => {
-  const [poaps, setPoaps] = useState([])
-
-  const getPoaps = async (address) => {
-    console.log(`Calling api.poap.xyz for POAPs claimed by ${address}`)
-
-    const url = `https://api.poap.xyz/actions/scan/${address}`; 
-    const resp = await fetch(url);
-    const poaps = await resp.json();
-    const poapDisplay = poaps.map(poap => (
-      <div key={poap['event']['id']} >
-        <div class="spacer-small"></div>
-        <img src={poap['event']['image_url']} alt={`POAP for ${poap['event']['name']}`} />
-      </div>
-    ))
-    return poapDisplay;
-  }
-
-  useEffect(() => {
-    getPoaps(props.address).then(poaps => setPoaps(poaps))
-  }, [props.address])
-
-  return (
-    <>
-    {poaps}
-    </>
-  )
-}

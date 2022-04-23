@@ -116,7 +116,9 @@ const InnerAuthenticationFlow = (props) => {
         if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
         const holoIsEmpty = Object.values(holo).every(x => !x)
         if(!holoIsEmpty || !account) {return} //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-        let holo_ = (await wtf.getHolo(account))[props.desiredChain]
+        // let holo_ = (await wtf.getHolo(account))[props.desiredChain]
+        const response = await fetch(`https://sciverse.id/getHolo?address=${account}`)
+        let holo_ = (await response.json())[props.desiredChain]
         setHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       } catch(err) {
         console.log('Error:', err)

@@ -19,6 +19,7 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
+import wtf from 'wtf-lib'
 
 const { ethers } = require('ethers');
 
@@ -30,7 +31,7 @@ try{
     params: [chainParams[desiredChain]]
   })
 } catch(e) {
-  console.log(e)
+  console.log('error was', e)
 }
 
 
@@ -207,6 +208,7 @@ function App() {
   }
 
   const signerChanged = async () => {
+    if(!provider){return}
     console.log('SIGNER WAS CHANGED', provider, signer)
     let address;
     try {
@@ -216,12 +218,7 @@ function App() {
       setAccount(address);
       // get the signed-in user's Holo:
       console.log('hey')
-      // const url = `http://127.0.0.1:3000/getHolo?address=${address}`
-      // const response = await fetch(url) // TODO: try-catch. Need to catch timeouts and such
-      // const holoData = await response.json()
-      // const holo = holoData['holo']['ethereum']
-      // console.log('GET ALL ACCOUNTS', holo);
-      // alert(holo)
+      console.log('GET ALL ACCOUNTS', await wtf.getAllAccounts(address, 'gnosis'));
     }
     catch (err) {
       console.log('need to login to metamask')
