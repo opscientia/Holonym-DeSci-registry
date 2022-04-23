@@ -76,6 +76,8 @@ const Holo = (props) => {
       } else {
         // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
         let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        let wtf_resp = await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        console.log('wtf response', wtf_resp)
         // let address = ''
         // if (props.service =='address') {
         //   address = props.lookupBy
@@ -89,7 +91,11 @@ const Holo = (props) => {
         console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
         const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
         let holo_ = (await response.json())[props.desiredChain]
-        setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+        console.log('lookup.js line 91: retrieved holo: ', holo_)
+        setHolo({...holo, 'google': holo_.google, 
+          'orcid': holo_.orcid, 'github': holo_.github, 
+          'twitter': holo_.twitter, 'name' : holo_.name, 'bio' : holo_.bio
+        })
       }
     }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
       
@@ -215,14 +221,7 @@ export const SearchedHolos = (props) => {
       let name = holoData['name']
       let bio = holoData['bio']
       if (name.toLowerCase().includes(props.searchStr.toLowerCase()) || bio.toLowerCase().includes(props.searchStr.toLowerCase())) {
-        let creds = holoData['creds']
-        let holoTemp = {
-          'address': address,
-          'name': name,
-          'bio': bio,
-          ...creds
-        }
-        allHolos.push(holoTemp)
+        allHolos.push(holoData)
       }
     }
     const userHolosTemp = allHolos.map(userHolo => (
