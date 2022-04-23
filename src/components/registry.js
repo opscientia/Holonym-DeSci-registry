@@ -63,6 +63,7 @@ const Registry = (props) => {
               const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
               holo_ = (await response.json())[props.desiredChain]
               console.log(`Retrieved holo for address ${address}...`)
+              console.log(holo_)
             }
             catch (err) {
               wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
