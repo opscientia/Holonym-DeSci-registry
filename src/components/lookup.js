@@ -130,7 +130,10 @@ export const Lookup = (props) => {
       if (!params.web2service || !params.credentials) {
         return;
       }
-      wtf.addressForCredentials(Buffer.from(params.credentials), params.web2service.toLowerCase()).then(addr=>setAddress(addr))
+      let url = `https://sciverse.id/addressForCredentials?credentials=${params.credentials}&service=${params.web2service.toLowerCase()}`
+      fetch(url).then(response => response.json()).then(address => {
+        setAddress(address)
+      })
       console.log(`Successfully retrieved address from credentials for address ${address}`)
     }, [])
 
@@ -149,18 +152,7 @@ export const Lookup = (props) => {
         </>
       )
     }
-    // Find the user's address
-    if(props.service == 'address') {
-      setAddress(params.credentials) 
-    } else {
-      wtf.addressForCredentials(params.credentials, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
-      let url = `https://sciverse.id/addressForCredentials?credentials=${params.credentials}&service=${params.web2service.toLowerCase()}`
-      fetch(url).then(response => response.json()).then(address => {
-        setAddress(address)
-        console.log('address (at lookup.js:160)...', address)
-      })
-    }
-
+    
     return <Wrapper>
                     <SearchBar />
                     <div class="spacer-large"></div>
@@ -178,7 +170,7 @@ export const Lookup = (props) => {
                             }
                         </div>
                         <div>
-                          {address && <DisplayPOAPs address={address}/>}
+                          {/* {address && <DisplayPOAPs address={address}/>} */}
                         </div>
                     </>}
                     {/* { address ? <><h3 class='h3 white'>POAPs</h3><DisplayPOAPs address={address} /></> : null } */}
