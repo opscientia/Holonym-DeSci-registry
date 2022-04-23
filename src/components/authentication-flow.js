@@ -109,25 +109,21 @@ const InnerAuthenticationFlow = (props) => {
     }
     const [holo, setHolo] = useState(defaultHolo)
     // Load the user's Holo when the page loads
-    useEffect(() => {
-      const getHolo = async () => {
-        try {
-          console.log('entered getHolo at line 115 in authentication-flow.js')
-          // if props has provider but not account for some reason, get the account:
-          let account; 
-          if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
-          const holoIsEmpty = Object.values(holo).every(x => !x)
-          if(!holoIsEmpty || !account) {return} //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-          const response = await fetch(`https://sciverse.id/getHolo?address=${account}`)
-          let holo_ = (await response.json())[props.desiredChain]
-          console.log('retrieved holo')
-          console.log(holo_)
-          return {... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio}
-        } catch(err) {
-          console.log('Error:', err)
-        }
+    useEffect(async () => {
+      try {
+        // if props has provider but not account for some reason, get the account:
+        let account; 
+        if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
+        const holoIsEmpty = Object.values(holo).every(x => !x)
+        if(!holoIsEmpty || !account) {return} //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
+        // let holo_ = (await wtf.getHolo(account))[props.desiredChain]
+        const response = await fetch(`https://sciverse.id/getHolo?address=${account}`)
+        let holo_ = (await response.json())[props.desiredChain]
+        setHolo({... defaultHolo, ... holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
+      } catch(err) {
+        console.log('Error:', err)
       }
-      getHolo().then(holo_ => setHolo(holo_))
+      
     }, [props.desiredChain, props.provider, props.account]);
     
     let revealBlock = 0; //block when user should be prompted to reveal their JWT

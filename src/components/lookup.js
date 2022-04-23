@@ -70,29 +70,18 @@ const Holo = (props) => {
         orcid: ''
     })
 
-    useEffect(() => {
-      const getHolo = async () => {
-        if (props.filledHolo) {
-          setHolo(props.filledHolo)
-        } else {
-          // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
-          let address = ''
-          if (props.service == 'address') {
-            address = props.lookupBy;
-          }
-          else {
-            let url = `https://sciverse.id/addressForCredentials?credentials=${props.lookupBy}&service=${props.service.toLowerCase()}`
-            let response = await fetch(url)
-            address = await response.json()
-          }
-          console.log('address', address)
-          console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
-          const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
-          let holo_ = (await response.json())[props.desiredChain]
-          return {...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio}
-        }
+    useEffect(async () => {
+      if (props.filledHolo) {
+        setHolo(props.filledHolo)
+      } else {
+        // if address is supplied, address is lookupBy. Otherwise, we have to find address by getting addressForCredentials(lookupby)
+        let address = props.service == 'address' ? props.lookupBy : await wtf.addressForCredentials(props.lookupBy, props.service.toLowerCase())
+        console.log('address', address)
+        console.log('0xb1d534a8836fB0d276A211653AeEA41C6E11361E' == address)
+        const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
+        let holo_ = (await response.json())[props.desiredChain]
+        setHolo({...holo, ...holo_.creds, 'name' : holo_.name, 'bio' : holo_.bio})
       }
-      getHolo().then(holo_ => setHolo(holo_))
     }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
       
     return <div class="x-card">
@@ -164,8 +153,12 @@ export const Lookup = (props) => {
     if(props.service == 'address') {
       setAddress(params.credentials) 
     } else {
+      wtf.addressForCredentials(params.credentials, params.web2service.toLowerCase()).then(addr=>setAddress(addr))
       let url = `https://sciverse.id/addressForCredentials?credentials=${params.credentials}&service=${params.web2service.toLowerCase()}`
-      fetch(url).then(response => response.json()).then(address => setAddress(address))
+      fetch(url).then(response => response.json()).then(address => {
+        setAddress(address)
+        console.log('address (at lookup.js:160)...', address)
+      })
     }
 
     return <Wrapper>
