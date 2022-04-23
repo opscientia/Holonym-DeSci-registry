@@ -33,19 +33,22 @@ let hasBeenRun = false
 
 const Registry = (props) => {
     const getAllAddresses = async () => {
-        let allAddressesByService = {}
-        try { // Try getting user addrs from cache. If it fails, call chain directly.
-          const response = await fetch(`https://sciverse.id/getAllUserAddresses`)
-          allAddressesByService = (await response.json())[props.desiredChain]
-        }
-        catch (err) {
-          allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
-        }
-        let allAddresses = []
-        for (const [service, addresses] of Object.entries(allAddressesByService)){
-            allAddresses = [...new Set([...allAddresses, ...addresses])]
-        }
-        return allAddresses
+      const response = await fetch(`https://sciverse.id/getAllUserAddresses`)
+      let allAddresses = await response.json()
+      return allAddresses
+        // let allAddressesByService = {}
+        // try { // Try getting user addrs from cache. If it fails, call chain directly.
+        //   const response = await fetch(`https://sciverse.id/getAllUserAddresses`)
+        //   allAddressesByService = (await response.json())[props.desiredChain]
+        // }
+        // catch (err) {
+        //   allAddressesByService = (await wtf.getAllUserAddresses())[props.desiredChain]
+        // }
+        // let allAddresses = []
+        // for (const [service, addresses] of Object.entries(allAddressesByService)){
+        //     allAddresses = [...new Set([...allAddresses, ...addresses])]
+        // }
+        // return allAddresses
     }
 
     // fetches holos one-by-one from addresses and appends them to holos live
@@ -124,7 +127,7 @@ const Registry = (props) => {
                         <Wrapper>
                             {holos.length ? holos.map(x => <SmallCard holo={x} href={`/lookup/address/${x.address}`} />) : null}
                         </Wrapper>
-                        <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
+                        {/* <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
                             {holos.length ? <>
                                 <h3 className="h3 white">Create your own identity to join the community</h3>
                                 <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
@@ -132,7 +135,7 @@ const Registry = (props) => {
                                     <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
                                 </div>
                             </> : <h3 className="h3 white">Loading data from smart-contracts...</h3>}
-                        </Modal>
+                        </Modal> */}
                     </div>
                 </div>
             </div>
