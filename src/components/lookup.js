@@ -269,7 +269,7 @@ export const SearchedHolos = (props) => {
         setLoading(false)
       })
     }
-  }, [props.searchStr]) // searchStr == what the user inputed to search bar
+  }, [props.searchStr, location.state.holos]) // searchStr == what the user inputed to search bar
 
   return (
     <>
