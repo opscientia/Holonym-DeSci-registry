@@ -101,7 +101,7 @@ const Registry = (props) => {
             let addresses = await getAllAddresses()
             // Only show the modal if the user doesn't have a Holo: 
             let address = props.address || await props.provider.getSigner().getAddress()
-            if(addresses.includes(address)){setModalVisible(false)}
+            if(addresses.includes(address.toLowerCase())){setModalVisible(false)}
             await setHolosAsyncFromAddresses(addresses)
             // setHolos(allHolos)
 
@@ -131,15 +131,13 @@ const Registry = (props) => {
                         <Wrapper>
                             {holos.length ? holos.map(x => <SmallCard holo={x} href={`/lookup/address/${x.address}`} />) : null}
                         </Wrapper>
-                        {/* <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
-                            {holos.length ? <>
-                                <h3 className="h3 white">Create your own identity to join the community</h3>
-                                <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
-                                    <a onClick={()=>navigate('/myholo')} className='x-button' style={{width: '45%'}}>Create My ID</a> 
-                                    <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
-                                </div>
-                            </> : <h3 className="h3 white">Loading data from smart-contracts...</h3>}
-                        </Modal> */}
+                        <Modal visible={modalVisible} setVisible={()=>{}} blur={true}>
+                            <h3 className="h3 white">Create your own identity to join the community</h3>
+                            <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
+                                <a onClick={()=>navigate('/myholo')} className='x-button' style={{width: '45%'}}>Create My ID</a> 
+                                <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
+                            </div>
+                        </Modal>
                     </div>
                 </div>
             </div>
