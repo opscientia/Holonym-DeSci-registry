@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
 import { truncateAddress } from '../ui-helpers';
 import contractAddresses from '../contractAddresses.json'
 import contractAddressesNew from '../contractAddressesNew.json' // TODO: collapse contractAddresses and contractAddressesNew into one
@@ -140,8 +140,12 @@ const Holo = (props) => {
 export const Lookup = (props) => {
     const [address, setAddress] = useState(null)
     let params = useParams()
+    const location = useLocation();
 
     useEffect(() => {
+      if (params.web2service == 'holosearch') {
+        return;
+      }
       if (!params.web2service || !params.credentials) {
         return;
       }
@@ -165,6 +169,16 @@ export const Lookup = (props) => {
             <SearchedHolos searchStr={params.credentials} desiredChain={props.desiredChain} provider={props.provider} {...props} />
           </Wrapper>
         </>
+      )
+    }
+
+    if (params.web2service.includes('holosearch')) {
+      return (
+        <Wrapper>
+          <SearchBar />
+          {/* <SearchedHolos searchStr={params.credentials} desiredChain={props.desiredChain} provider={props.provider} {...props} /> */}
+          <SearchedHolos holos={location.state.holos} {...props} />
+        </Wrapper>
       )
     }
 
@@ -197,6 +211,7 @@ export const Lookup = (props) => {
 export const SearchedHolos = (props) => {
   const [userHolos, setUserHolos] = useState([])
   const [loading, setLoading] = useState(true)
+  const location = useLocation();
 
   async function getHolos() {
     setLoading(true)
@@ -236,10 +251,24 @@ export const SearchedHolos = (props) => {
   }
 
   useEffect(() => {
-    getHolos().then(userHolosTemp => {
+    console.log('lookup.js: holos...')
+    console.log(location.state.holos)
+    if (location.state.holos) {
+      const userHolosTemp = location.state.holos.map(userHolo => (
+        <div key={userHolo.address}>
+          <div class="spacer-small"></div>
+          <Holo filledHolo={userHolo} {...props} />
+        </div>
+      ))
       setUserHolos(userHolosTemp)
       setLoading(false)
-    })
+    }
+    else {
+      getHolos().then(userHolosTemp => {
+        setUserHolos(userHolosTemp)
+        setLoading(false)
+      })
+    }
   }, [props.searchStr]) // searchStr == what the user inputed to search bar
 
   return (

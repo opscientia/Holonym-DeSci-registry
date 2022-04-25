@@ -123,10 +123,22 @@ export const SearchBar = () => {
         setCredentials('') //reset credentials
         navigate(`/lookup/${service}/${creds || 'nobody'}`)
     }
+
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      let searchStr = event.target[0].value;
+      let resp = await fetch(`http://localhost:3000/searchHolos?searchStr=${searchStr}`)
+      let holos = await resp.json()
+      console.log('search-bar.js: holos...')
+      console.log(holos)
+      navigate(`/lookup/holosearch/${searchStr}`, { state: {holos: holos}})
+    }
+
     return <>
         <div class="optin-form w-form">
             {/* TODO : this need not be a <form />*/}
-          <form id="email-form" name="email-form" data-name="Email Form" method="get" class="form">
+          {/* <form onSubmit={handleSubmit} id="email-form" name="email-form" data-name="Email Form" method="get" class="form"> */}
+          <form onSubmit={handleSubmit} method="get" class="form">
             {credentials ? 
                 <SearchWithSuggestions credentials={credentials} onChange={e=>setCredentials(e.target.value)} searchWithService={searchWithService} />
                     : 
