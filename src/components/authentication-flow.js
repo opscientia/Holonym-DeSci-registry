@@ -318,28 +318,6 @@ const InnerAuthenticationFlow = (props) => {
                         </div>
                     </div>
                 </div>
-                    {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
-                    <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
-                    : 
-                    <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
-                    {/*Header
-                    <br />
-                    <code>
-                    <DisplayJWTSection section={JWTObject.header.parsed} />
-                    </code>
-                    
-                    <DisplayJWTSection section={JWTObject.payload.parsed} />
-                    {
-                    
-                    props.account ? <>
-                    Then<br />
-                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
-                    <br />Otherwise<br />
-                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
-                    </>
-                    : 
-                    <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
-                    } */}
                 
       default:
         return <div className='bg-img x-section wf-section' style={{width:'100vw'}}>
