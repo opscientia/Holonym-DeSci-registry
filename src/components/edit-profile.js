@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useProvider, useContract } from "wagmi";
-import { truncateAddress } from "../ui-helpers.js";
+import { truncateAddress } from "../utils/ui-helpers.js";
 import { Modal } from "./atoms/Modals.js";
-import contractAddresses from "../contractAddresses.json";
-import abi from "../abi/WTFBios.json";
+import contractAddresses from "../constants/contractAddresses.json";
+import abi from "../constants/abi/WTFBios.json";
 
 export const EditProfileButton = (props) => {
   const [visible, setVisible] = useState(false);

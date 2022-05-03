@@ -1,10 +1,10 @@
-import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./login-buttons.js";
+import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
 import { useParams, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import contractAddresses from "../contractAddresses.json";
-import { truncateAddress } from "../ui-helpers.js";
+import contractAddresses from "../constants/contractAddresses.json";
+import { truncateAddress } from "../utils/ui-helpers.js";
 import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from "wtfprotocol-helpers";
-import abi from "../abi/VerifyJWT.json";
+import abi from "../constants/abi/VerifyJWT.json";
 import { LitCeramic } from "./lit-ceramic.js";
 import { InfoButton } from "./info-button.js";
 import QRCode from "react-qr-code";

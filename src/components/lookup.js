@@ -8,7 +8,7 @@ import CircleWavyCheck from "../img/CircleWavyCheck.svg";
 import Orcid from "../img/Orcid.svg";
 import TwitterLogo from "../img/TwitterLogo.svg";
 import profile from "../img/profile.svg";
-import { linkFor } from "../link-for.js";
+import { linkFor } from "../utils/link-for.js";
 import wtf from "../wtf-configured";
 import { DisplayPOAPs } from "./poaps";
 
