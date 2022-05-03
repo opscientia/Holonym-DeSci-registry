@@ -4,7 +4,7 @@ import { SearchBar } from './search-bar.js'
 import { Modal } from './modals.js'
 import { useNavigate  } from 'react-router-dom'
 import wtf from '../wtf-configured'
-import { useProvider, useAccount } from 'wagmi'
+import { useAccount } from 'wagmi'
 
 
 // Wraps everything on the registry screen with style
@@ -33,7 +33,6 @@ const defaultHolo = {
 let hasBeenRun = false
 
 const Registry = (props) => {
-  const provider = useProvider()
   const { data: account } = useAccount()
     const getAllAddresses = async () => {
       const response = await fetch(`https://sciverse.id/getAllUserAddresses`)
@@ -98,13 +97,12 @@ const Registry = (props) => {
 
 
     const init = async () => {
-        if(!provider || hasBeenRun){return}
+        if(hasBeenRun){return}
         hasBeenRun = true
         try{
             let addresses = await getAllAddresses()
             // Only show the modal if the user doesn't have a Holo: 
-            let address = account?.address || await provider.getSigner().getAddress()
-            if(addresses.includes(address.toLowerCase())){setModalVisible(false)}
+            if(addresses.includes(account.address.toLowerCase())){setModalVisible(false)}
             await setHolosAsyncFromAddresses(addresses)
             // setHolos(allHolos)
 
@@ -115,7 +113,7 @@ const Registry = (props) => {
     }
     const [holos, setHolos] = useState([])
     const [modalVisible, setModalVisible] = useState(true)
-    useEffect(init, [account, provider])
+    useEffect(init, [account])
 
     console.log(holos)
 
