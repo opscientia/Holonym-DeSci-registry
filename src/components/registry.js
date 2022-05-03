@@ -4,6 +4,7 @@ import { SearchBar } from './search-bar.js'
 import { Modal } from './modals.js'
 import { useNavigate  } from 'react-router-dom'
 import wtf from '../wtf-configured'
+import { useProvider, useAccount } from 'wagmi'
 
 
 // Wraps everything on the registry screen with style
@@ -32,6 +33,8 @@ const defaultHolo = {
 let hasBeenRun = false
 
 const Registry = (props) => {
+  const provider = useProvider()
+  const { data: account } = useAccount()
     const getAllAddresses = async () => {
       const response = await fetch(`https://sciverse.id/getAllUserAddresses`)
       let allAddresses = await response.json()
@@ -95,13 +98,13 @@ const Registry = (props) => {
 
 
     const init = async () => {
-        if(!props.provider || hasBeenRun){return}
+        if(!provider || hasBeenRun){return}
         hasBeenRun = true
         try{
             let addresses = await getAllAddresses()
             // Only show the modal if the user doesn't have a Holo: 
-            let address = props.address || await props.provider.getSigner().getAddress()
-            if(addresses.includes(address)){setModalVisible(false)}
+            let address = account?.address || await provider.getSigner().getAddress()
+            if(addresses.includes(address.toLowerCase())){setModalVisible(false)}
             await setHolosAsyncFromAddresses(addresses)
             // setHolos(allHolos)
 
@@ -112,7 +115,7 @@ const Registry = (props) => {
     }
     const [holos, setHolos] = useState([])
     const [modalVisible, setModalVisible] = useState(true)
-    useEffect(init, [props.provider])
+    useEffect(init, [account, provider])
 
     console.log(holos)
 
@@ -131,15 +134,13 @@ const Registry = (props) => {
                         <Wrapper>
                             {holos.length ? holos.map(x => <SmallCard holo={x} href={`/lookup/address/${x.address}`} />) : null}
                         </Wrapper>
-                        {/* <Modal visible={props.provider && props.provider.provider && modalVisible} setVisible={()=>{}} blur={true}>
-                            {holos.length ? <>
-                                <h3 className="h3 white">Create your own identity to join the community</h3>
-                                <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
-                                    <a onClick={()=>navigate('/myholo')} className='x-button' style={{width: '45%'}}>Create My ID</a> 
-                                    <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
-                                </div>
-                            </> : <h3 className="h3 white">Loading data from smart-contracts...</h3>}
-                        </Modal> */}
+                        <Modal visible={modalVisible} setVisible={()=>{}} blur={true}>
+                            <h3 className="h3 white">Create your own identity to join the community</h3>
+                            <div className='x-container w-container' style={{justifyContent: 'space-between'}}>
+                                <a onClick={()=>navigate('/myholo')} className='x-button' style={{width: '45%'}}>Create My ID</a> 
+                                <a href='https://holo.pizza' className='x-button secondary' style={{width: '45%'}}>Learn More</a>
+                            </div>
+                        </Modal>
                     </div>
                 </div>
             </div>

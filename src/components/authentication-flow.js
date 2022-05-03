@@ -20,6 +20,7 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import wtf from '../wtf-configured';
+import { useProvider } from 'wagmi'
 const { ethers } = require('ethers');
 
 // TODO: better error handling
@@ -93,7 +94,7 @@ const InnerAuthenticationFlow = (props) => {
     const navigate = useNavigate();
     let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
     console.log(props)
-    const vjwt = props.web2service && props.provider ? new ethers.Contract(contractAddresses[props.web2service], abi, props.provider.getSigner()) : null;
+    const vjwt = props.web2service && provider ? new ethers.Contract(contractAddresses[props.web2service], abi, provider.getSigner()) : null;
     const [step, setStep] = useState(null);
     const [JWTText, setJWTText] = useState('');
     const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
@@ -108,12 +109,13 @@ const InnerAuthenticationFlow = (props) => {
       twitter: null
     }
     const [holo, setHolo] = useState(defaultHolo)
+    const provider = useProvider()
     // Load the user's Holo when the page loads
     useEffect(async () => {
       try {
         // if props has provider but not account for some reason, get the account:
         let account; 
-        if(props.provider){account = props.account || await props.provider.getSigner().getAddress()}
+        if(provider){account = props.account || await provider.getSigner().getAddress()}
         const holoIsEmpty = Object.values(holo).every(x => !x)
         if(!holoIsEmpty || !account) {return} //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
         const response = await fetch(`https://sciverse.id/getHolo?address=${account}`)
@@ -126,7 +128,7 @@ const InnerAuthenticationFlow = (props) => {
         console.log('Error:', err)
       }
       
-    }, [props.desiredChain, props.provider, props.account]);
+    }, [props.desiredChain, provider, props.account]);
     
     let revealBlock = 0; //block when user should be prompted to reveal their JWT
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
@@ -147,7 +149,7 @@ const InnerAuthenticationFlow = (props) => {
     useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
   
   
-    if(!props.provider){console.log(props); return 'Please connect your wallet'}
+    if(!provider){console.log(props); return 'Please connect your wallet'}
   
   
     const commitJWTOnChain = async (JWTObject) => {
@@ -163,13 +165,13 @@ const InnerAuthenticationFlow = (props) => {
       console.log(proof.toString('hex'))
       try {
         let tx = await vjwt.commitJWTProof(proof)
-        revealBlock = await props.provider.getBlockNumber() + 1
-        console.log('t', await props.provider.getBlockNumber() + 1, revealBlock)
+        revealBlock = await provider.getBlockNumber() + 1
+        console.log('t', await provider.getBlockNumber() + 1, revealBlock)
         let revealed = false 
-        props.provider.on('block', async () => {
+        provider.on('block', async () => {
           console.log(revealed, 'revealed')
-          console.log(await props.provider.getBlockNumber(), revealBlock)
-          if(( await props.provider.getBlockNumber() >= revealBlock) && (!revealed)){
+          console.log(await provider.getBlockNumber(), revealBlock)
+          if(( await provider.getBlockNumber() >= revealBlock) && (!revealed)){
             setStep('waitingForBlockCompletion')
             revealed=true
           }
@@ -223,7 +225,7 @@ const InnerAuthenticationFlow = (props) => {
     }
   
     // listen for the transaction to go to the mempool
-    // props.provider.on('pending', async () => console.log('tx'))
+    // provider.on('pending', async () => console.log('tx'))
   
   
     switch(step){
@@ -233,14 +235,14 @@ const InnerAuthenticationFlow = (props) => {
           // this should be multiple functions eventually instead of convoluded nested loops
           if(credentialsRPrivate){
             submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
-              props.provider.once(tx, async () => {    
+              provider.once(tx, async () => {    
                 console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')        
                 // setStep('success'); 
               })
             })
           } else {
             proveIKnewValidJWT(props.credentialClaim).then(tx => {
-              props.provider.once(tx, async () => {
+              provider.once(tx, async () => {
                 console.log(props.account)
                 console.log(await vjwt.credsForAddress(props.account))
                 console.log(hexToString(await vjwt.credsForAddress(props.account)))
@@ -252,7 +254,7 @@ const InnerAuthenticationFlow = (props) => {
             })
           }
         }
-        return credentialsRPrivate ? <LitCeramic provider={props.provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <MessageScreen msg='Waiting for block to be mined' />
+        return credentialsRPrivate ? <LitCeramic provider={provider} stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/> : <MessageScreen msg='Waiting for block to be mined' />
       case 'success':
         // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
         console.log('NU CREDS', JWTObject.payload.parsed[props.credentialClaim])
@@ -318,28 +320,6 @@ const InnerAuthenticationFlow = (props) => {
                         </div>
                     </div>
                 </div>
-                    {/*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
-                    <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
-                    : 
-                    <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/}
-                    {/*Header
-                    <br />
-                    <code>
-                    <DisplayJWTSection section={JWTObject.header.parsed} />
-                    </code>
-                    
-                    <DisplayJWTSection section={JWTObject.payload.parsed} />
-                    {
-                    
-                    props.account ? <>
-                    Then<br />
-                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
-                    <br />Otherwise<br />
-                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
-                    </>
-                    : 
-                    <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
-                    } */}
                 
       default:
         return <div className='bg-img x-section wf-section' style={{width:'100vw'}}>

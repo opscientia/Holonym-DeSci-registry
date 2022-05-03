@@ -98,7 +98,7 @@ const Holo = (props) => {
         })
       }
     }, [props.filledHolo, props.desiredChain, props.provider, props.account]);
-      
+    
     return <div class="x-card">
     <div class="id-card profile">
       <div class="id-card-1"><img src={profile} loading="lazy" alt="" class="id-img" /></div>
