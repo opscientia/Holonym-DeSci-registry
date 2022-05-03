@@ -20,18 +20,11 @@ import {
   Route,
 } from 'react-router-dom';
 import wtf from 'wtf-lib'
-import { 
-  Provider, 
-  createClient, 
-  chain, 
+import {
   useNetwork, 
   useConnect, 
   useAccount 
 } from 'wagmi'
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
 const { ethers } = require('ethers');
 
 const desiredChain = 'gnosis'
