@@ -1,29 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { 
-  Provider, 
-  createClient,
-} from 'wagmi'
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { Provider, createClient } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
+const desiredChain = "gnosis";
+const desiredChainId = 100;
 
 // Set up wagmi connectors
 const client = createClient({
   autoConnect: true,
   connectors({ chainId }) {
     return [
-      // new MetaMaskConnector(),
-      // new CoinbaseWalletConnector(),
-      // new WalletConnectConnector(),
-      new InjectedConnector(),
-    ]
+      new InjectedConnector({
+        options: {
+          chainId: desiredChainId,
+        },
+      }),
+    ];
   },
-})
+});
 
 ReactDOM.render(
   <React.StrictMode>
@@ -31,7 +29,7 @@ ReactDOM.render(
       <App />
     </Provider>
   </React.StrictMode>,
-  document.getElementById('root')
+  document.getElementById("root")
 );
 
 // If you want to start measuring performance in your app, pass a function
