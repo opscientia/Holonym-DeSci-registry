@@ -3,10 +3,33 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { 
+  Provider, 
+  createClient,
+} from 'wagmi'
+import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
+import { InjectedConnector } from 'wagmi/connectors/injected'
+import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
+
+// Set up wagmi connectors
+const client = createClient({
+  autoConnect: true,
+  connectors({ chainId }) {
+    return [
+      // new MetaMaskConnector(),
+      // new CoinbaseWalletConnector(),
+      // new WalletConnectConnector(),
+      new InjectedConnector(),
+    ]
+  },
+})
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider client={client}>
+      <App />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

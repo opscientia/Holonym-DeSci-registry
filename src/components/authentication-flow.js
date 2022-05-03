@@ -20,6 +20,7 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import wtf from '../wtf-configured';
+import { useBlockNumber } from 'wagmi'
 const { ethers } = require('ethers');
 
 // TODO: better error handling
@@ -108,6 +109,10 @@ const InnerAuthenticationFlow = (props) => {
       twitter: null
     }
     const [holo, setHolo] = useState(defaultHolo)
+    const { data: blockNum } = useBlockNumber({
+      chainId: 100,
+      watch: true
+    })
     // Load the user's Holo when the page loads
     useEffect(async () => {
       try {
@@ -162,9 +167,13 @@ const InnerAuthenticationFlow = (props) => {
       let proof = ethers.utils.sha256(proofPt1)
       console.log(proof.toString('hex'))
       try {
+        const blockNumBeforeCommit = blockNum
         let tx = await vjwt.commitJWTProof(proof)
-        revealBlock = await props.provider.getBlockNumber() + 1
-        console.log('t', await props.provider.getBlockNumber() + 1, revealBlock)
+        console.log('JWT proof committed. Waiting for block to be mined.')
+        while (blockNum <= blockNumBeforeCommit) {
+          continue
+        }
+        console.log(`Reveal block: ${blockNum}`)
         let revealed = false 
         props.provider.on('block', async () => {
           console.log(revealed, 'revealed')
