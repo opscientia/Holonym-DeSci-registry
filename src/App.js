@@ -11,10 +11,7 @@ import WebFont from "webfontloader";
 import Address from "./components/atoms/Address.js";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount } from "wagmi";
-
-const desiredChain = "gnosis";
-const desiredChainId = 100;
-const desiredChainRpcUrl = "https://xdai-rpc.gateway.pokt.network";
+import { desiredChain } from "../constants/desiredChain";
 
 function App() {
   const { data: account } = useAccount();

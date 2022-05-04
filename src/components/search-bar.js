@@ -45,7 +45,7 @@ const SearchWithSuggestions = (props) => {
         <>
           <div class="searchLine"></div>
 
-          <div class="search-diiv" onClick={() => props.searchWithService("namebio")}>
+          <div class="search-diiv" onClick={() => props.searchWithService("holosearch")}>
             <div class="search-int-div">
               <div class="search-icon code w-embed">
                 <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -178,7 +178,6 @@ export const SearchBar = () => {
   return (
     <>
       <div class="optin-form w-form">
-        {/* TODO : this need not be a <form />*/}
         {/* <form onSubmit={handleSubmit} id="email-form" name="email-form" data-name="Email Form" method="get" class="form"> */}
         <form onSubmit={handleSubmit} method="get" class="form">
           {
