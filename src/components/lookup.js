@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { SearchBar } from "./search-bar";
-import wtf from "../wtf-configured";
 import { DisplayPOAPs } from "./poaps";
 import Holo from "./atoms/Holo";
 import { getHoloFromAddress, getHoloFromCredentials, searchHolos } from "../utils/holoSearch";
