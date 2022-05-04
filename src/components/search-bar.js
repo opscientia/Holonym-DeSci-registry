@@ -1,5 +1,6 @@
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { searchHolos } from "../utils/holoSearch";
 
 const SearchArrow = () => {
   return (
@@ -168,11 +169,7 @@ export const SearchBar = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     let searchStr = event.target[0].value;
-    let resp = await fetch(`http://localhost:3000/searchHolos?searchStr=${searchStr}`);
-    let holos = await resp.json();
-    console.log("search-bar.js: holos...");
-    console.log(holos);
-    navigate(`/lookup/holosearch/${searchStr}`, { state: { holos: holos } });
+    navigate(`/lookup/holosearch/${searchStr}`);
   };
 
   return (

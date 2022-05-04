@@ -11,7 +11,7 @@ import WebFont from "webfontloader";
 import Address from "./components/atoms/Address.js";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount } from "wagmi";
-import { desiredChain } from "../constants/desiredChain";
+import { desiredChain } from "./constants/desiredChain";
 
 function App() {
   const { data: account } = useAccount();

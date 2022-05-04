@@ -1,12 +1,12 @@
 import React from "react";
-import CircleWavy from "../img/CircleWavy.svg";
-import CircleWavyCheck from "../img/CircleWavyCheck.svg";
-import Github from "../img/Github.svg";
-import Google from "../img/Google.svg";
-import Orcid from "../img/Orcid.svg";
-import TwitterLogo from "../img/TwitterLogo.svg";
-import profile from "../img/profile.svg";
-import { linkFor } from "../utils/link-for.js";
+import CircleWavy from "../../img/CircleWavy.svg";
+import CircleWavyCheck from "../../img/CircleWavyCheck.svg";
+import Github from "../../img/Github.svg";
+import Google from "../../img/Google.svg";
+import Orcid from "../../img/Orcid.svg";
+import TwitterLogo from "../../img/TwitterLogo.svg";
+import profile from "../../img/profile.svg";
+import { linkFor } from "../../utils/link-for.js";
 
 const icons = {
   google: Google,
@@ -71,3 +71,5 @@ const Holo = (props) => {
     </div>
   );
 };
+
+export default Holo;
