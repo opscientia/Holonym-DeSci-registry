@@ -86,7 +86,7 @@ const DisplayJWTSection = (props) => {
           return (
             <div>
               <h3>{field}</h3>
-              <p class="identity-text">{value}</p>
+              <p className="identity-text">{value}</p>
             </div>
           );
         }
@@ -261,33 +261,33 @@ const InnerAuthenticationFlow = (props) => {
       let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim];
       console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`);
       return onChainCreds ? (
-        <div class="x-section bg-img wf-section" style={{ width: "100vw" }}>
-          <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
-            <div class="x-wrapper no-flex">
-              <div class="spacer-large larger"></div>
-              <h1 class="h1 small">Your identity is successfully verified</h1>
-              <div class="spacer-small"></div>
-              <div class="identity-wrapper">
-                <div class="identity-div-1">
-                  <div class="card-block">
-                    <div class="card-heading">
-                      <h3 class="h3 no-margin">{props.web2service + " ID"}</h3>
-                      <img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
+        <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
+          <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" className="x-container w-container">
+            <div className="x-wrapper no-flex">
+              <div className="spacer-large larger"></div>
+              <h1 className="h1 small">Your identity is successfully verified</h1>
+              <div className="spacer-small"></div>
+              <div className="identity-wrapper">
+                <div className="identity-div-1">
+                  <div className="card-block">
+                    <div className="card-heading">
+                      <h3 className="h3 no-margin">{props.web2service + " ID"}</h3>
+                      <img src={CircleWavyCheck} loading="lazy" alt="" className="verify-icon" />
                     </div>
-                    <div class="spacer-xx-small"></div>
-                    <p class="identity-text">{creds}</p>
+                    <div className="spacer-xx-small"></div>
+                    <p className="identity-text">{creds}</p>
                   </div>
                 </div>
               </div>
-              <div class="spacer-small"></div>
-              <div class="identity-verified-btn-div">
-                {/* <a href="#" class="x-button secondary outline w-button">view tranaction</a> */}
-                {/* <div class="spacer-x-small"></div> */}
-                <a href={`/myholo`} class="x-button w-button">
+              <div className="spacer-small"></div>
+              <div className="identity-verified-btn-div">
+                {/* <a href="#" className="x-button secondary outline w-button">view tranaction</a> */}
+                {/* <div className="spacer-x-small"></div> */}
+                <a href={`/myholo`} className="x-button w-button">
                   Go to my Holo
                 </a>
-                <div class="spacer-x-small"></div>
-                <a href={`/`} class="x-button secondary outline w-button">
+                <div className="spacer-x-small"></div>
+                <a href={`/`} className="x-button secondary outline w-button">
                   View All Holos
                 </a>
               </div>
@@ -322,27 +322,27 @@ const InnerAuthenticationFlow = (props) => {
           <div className="x-container w-container">
             <div className="x-wrapper small-center">
               <div className="spacer-small"></div>
-              <div class="x-wrapper no-flex">
-                <div class="spacer-large larger"></div>
-                <h1 class="h1">Confirm Identity</h1>
+              <div className="x-wrapper no-flex">
+                <div className="spacer-large larger"></div>
+                <h1 className="h1">Confirm Identity</h1>
                 <h4 className="p-1 white">
                   Confirm you would like to publicly link your address <code>{props.address ? truncateAddress(props.address) : null}</code> and its
                   history with{" "}
                 </h4>
                 <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />
               </div>
-              <div class="spacer-medium"></div>
+              <div className="spacer-medium"></div>
               <a
                 href="#"
-                class="x-button secondary"
+                className="x-button secondary"
                 onClick={async () => {
                   await commitJWTOnChain(JWTObject);
                 }}
               >
                 submit public holo
               </a>
-              <div class="spacer-small"></div>
-              <div class="identity-info-div"></div>
+              <div className="spacer-small"></div>
+              <div className="identity-info-div"></div>
             </div>
           </div>
         </div>

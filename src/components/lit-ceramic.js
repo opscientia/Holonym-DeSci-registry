@@ -95,11 +95,11 @@
 //     }, [streamID, buttonPressed])
 
 //     return <>
-//         <button class='cool-button' onClick={uploadPrivateCredentials}>Finish Uploading Your Private Credentials</button>
+//         <button className='cool-button' onClick={uploadPrivateCredentials}>Finish Uploading Your Private Credentials</button>
 //         then
-//         <button class='cool-button' onClick={async ()=> await changeAccess(account, true)}>Grant (Me) Access</button>
-//         <button class='cool-button' onClick={async ()=> await changeAccess(account, false)}>Revoke (My) Access</button>
-//         <button class='cool-button' onClick={()=>setButtonPressed( buttonPressed +1 ) }>View Credentials</button>
+//         <button className='cool-button' onClick={async ()=> await changeAccess(account, true)}>Grant (Me) Access</button>
+//         <button className='cool-button' onClick={async ()=> await changeAccess(account, false)}>Revoke (My) Access</button>
+//         <button className='cool-button' onClick={()=>setButtonPressed( buttonPressed +1 ) }>View Credentials</button>
 //         {streamID ? `Saved to streamID ${streamID} ,` : null}
 //         <i>Content :</i>{streamContent && streamContent.startsWith('something went wrong decrypting:') ? <b>Error: Could not access the content</b> : <p style={{fontSize:'12px'}}>{decodeJWT(streamContent)}</p>}
 //     </>

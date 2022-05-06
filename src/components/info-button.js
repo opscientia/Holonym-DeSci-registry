@@ -3,9 +3,9 @@ import arrow from "../img/Card-Arrow.svg";
 
 const InfoText = (props) => (
   <>
-    <div class="card-popup" style={{ display: props.display ? "block" : "none" }}>
-      <p class="card-popup-text">{props.text}</p>
-      <img src={arrow} loading="lazy" alt="" class="popup-arrow"></img>
+    <div className="card-popup" style={{ display: props.display ? "block" : "none" }}>
+      <p className="card-popup-text">{props.text}</p>
+      <img src={arrow} loading="lazy" alt="" className="popup-arrow"></img>
     </div>
   </>
 );

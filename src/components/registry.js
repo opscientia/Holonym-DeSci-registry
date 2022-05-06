@@ -10,10 +10,10 @@ import { useAccount } from "wagmi";
 const Wrapper = (props) => {
   return (
     <>
-      <div class="slider-container" style={{ width: "100vw" }}>
-        <div class="slider-wrapper">{props.children}</div>
+      <div className="slider-container" style={{ width: "100vw" }}>
+        <div className="slider-wrapper">{props.children}</div>
       </div>
-      <div class="spacer-small"></div>
+      <div className="spacer-small"></div>
     </>
   );
 };
@@ -95,7 +95,9 @@ const Registry = (props) => {
   };
   const [holos, setHolos] = useState([]);
   const [modalVisible, setModalVisible] = useState(true);
-  useEffect(init, [account]);
+  useEffect(() => {
+    init();
+  }, [account]);
 
   console.log(holos);
 
@@ -103,13 +105,13 @@ const Registry = (props) => {
 
   return (
     <>
-      <div class="x-section bg-img wf-section" style={{ height: "200vw" }}>
+      <div className="x-section bg-img wf-section" style={{ height: "200vw" }}>
         <div className="x-container w-container">
           <div className="x-wrapper fullscreen-center" style={{ marginLeft: "1.5vw", marginLeft: "1.5vw" }}>
             <h1>DeSci Community</h1>
             <div className="x-wrapper small-center">
               <SearchBar />
-              <div class="spacer-large"></div>
+              <div className="spacer-large"></div>
             </div>
             <Wrapper>{holos.length ? holos.map((x) => <SmallCard holo={x} href={`/lookup/address/${x.address}`} />) : null}</Wrapper>
             <Modal visible={modalVisible} setVisible={() => {}} blur={true}>

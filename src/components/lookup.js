@@ -25,9 +25,9 @@ const sendCrypto = (provider, to) => {
 
 // Wraps everything on the lookup screen with style
 const Wrapper = (props) => {
-  // return <div class="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
+  // return <div className="x-section bg-img wf-section" style={{width:'100vw', height:'100vh'}}>
   return (
-    <div class="x-section bg-img wf-section">
+    <div className="x-section bg-img wf-section">
       <div className="x-container w-container">
         <div className="x-wrapper small-center">{props.children}</div>
       </div>
@@ -68,17 +68,17 @@ export const Lookup = (props) => {
   return (
     <Wrapper>
       <SearchBar />
-      <div class="spacer-large"></div>
+      <div className="spacer-large"></div>
       {!holos ? (
         <p>No users found</p>
       ) : holos.length === 1 ? ( // Display one Holo, with payment button and POAPs
         <>
           <Holo holo={holos[0]} />
-          <div class="spacer-medium"></div>
-          <div class="btn-wrapper">
+          <div className="spacer-medium"></div>
+          <div className="btn-wrapper">
             {/* TODO: Rewrite payment function using wagmi hooks
             {params.web2service != "address" ? (
-              <a onClick={() => sendCrypto(props.provider, holos[0].address)} class="x-button primary">
+              <a onClick={() => sendCrypto(props.provider, holos[0].address)} className="x-button primary">
                 Pay {params.credentials}
               </a>
             ) : null} */}
@@ -89,7 +89,7 @@ export const Lookup = (props) => {
         // Display multiple holos, i.e., the result of an ambiguous search
         holos.map((userHolo) => (
           <div key={parseInt(userHolo.address, 16)}>
-            <div class="spacer-small"></div>
+            <div className="spacer-small"></div>
             <Holo holo={userHolo} />
           </div>
         ))

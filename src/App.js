@@ -35,7 +35,7 @@ function App() {
           <Address address={account.address} />
         ) : (
           <button
-            class="connect-wallet x-button secondary outline-menu w-button"
+            className="connect-wallet x-button secondary outline-menu w-button"
             disabled={!connectors[0].ready}
             key={connectors[0].id}
             onClick={() => connect(connectors[0])}
