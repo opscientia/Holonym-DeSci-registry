@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useProvider, useContract } from "wagmi";
 import { truncateAddress } from "../utils/ui-helpers.js";
-import { Modal } from "./atoms/Modals.js";
+import { Modal } from "./atoms/Modal.js";
 import contractAddresses from "../constants/contractAddresses.json";
 import abi from "../constants/abi/WTFBios.json";
 

@@ -49,25 +49,20 @@ const Holo = (props) => {
       <InfoButton text='Profile Strength is stronger the more accounts you have, the more recently you link the accounts, and greater your social activity metrics (e.g., number of friends, followers, repositories, etc.)' />
     </div> */}
       <div className="spacer-small"></div>
-      {Object.keys(props.holo).map((k) => {
-        if (!["name", "bio", "address", "discord"].includes(k)) {
-          //ignore discord too for now
-          return (
-            <>
-              <a style={{ textDecoration: "none" }} href={linkFor(k, props.holo[k])}>
-                <div className="card-text-div">
-                  <img src={icons[k]} loading="lazy" alt="" className="card-logo" />
-                  <div className="card-text">{props.holo[k] || "Not listed"}</div>
-                  <a>
-                    <img src={props.holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
-                  </a>
-                </div>
-              </a>
-              <div className="spacer-x-small"></div>
-            </>
-          );
-        }
-      })}
+      {Object.keys(props.holo)
+        .filter((k) => !["name", "bio", "address", "discord"].includes(k)) //ignore discord too for now
+        .map((k, index) => (
+          <div key={index}>
+            <a style={{ textDecoration: "none" }} href={linkFor(k, props.holo[k])}>
+              <div className="card-text-div">
+                <img src={icons[k]} loading="lazy" alt="" className="card-logo" />
+                <div className="card-text">{props.holo[k] || "Not listed"}</div>
+                <img src={props.holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
+              </div>
+            </a>
+            <div className="spacer-x-small"></div>
+          </div>
+        ))}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SmallCard from "./atoms/SmallCard";
 import { SearchBar } from "./search-bar.js";
-import { Modal } from "./atoms/Modals.js";
+import { Modal } from "./atoms/Modal.js";
 import { useNavigate } from "react-router-dom";
 import wtf from "../wtf-configured";
 import { useAccount } from "wagmi";

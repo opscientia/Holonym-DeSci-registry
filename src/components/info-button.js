@@ -26,7 +26,7 @@ export const InfoButton = (props) => {
 
   return (
     <div ref={ref}>
-      <a className="info-btn w-inline-block" onClick={() => setDisplay(!display)}>
+      <button className="info-btn w-inline-block" onClick={() => setDisplay(!display)}>
         <div className="info-img w-embed">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -43,7 +43,7 @@ export const InfoButton = (props) => {
             ></path>
           </svg>
         </div>
-      </a>
+      </button>
 
       <InfoText display={display} text={props.text}></InfoText>
     </div>

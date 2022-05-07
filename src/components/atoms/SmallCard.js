@@ -30,15 +30,13 @@ export default function SmallCard(props) {
             <p className="id-designation">{props.holo.bio}</p>
           </div>
         </div>
-        {Object.keys(props.holo).map((k) => {
-          if (props.holo[k] && k != "name" && k != "bio" && k != "address") {
-            return (
-              <a href={linkFor(k, props.holo[k])}>
-                <img src={icons[k]} style={{ paddingLeft: "30px" }} loading="lazy" alt="" className="card-logo" />
-              </a>
-            );
-          }
-        })}
+        {Object.keys(props.holo)
+          .filter((k) => !["name", "bio", "address"].includes(k))
+          .map((k, index) => (
+            <a key={index} href={linkFor(k, props.holo[k])}>
+              <img src={icons[k]} style={{ paddingLeft: "30px" }} loading="lazy" alt="" className="card-logo" />
+            </a>
+          ))}
       </a>
     </div>
   );

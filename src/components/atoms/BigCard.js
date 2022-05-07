@@ -32,20 +32,18 @@ export default function BigCard(props) {
       </div>
       <div className="spacer-small"></div>
       <div className="spacer-small"></div>
-      {Object.keys(props.holo).map((k) => {
-        if (k != "name" && k != "bio") {
-          return (
-            <>
-              <div className="card-text-div">
-                <img src={icons[k]} loading="lazy" alt="" className="card-logo" />
-                <div className="card-text">{props.holo[k] || "Not listed"}</div>
-                <img src={props.holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
-              </div>
-              <div className="spacer-x-small"></div>
-            </>
-          );
-        }
-      })}
+      {Object.keys(props.holo)
+        .filter((k) => !["name", "bio"].includes(k))
+        .map((k, index) => (
+          <div key={index}>
+            <div className="card-text-div">
+              <img src={icons[k]} loading="lazy" alt="" className="card-logo" />
+              <div className="card-text">{props.holo[k] || "Not listed"}</div>
+              <img src={props.holo[k] ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
+            </div>
+            <div className="spacer-x-small"></div>
+          </div>
+        ))}
     </div>
   );
 }

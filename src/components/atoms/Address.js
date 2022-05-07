@@ -1,6 +1,6 @@
 import { truncateAddress } from "../../utils/ui-helpers";
 import userIcon from "../../img/User.svg";
-import { useAccount } from "wagmi";
+import { useSigner, useAccount } from "wagmi";
 
 // profile pic and truncated address
 const InnerContent = (props) => {
