@@ -160,7 +160,7 @@ const InnerAuthenticationFlow = (props) => {
         })
       } catch (error) {
         console.log('commitment eror', error)
-        props.errorCallback(error.message)
+        props.errorCallback(error.data.message)
       }
       
       
@@ -176,7 +176,7 @@ const InnerAuthenticationFlow = (props) => {
         setTxHash(tx.hash)
         return tx
       } catch (error) {
-        props.errorCallback(error.message)
+        props.errorCallback(error.data.message)
       }
       
 
@@ -192,7 +192,7 @@ const InnerAuthenticationFlow = (props) => {
     //     setTxHash(tx.hash)
     //     return tx
     //   } catch (error) {
-    //     props.errorCallback(error.message)
+    //     props.errorCallback(error.data.message)
     //   }
       
     // }
