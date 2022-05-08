@@ -59,11 +59,8 @@ const Registry = (props) => {
             // const holo_ = (await wtf.getHolo(address))[props.desiredChain]
             let holo_ = {}
             try { // Try getting holo from cache. If it fails, call chain directly.
-              console.log(`Retrieving holo for address ${address}...`)
               const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
               holo_ = (await response.json())[props.desiredChain]
-              console.log(`Retrieved holo for address ${address}...`)
-              console.log(`https://sciverse.id/getHolo?address=${address}`, address, holo_)
             }
             catch (err) {
               wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
@@ -80,14 +77,11 @@ const Registry = (props) => {
                 'address' : address
             }
             const holoIsEmpty = Object.values(newHolo).every(x => !x)
-            console.log('NEW HOLO', newHolo)
-            console.log('abc')
             if (!holoIsEmpty) {
                 
                 tmpHolos.push(newHolo)
                 // remove duplicates
                 tmpHolos = [...new Set([...tmpHolos])]
-                console.log('NEW SET', tmpHolos)
                 setHolos(tmpHolos)
             }
         }
@@ -99,7 +93,6 @@ const Registry = (props) => {
         hasBeenRun = true
         try{
             let addresses = await getAllAddresses()
-            console.log('ADREZ', addresses)
             // Only show the modal if the user doesn't have a Holo: 
             let address = props.address || await props.provider.getSigner().getAddress()
             if(addresses.includes(address.toLowerCase())){setModalVisible(false)}
@@ -114,8 +107,6 @@ const Registry = (props) => {
     const [holos, setHolos] = useState([])
     const [modalVisible, setModalVisible] = useState(true)
     useEffect(init, [props.provider])
-
-    console.log(holos)
 
     const navigate = useNavigate()
 

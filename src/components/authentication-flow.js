@@ -4,10 +4,9 @@ import {
     useNavigate,
   } from 'react-router-dom';
 import React, { useEffect, useState } from 'react'
-import contractAddresses from '../contractAddresses.json'
+import contractAddresses from '../stagingContractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
-import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64, parseJWT } from 'wtfprotocol-helpers'
-import abi from '../abi/VerifyJWT.json';
+import abi from '../abi/VerifyJWTv2.json';
 import { LitCeramic } from './lit-ceramic.js';
 import { InfoButton } from './info-button.js';
 import QRCode from 'react-qr-code';
@@ -20,20 +19,29 @@ import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
 import wtf from '../wtf-configured';
+import { fixedBufferXOR as xor, 
+  getParamsForVerifying,
+  hexToString, 
+  parseJWT 
+} from 'wtfprotocol-helpers';
 const { ethers } = require('ethers');
 
-const parseJWTFromURL = function(url){
+const JWTFromURL = function(url){
   if(!url){return null}
   let parsedToJSON = {}
   url.split('&').map(x=>{let [key, value] = x.split('='); parsedToJSON[key] = value});
-  return(parseJWT(parsedToJSON['id_token']))
+  return parsedToJSON['id_token']
 }
+
+const parseJWTFromURL = function(url){
+  return(parseJWT(JWTFromURL(url)))
+}
+
 const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce', 'email_verified', 'rand'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
 // React component to display (part of) a JWT in the form of a javscript Object to the user
 const DisplayJWTSection = (props) => {
   return <>
   {Object.keys(props.section).map(key => {
-    console.log(key)
     if(ignoredFields.includes(key)){
       return null
     } else {
@@ -71,12 +79,12 @@ let pendingProofPopup = false;
 const InnerAuthenticationFlow = (props) => {
     const params = useParams();
     const navigate = useNavigate();
-    let token = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-    console.log(props)
+    let tokenURL = params.token || props.token // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
     const vjwt = props.web2service && props.provider ? new ethers.Contract(contractAddresses[props.web2service], abi, props.provider.getSigner()) : null;
     const [step, setStep] = useState(null);
     const [JWTText, setJWTText] = useState('');
     const [JWTObject, setJWTObject] = useState(''); //a fancy version of the JWT we will use for this script
+    const [params4Verifying, setParams4Verifying] = useState({})
     const [displayMessage, setDisplayMessage] = useState('');
     const [onChainCreds, setOnChainCreds] = useState(null);
     const [txHash, setTxHash] = useState(null);
@@ -103,7 +111,7 @@ const InnerAuthenticationFlow = (props) => {
           'twitter': holo_.twitter, 'name' : holo_.name, 'bio' : holo_.bio
         })
       } catch(err) {
-        console.log('Error:', err)
+        console.error('Error:', err)
       }
       
     }, [props.desiredChain, props.provider, props.account]);
@@ -112,43 +120,39 @@ const InnerAuthenticationFlow = (props) => {
     // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
     
     // if a token is already provided, set the step to user approving the token
-    if(token){
+    if(tokenURL){
       if(JWTText == ''){
-        console.log('setting token')
-        setJWTText(token); setStep('userApproveJWT')
+        console.log(tokenURL, 'token url!!!!!!!!!!!!!!!!!!!!!', JWTFromURL(tokenURL))
+        setJWTText(JWTFromURL(tokenURL)); setStep('userApproveJWT')
       }
     } else {
       if(step){
         setStep(null)
       }
     }
-    console.log(props, JWTText, step)
   
-    useEffect(()=>setJWTObject(parseJWTFromURL(JWTText)), [JWTText]);
+    useEffect(async ()=>{
+      if(!(JWTText && props && props.credentialClaim && vjwt)){return}
+      console.log('VJWT IS ', vjwt.address)
+      console.log('abcdefg', await getParamsForVerifying(vjwt, JWTText, props.credentialClaim))
+      setJWTObject(parseJWT(JWTText))
+      setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim))
+    }, [JWTText, params]);
   
   
-    if(!props.provider){console.log(props); return 'Please connect your wallet'}
+    if(!props.provider){return 'Please connect your wallet'}
   
   
-    const commitJWTOnChain = async (JWTObject) => {
-      console.log('commitJWTOnChat called')
-      let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
-      // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
-      let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message))
+    const commitJWTOnChain = async (credentialClaim) => {
       setDisplayMessage("After you submit this transaction, you will receive another transaction in about 10 seconds once the block is mined. Once it's mined, you'll see a new popup to finish verification")
-      console.log(secretHashedMessage, props.account)
       // xor the values as bytes (without preceding 0x)
-      let proofPt1 = xor(Buffer.from(secretHashedMessage.replace('0x',''), 'hex'), Buffer.from(props.account.replace('0x',''), 'hex'));
-      let proof = ethers.utils.sha256(proofPt1)
-      console.log(proof.toString('hex'))
+      console.log('p4v', params4Verifying)
+      const commitments = params4Verifying.generateCommitments(props.account)
       try {
-        let tx = await vjwt.commitJWTProof(proof)
+        let tx = await vjwt.commitJWTProof(...commitments)
         revealBlock = await props.provider.getBlockNumber() + 1
-        console.log('t', await props.provider.getBlockNumber() + 1, revealBlock)
         let revealed = false 
         props.provider.on('block', async () => {
-          console.log(revealed, 'revealed')
-          console.log(await props.provider.getBlockNumber(), revealBlock)
           if(( await props.provider.getBlockNumber() >= revealBlock) && (!revealed)){
             setStep('waitingForBlockCompletion')
             revealed=true
@@ -165,19 +169,10 @@ const InnerAuthenticationFlow = (props) => {
     }
   
     // credentialField is 'email' for gmail and 'sub' for orcid. It's the claim of the JWT which should be used as an index to look the user up by
-    const proveIKnewValidJWT = async (credentialClaim) => {
-      let sig = JWTObject.signature.decoded
-      let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
-      let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1
-      console.log(JWTObject.payload.parsed[credentialClaim])
-      let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed[credentialClaim], vjwt);
-      console.log(sandwich, JWTObject.payload.raw)
-      let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, 'hex').toString(), JWTObject.payload.raw)
-  
-      console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich)
-      console.log(vjwt.address)
+    const proveIKnewValidJWT = async () => {
+      const verifyMeParams = params4Verifying.verifyMeContractParams()
       try {
-        let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, '0x'+sandwich);
+        let tx = await vjwt.verifyMe(...verifyMeParams);
         setTxHash(tx.hash)
         return tx
       } catch (error) {
@@ -188,19 +183,19 @@ const InnerAuthenticationFlow = (props) => {
       
     }
   
-    // vjwt is VerifyJWT smart contract as an ethers object, JWTObject is the parsed JWT
-    const submitAnonymousCredentials = async (vjwt, JWTObject) => {
-      let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
-      let sig = JWTObject.signature.decoded
-      try {
-        let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
-        setTxHash(tx.hash)
-        return tx
-      } catch (error) {
-        props.errorCallback(error.message)
-      }
+    // Commenting out anonymous credentials for now
+    // const submitAnonymousCredentials = async (vjwt, JWTObject) => {
+    //   let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
+    //   let sig = JWTObject.signature.decoded
+    //   try {
+    //     let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
+    //     setTxHash(tx.hash)
+    //     return tx
+    //   } catch (error) {
+    //     props.errorCallback(error.message)
+    //   }
       
-    }
+    // }
   
     // listen for the transaction to go to the mempool
     // props.provider.on('pending', async () => console.log('tx'))
@@ -212,23 +207,22 @@ const InnerAuthenticationFlow = (props) => {
           pendingProofPopup = true;
           // this should be multiple functions eventually instead of convoluded nested loops
           if(credentialsRPrivate){
-            submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
-              props.provider.once(tx, async () => {    
-                console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')        
-                // setStep('success'); 
-              })
-            })
+            // Commenting out anonymous credentials for now
+
+            // submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
+            //   props.provider.once(tx, async () => {    
+            //     console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')        
+            //     // setStep('success'); 
+            //   })
+            // })
           } else {
-            proveIKnewValidJWT(props.credentialClaim).then(tx => {
+            proveIKnewValidJWT().then(tx => {
               props.provider.once(tx, async () => {
-                console.log(props.account)
-                console.log(await vjwt.credsForAddress(props.account))
-                console.log(hexToString(await vjwt.credsForAddress(props.account)))
                 await setOnChainCreds(
                   hexToString(await vjwt.credsForAddress(props.account))
-                );
-          
-                setStep('success'); })
+                )
+                setStep('success')
+              })
             })
           }
         }

@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { truncateAddress } from '../ui-helpers';
-import contractAddresses from '../contractAddresses.json'
-import contractAddressesNew from '../contractAddressesNew.json' // TODO: collapse contractAddresses and contractAddressesNew into one
-import abi from '../abi/VerifyJWT.json'
-import wtfBiosABI from '../abi/WTFBios.json'
-import idAggABI from '../abi/IdentityAggregator.json'
-import { InfoButton } from './info-button';
+
 import { SearchBar } from './search-bar';
 import Github from '../img/Github.svg';
 import Google from '../img/Google.svg';
@@ -17,8 +11,13 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 import profile from '../img/profile.svg';
 import { linkFor } from '../link-for.js';
 import wtf from '../wtf-configured'
-import { DisplayPOAPs } from './poaps';
-
+// import wtfBiosABI from '../abi/WTFBios.json'
+// import idAggABI from '../abi/IdentityAggregator.json'
+// import { InfoButton } from './info-button';
+// import { truncateAddress } from '../ui-helpers';
+// import contractAddresses from '../contractAddresses.json'
+// import contractAddressesNew from '../contractAddressesNew.json' // TODO: collapse contractAddresses and contractAddressesNew into one
+// import { DisplayPOAPs } from './poaps';
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
 // import 'bootstrap/dist/css/bootstrap.css';

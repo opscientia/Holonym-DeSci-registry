@@ -23,7 +23,7 @@ import wtf from 'wtf-lib'
 
 const { ethers } = require('ethers');
 
-const desiredChain = 'gnosis'
+const desiredChain = 'avalancheCTest'
 
 try{
   window.ethereum.request({
@@ -217,8 +217,6 @@ function App() {
       console.log('address is', address)
       setAccount(address);
       // get the signed-in user's Holo:
-      console.log('hey')
-      console.log('GET ALL ACCOUNTS', await wtf.getAllAccounts(address, 'gnosis'));
     }
     catch (err) {
       console.log('need to login to metamask')
