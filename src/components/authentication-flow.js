@@ -6,7 +6,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
-import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from 'wtfprotocol-helpers'
+import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64, parseJWT } from 'wtfprotocol-helpers'
 import abi from '../abi/VerifyJWT.json';
 import { LitCeramic } from './lit-ceramic.js';
 import { InfoButton } from './info-button.js';
@@ -22,61 +22,41 @@ import TwitterLogo from '../img/TwitterLogo.svg';
 import wtf from '../wtf-configured';
 const { ethers } = require('ethers');
 
-// TODO: better error handling
-// takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
-const parseJWT = (JWT) => {
-    if(!JWT){return null}
-    let parsedToJSON = {}
-    JWT.split('&').map(x=>{let [key, value] = x.split('='); parsedToJSON[key] = value});
-    let [rawHead, rawPay, rawSig] = parsedToJSON['id_token'].split('.');
-    console.log(rawHead, rawPay, 'RAWR')
-    let [head, pay] = [rawHead, rawPay].map(x => x ? JSON.parse(atob(x)) : null);
-    let [sig] = [Buffer.from(rawSig.replaceAll('-', '+').replaceAll('_', '/'), 'base64')] //replaceAlls convert it from base64url to base64
-    return {
-      'header' :  {
-        'parsed' : head,
-       'raw' : rawHead,
-      }, 
-      'payload' :  {
-        'parsed' : pay,
-       'raw' : rawPay,
-      }, 
-      'signature' :  {
-        'decoded' : sig,
-       'raw' : rawSig,
-      }, 
+const parseJWTFromURL = function(url){
+  if(!url){return null}
+  let parsedToJSON = {}
+  url.split('&').map(x=>{let [key, value] = x.split('='); parsedToJSON[key] = value});
+  return(parseJWT(parsedToJSON['id_token']))
+}
+const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce', 'email_verified', 'rand'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
+// React component to display (part of) a JWT in the form of a javscript Object to the user
+const DisplayJWTSection = (props) => {
+  return <>
+  {Object.keys(props.section).map(key => {
+    console.log(key)
+    if(ignoredFields.includes(key)){
+      return null
+    } else {
+      let field = key;
+      let value = props.section[key]
+      // give a human readable name to important field:
+      if(field == 'creds'){field='Credentials'}
+      if(field == 'sub'){field=`${props.web2service} ID`}
+      if(field == 'given_name'){field='Given First Name'}
+      if(field == 'family_name'){field='Given Last Name'}
+      if(field == 'picture'){value=<img style={{borderRadius: '7px'}} src={value} />}
+      // capitalize first letter:
+      field = field.replace('_', ' ')
+      field = field[0].toUpperCase() + field.substring(1)
+
+      return <div>
+              <h3>{field}</h3>
+              <p class="identity-text">{value}</p>
+          </div>
     }
-  }
-  
-  const ignoredFields = ['azp', 'kid', 'alg', 'at_hash', 'aud', 'auth_time', 'iss', 'exp', 'iat', 'jti', 'nonce', 'email_verified', 'rand'] //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
-  // React component to display (part of) a JWT in the form of a javscript Object to the user
-  const DisplayJWTSection = (props) => {
-    return <>
-    {Object.keys(props.section).map(key => {
-      console.log(key)
-      if(ignoredFields.includes(key)){
-        return null
-      } else {
-        let field = key;
-        let value = props.section[key]
-        // give a human readable name to important field:
-        if(field == 'creds'){field='Credentials'}
-        if(field == 'sub'){field=`${props.web2service} ID`}
-        if(field == 'given_name'){field='Given First Name'}
-        if(field == 'family_name'){field='Given Last Name'}
-        if(field == 'picture'){value=<img style={{borderRadius: '7px'}} src={value} />}
-        // capitalize first letter:
-        field = field.replace('_', ' ')
-        field = field[0].toUpperCase() + field.substring(1)
-  
-        return <div>
-                <h3>{field}</h3>
-                <p class="identity-text">{value}</p>
-            </div>
-      }
-    })}
-    </>
-  }
+  })}
+  </>
+}
 
 
 const MessageScreen = (props) => {
@@ -144,7 +124,7 @@ const InnerAuthenticationFlow = (props) => {
     }
     console.log(props, JWTText, step)
   
-    useEffect(()=>setJWTObject(parseJWT(JWTText)), [JWTText]);
+    useEffect(()=>setJWTObject(parseJWTFromURL(JWTText)), [JWTText]);
   
   
     if(!props.provider){console.log(props); return 'Please connect your wallet'}

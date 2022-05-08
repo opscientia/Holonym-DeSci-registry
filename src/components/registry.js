@@ -63,7 +63,7 @@ const Registry = (props) => {
               const response = await fetch(`https://sciverse.id/getHolo?address=${address}`)
               holo_ = (await response.json())[props.desiredChain]
               console.log(`Retrieved holo for address ${address}...`)
-              console.log(holo_)
+              console.log(`https://sciverse.id/getHolo?address=${address}`, address, holo_)
             }
             catch (err) {
               wtf.setProviderURL({ 'gnosis' : 'https://xdai-rpc.gateway.pokt.network' })
@@ -99,6 +99,7 @@ const Registry = (props) => {
         hasBeenRun = true
         try{
             let addresses = await getAllAddresses()
+            console.log('ADREZ', addresses)
             // Only show the modal if the user doesn't have a Holo: 
             let address = props.address || await props.provider.getSigner().getAddress()
             if(addresses.includes(address.toLowerCase())){setModalVisible(false)}

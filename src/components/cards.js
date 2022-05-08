@@ -61,6 +61,7 @@ export const SmallCard = (props) => {
                 </div>
                 {Object.keys(props.holo).map(k => {
                     if(props.holo[k] && (k != 'name') && (k != 'bio') && (k != 'address')) {
+                        console.log('link for', k, props.holo[k], props.holo['address'])
                         return <a href={linkFor(k, props.holo[k])}>
                                     <img src={icons[k]} style={{paddingLeft:'30px'}}loading="lazy" alt="" className="card-logo" />
                                 </a>
