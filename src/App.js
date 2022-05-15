@@ -335,6 +335,13 @@ function App() {
                                                   connectWalletFunction={connectWallet}
                                                   credentialClaim={'creds'}
                                                   web2service={'Github'}
+                                                  desiredChain={desiredChain} />} />
+              <Route path='/discord/token/:token' element={<AuthenticationFlow
+                                                  provider={provider} 
+                                                  account={account} 
+                                                  connectWalletFunction={connectWallet}
+                                                  credentialClaim={'creds'}
+                                                  web2service={'Discord'}
                                                   desiredChain={desiredChain} />} /> 
 
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} desiredChain={desiredChain} />} />
