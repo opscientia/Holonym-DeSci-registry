@@ -286,7 +286,11 @@ function App() {
 
   //   return <button onClick={() => loginWithRedirect()}>Log In</button>;
   // };
-
+  const myHoloPage = <AuthenticationFlow 
+    provider={provider}
+    account={account} 
+    connectWalletFunction={connectWallet}
+    desiredChain={desiredChain} />
   return (
     // <Auth0Provider 
     //   domain='localhost:3000'
@@ -335,13 +339,10 @@ function App() {
 
               <Route path='/lookup/:web2service/:credentials' element={<Lookup provider={provider} desiredChain={desiredChain} />} />
               <Route path='/lookup' element={<Lookup provider={provider} />} />
-              <Route path='/' element={<Registry provider={provider} address={account} desiredChain={desiredChain} />} />
+              {/* <Route path='/registry' element={<Registry provider={provider} address={account} desiredChain={desiredChain} />} /> */}
               {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
-              <Route path='/myholo' element={<AuthenticationFlow 
-                                          provider={provider}
-                                          account={account} 
-                                          connectWalletFunction={connectWallet}
-                                          desiredChain={desiredChain} />} />
+              <Route path={'/'} element={myHoloPage} />
+              <Route path={'/myholo'} element={myHoloPage} />
             </Routes>
           </Router>
           </div>
