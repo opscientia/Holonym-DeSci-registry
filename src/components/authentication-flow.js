@@ -4,7 +4,7 @@ import {
     useNavigate,
   } from 'react-router-dom';
 import React, { useEffect, useState } from 'react'
-import contractAddresses from '../stagingContractAddresses.json'
+import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
 import abi from '../abi/VerifyJWTv2.json';
 import { LitCeramic } from './lit-ceramic.js';
@@ -384,7 +384,7 @@ const InnerAuthenticationFlow = (props) => {
 
   const AuthenticationFlow = (props) => {
     const [error, setError] = useState()
-    return <Error msg={`We are doing some maintenance`} />
+    // return <Error msg={`We are doing some maintenance`} />
     return error ? <Error msg={error} /> : <InnerAuthenticationFlow {...props} errorCallback={(err) => setError(err)} />
   }
 
