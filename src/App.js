@@ -23,7 +23,7 @@ import wtf from 'wtf-lib'
 
 const { ethers } = require('ethers');
 
-const desiredChain = 'avalancheCTest'
+const desiredChain = 'gnosis'
 
 try{
   window.ethereum.request({
