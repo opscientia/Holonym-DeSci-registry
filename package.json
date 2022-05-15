@@ -43,7 +43,7 @@
     "web3modal": "^1.9.5",
     "webfontloader": "^1.6.28",
     "wtf-lib": "^2.0.0",
-    "wtfprotocol-helpers": "^1.2.1"
+    "wtfprotocol-helpers": "^1.2.3"
   },
   "scripts": {
     "start": "PORT=3002 react-scripts start",

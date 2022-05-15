@@ -134,9 +134,9 @@ const InnerAuthenticationFlow = (props) => {
     useEffect(async ()=>{
       if(!(JWTText && props && props.credentialClaim && vjwt)){return}
       console.log('VJWT IS ', vjwt.address)
-      console.log('abcdefg', await getParamsForVerifying(vjwt, JWTText, props.credentialClaim))
+      console.log('abcdefg', await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, 'ethersjs'))
       setJWTObject(parseJWT(JWTText))
-      setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim))
+      setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, 'ethersjs'))
     }, [JWTText, params]);
   
   
@@ -160,7 +160,7 @@ const InnerAuthenticationFlow = (props) => {
         })
       } catch (error) {
         console.log('commitment eror', error)
-        props.errorCallback(error.data.message)
+        props.errorCallback(error.data?.message || error.message)
       }
       
       
@@ -170,13 +170,13 @@ const InnerAuthenticationFlow = (props) => {
   
     // credentialField is 'email' for gmail and 'sub' for orcid. It's the claim of the JWT which should be used as an index to look the user up by
     const proveIKnewValidJWT = async () => {
-      const verifyMeParams = params4Verifying.verifyMeContractParams()
+      const p4v = params4Verifying.verifyMeContractParams()
       try {
-        let tx = await vjwt.verifyMe(...verifyMeParams);
+        let tx = await vjwt.verifyMe(...p4v);
         setTxHash(tx.hash)
         return tx
       } catch (error) {
-        props.errorCallback(error.data.message)
+        props.errorCallback(error.data?.message || error.message)
       }
       
 
@@ -192,7 +192,7 @@ const InnerAuthenticationFlow = (props) => {
     //     setTxHash(tx.hash)
     //     return tx
     //   } catch (error) {
-    //     props.errorCallback(error.data.message)
+    //     props.errorCallback(error.data?.message || error.message)
     //   }
       
     // }
