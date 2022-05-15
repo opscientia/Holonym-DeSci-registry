@@ -707,9 +707,7 @@ p {
 }
 
 .animation0:hover {
-  animation-name: animation0;
-  animation-duration: 5s;
-  animation-iteration-count: infinite;
+  color:#fac5c6;
 }
 
 
