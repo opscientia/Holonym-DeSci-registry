@@ -269,7 +269,7 @@ const InnerAuthenticationFlow = (props) => {
         vjwt.kid().then(kid=>{
           if(JWTObject.header.parsed.kid != kid){
             console.log('kid', JWTObject.header.parsed.kid, kid)
-            props.errorCallback(<p>KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those keeds need to be updated on-chain. Please check back later. We would appreciate it if you could email <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running </p>)
+            props.errorCallback(<p>KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those key IDs need to be updated on-chain. Please check back later. We would appreciate it if you could email <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running </p>)
           }
         })
         
