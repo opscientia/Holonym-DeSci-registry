@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import contractAddresses from '../contractAddresses.json'
 import { truncateAddress } from '../ui-helpers.js'
 import abi from '../abi/VerifyJWTv2.json';
+import { Modal } from './modals.js'
 import { LitCeramic } from './lit-ceramic.js';
 import { InfoButton } from './info-button.js';
 import QRCode from 'react-qr-code';
@@ -18,6 +19,8 @@ import CircleWavy from '../img/CircleWavy.svg';
 import CircleWavyCheck from '../img/CircleWavyCheck.svg';
 import Orcid from '../img/Orcid.svg';
 import TwitterLogo from '../img/TwitterLogo.svg';
+import Share from '../img/Share.svg';
+
 import wtf from '../wtf-configured';
 import { fixedBufferXOR as xor, 
   getParamsForVerifying,
@@ -87,8 +90,10 @@ const InnerAuthenticationFlow = (props) => {
     const [params4Verifying, setParams4Verifying] = useState({})
     const [displayMessage, setDisplayMessage] = useState('');
     const [onChainCreds, setOnChainCreds] = useState(null);
+    const [shareModal, setShareModal] = useState(false);
     const [txHash, setTxHash] = useState(null);
     const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
+    const myUrl = `https://whoisthis.wtf/lookup/address/${props.account}`
     const defaultHolo = {
       google: null,
       orcid: null,
@@ -366,16 +371,31 @@ const InnerAuthenticationFlow = (props) => {
           </div>
         </div>
         <div className="spacer-large larger"></div>
-        <div className="spacer-large larger"></div>
         <div className="spacer-medium"></div>
-        <p>You can be disovered by: </p>
-        <QRCode value={`https://whoisthis.wtf/lookup/address/${props.account}`} />
+        {/* Share button: copies link and makes QR for it */}
+        <div className="x-wrapper small-center animation0" onClick={()=>{
+          navigator.clipboard.writeText(myUrl);
+          setShareModal(true)
+        }}>
+          <h3>Share</h3>
+          <img src={Share} loading="lazy" alt="" className="card-logo" />
+        </div>
         {/* <a onClick className="x-button secondary"><img src={QR} /></a> */}
         {/* <a href="#" className="x-button secondary w-button">continue</a>
         <a href="#" className="x-button secondary no-outline w-button">Learn more</a> */}
       </div>
-   </div>                   
+   </div>   
+   <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
+     <div className="x-wrapper small-center" style={{padding: "0px", minWidth: "285px"}}>
+      <h5>Your link</h5>
+      <textarea style={{width:"100%", height: "150px"}} type="email" class="text-field w-input" value={myUrl} /> 
+        <p className="success">✓ Copied to clipboard</p>
+        <h5>Your QR</h5>
+        <QRCode value={myUrl} />
+      </div>
+    </Modal>                
 </div>
+
   
               
     }
