@@ -384,6 +384,7 @@ const InnerAuthenticationFlow = (props) => {
 
   const AuthenticationFlow = (props) => {
     const [error, setError] = useState()
+    return <Error msg={`We are doing some maintenance`} />
     return error ? <Error msg={error} /> : <InnerAuthenticationFlow {...props} errorCallback={(err) => setError(err)} />
   }
 
