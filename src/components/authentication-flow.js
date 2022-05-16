@@ -100,7 +100,7 @@ const InnerAuthenticationFlow = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const [txHash, setTxHash] = useState(null);
   const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
-  const myUrl = `http://localhost:3002/lookup/address/${account?.address}`;
+  const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
   const defaultHolo = {
     google: null,
     orcid: null,
@@ -137,7 +137,7 @@ const InnerAuthenticationFlow = (props) => {
         if (!holoIsEmpty || !account?.address) {
           return;
         } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-        const response = await fetch(`http://localhost:3000/getHolo?address=${account?.address}`);
+        const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
         let holo_ = (await response.json())[props.desiredChain];
         setHolo({
           ...defaultHolo,
