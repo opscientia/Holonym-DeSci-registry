@@ -92,7 +92,7 @@ const InnerAuthenticationFlow = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const [txHash, setTxHash] = useState(null);
   const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
-  const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
+  const myUrl = `http://localhost:3002/lookup/address/${account?.address}`;
   const defaultHolo = {
     google: null,
     orcid: null,
@@ -129,7 +129,7 @@ const InnerAuthenticationFlow = (props) => {
         if (!holoIsEmpty || !account?.address) {
           return;
         } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-        const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
+        const response = await fetch(`http://localhost:3000/getHolo?address=${account?.address}`);
         let holo_ = (await response.json())[props.desiredChain];
         setHolo({
           ...defaultHolo,
@@ -215,150 +215,149 @@ const InnerAuthenticationFlow = (props) => {
     } catch (error) {
       props.errorCallback(error.data?.message || error.message);
     }
+  };
 
-    // Commenting out anonymous credentials for now
-    // const submitAnonymousCredentials = async (vjwt, JWTObject) => {
-    //   let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
-    //   let sig = JWTObject.signature.decoded
-    //   try {
-    //     let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
-    //     setTxHash(tx.hash)
-    //     return tx
-    //   } catch (error) {
-    //     props.errorCallback(error.data?.message || error.message)
-    //   }
+  // Commenting out anonymous credentials for now
+  // const submitAnonymousCredentials = async (vjwt, JWTObject) => {
+  //   let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
+  //   let sig = JWTObject.signature.decoded
+  //   try {
+  //     let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
+  //     setTxHash(tx.hash)
+  //     return tx
+  //   } catch (error) {
+  //     props.errorCallback(error.data?.message || error.message)
+  //   }
 
-    // }
+  // }
 
-    // listen for the transaction to go to the mempool
-    // props.provider.on('pending', async () => console.log('tx'))
+  // listen for the transaction to go to the mempool
+  // props.provider.on('pending', async () => console.log('tx'))
 
-    console.log("step:", step);
-
-    switch (step) {
-      case "waitingForBlockCompletion":
-        if (!pendingProofPopup) {
-          pendingProofPopup = true;
-          // this should be multiple functions eventually instead of convoluded nested loops
-          if (credentialsRPrivate) {
-            // Commenting out anonymous credentials for now
-            // submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
-            //   props.provider.once(tx, async () => {
-            //     console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')
-            //     // setStep('success');
-            //   })
-            // })
-          } else {
-            proveIKnewValidJWT().then((tx) => {
-              provider.once(tx, async () => {
-                await setOnChainCreds(hexToString(await vjwt.credsForAddress(account.address)));
-                setStep("success");
-              });
+  switch (step) {
+    case "waitingForBlockCompletion":
+      if (!pendingProofPopup) {
+        pendingProofPopup = true;
+        // this should be multiple functions eventually instead of convoluded nested loops
+        if (credentialsRPrivate) {
+          // Commenting out anonymous credentials for now
+          // submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
+          //   props.provider.once(tx, async () => {
+          //     console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')
+          //     // setStep('success');
+          //   })
+          // })
+        } else {
+          proveIKnewValidJWT().then((tx) => {
+            provider.once(tx, async () => {
+              await setOnChainCreds(hexToString(await vjwt.credsForAddress(account.address)));
+              setStep("success");
             });
-          }
+          });
         }
-        return credentialsRPrivate ? (
-          <LitCeramic provider={provider} stringToEncrypt={JWTObject.header.raw + "." + JWTObject.payload.raw} />
-        ) : (
-          <MessageScreen msg="Waiting for block to be mined" />
-        );
-      case "success":
-        // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
-        console.log("NU CREDS", JWTObject.payload.parsed[props.credentialClaim]);
-        let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim];
-        console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`);
-        return onChainCreds ? (
-          <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
-            <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" className="x-container w-container">
-              <div className="x-wrapper no-flex">
-                <div className="spacer-large larger"></div>
-                <h1 className="h1 small">Your identity is successfully verified</h1>
-                <div className="spacer-small"></div>
-                <div className="identity-wrapper">
-                  <div className="identity-div-1">
-                    <div className="card-block">
-                      <div className="card-heading">
-                        <h3 className="h3 no-margin">{props.web2service + " ID"}</h3>
-                        <img src={CircleWavyCheck} loading="lazy" alt="" className="verify-icon" />
-                      </div>
-                      <div className="spacer-xx-small"></div>
-                      <p className="identity-text">{creds}</p>
+      }
+      return credentialsRPrivate ? (
+        <LitCeramic provider={provider} stringToEncrypt={JWTObject.header.raw + "." + JWTObject.payload.raw} />
+      ) : (
+        <MessageScreen msg="Waiting for block to be mined" />
+      );
+    case "success":
+      // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
+      console.log("NU CREDS", JWTObject.payload.parsed[props.credentialClaim]);
+      let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim];
+      console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`);
+      return onChainCreds ? (
+        <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
+          <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" className="x-container w-container">
+            <div className="x-wrapper no-flex">
+              <div className="spacer-large larger"></div>
+              <h1 className="h1 small">Your identity is successfully verified</h1>
+              <div className="spacer-small"></div>
+              <div className="identity-wrapper">
+                <div className="identity-div-1">
+                  <div className="card-block">
+                    <div className="card-heading">
+                      <h3 className="h3 no-margin">{props.web2service + " ID"}</h3>
+                      <img src={CircleWavyCheck} loading="lazy" alt="" className="verify-icon" />
                     </div>
+                    <div className="spacer-xx-small"></div>
+                    <p className="identity-text">{creds}</p>
                   </div>
                 </div>
-                <div className="spacer-small"></div>
-                <div className="identity-verified-btn-div">
-                  {/* <a href="#" className="x-button secondary outline w-button">view tranaction</a> */}
-                  {/* <div className="spacer-x-small"></div> */}
-                  <a href={`/myholo`} className="x-button w-button">
-                    Go to my Holo
-                  </a>
-                  <div className="spacer-x-small"></div>
-                  <a href={`/`} className="x-button secondary outline w-button">
-                    View All Holos
-                  </a>
-                </div>
               </div>
-            </div>
-          </div>
-        ) : (
-          <p className="warning">Failed to verify JWT on-chain</p>
-        );
-
-      case "userApproveJWT":
-        if (!JWTObject) {
-          return "waiting for token to load";
-        }
-        vjwt.kid().then((kid) => {
-          if (JWTObject.header.parsed.kid !== kid) {
-            console.log("kid", JWTObject.header.parsed.kid, kid);
-            props.errorCallback(
-              <p>
-                KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those key IDs need to be updated
-                on-chain. Please check back later. We would appreciate it if you could email{" "}
-                <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running{" "}
-              </p>
-            );
-          }
-        });
-
-        return displayMessage ? (
-          <MessageScreen msg={displayMessage} />
-        ) : (
-          <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
-            <div className="x-container w-container">
-              <div className="x-wrapper small-center">
-                <div className="spacer-small"></div>
-                <div class="x-wrapper no-flex">
-                  <div class="spacer-large larger"></div>
-                  <h1 class="h1">Confirm Identity</h1>
-                  <h4 className="p-1 white">
-                    Confirm you would like to publicly link your address <code>{account ? truncateAddress(account.address) : null}</code> and its
-                    history with{" "}
-                  </h4>
-                  <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />
-                </div>
-                <div class="spacer-medium"></div>
-                <a
-                  href="#"
-                  class="x-button secondary"
-                  onClick={async () => {
-                    await commitJWTOnChain(JWTObject);
-                  }}
-                >
-                  submit public holo
+              <div className="spacer-small"></div>
+              <div className="identity-verified-btn-div">
+                {/* <a href="#" className="x-button secondary outline w-button">view tranaction</a> */}
+                {/* <div className="spacer-x-small"></div> */}
+                <a href={`/myholo`} className="x-button w-button">
+                  Go to my Holo
                 </a>
-                <div class="spacer-small"></div>
-                <div class="identity-info-div"></div>
+                <div className="spacer-x-small"></div>
+                <a href={`/`} className="x-button secondary outline w-button">
+                  View All Holos
+                </a>
               </div>
             </div>
           </div>
-        );
-      /*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
+        </div>
+      ) : (
+        <p className="warning">Failed to verify JWT on-chain</p>
+      );
+
+    case "userApproveJWT":
+      if (!JWTObject) {
+        return "waiting for token to load";
+      }
+      vjwt.kid().then((kid) => {
+        if (JWTObject.header.parsed.kid !== kid) {
+          console.log("kid", JWTObject.header.parsed.kid, kid);
+          props.errorCallback(
+            <p>
+              KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those key IDs need to be updated
+              on-chain. Please check back later. We would appreciate it if you could email{" "}
+              <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running{" "}
+            </p>
+          );
+        }
+      });
+
+      return displayMessage ? (
+        <MessageScreen msg={displayMessage} />
+      ) : (
+        <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
+          <div className="x-container w-container">
+            <div className="x-wrapper small-center">
+              <div className="spacer-small"></div>
+              <div class="x-wrapper no-flex">
+                <div class="spacer-large larger"></div>
+                <h1 class="h1">Confirm Identity</h1>
+                <h4 className="p-1 white">
+                  Confirm you would like to publicly link your address <code>{account ? truncateAddress(account.address) : null}</code> and its
+                  history with{" "}
+                </h4>
+                <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />
+              </div>
+              <div class="spacer-medium"></div>
+              <a
+                href="#"
+                class="x-button secondary"
+                onClick={async () => {
+                  await commitJWTOnChain(JWTObject);
+                }}
+              >
+                submit public holo
+              </a>
+              <div class="spacer-small"></div>
+              <div class="identity-info-div"></div>
+            </div>
+          </div>
+        </div>
+      );
+    /*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
                     <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
                     : 
                     <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/
-      /*Header
+    /*Header
                     <br />
                     <code>
                     <DisplayJWTSection section={JWTObject.header.parsed} />
@@ -377,41 +376,40 @@ const InnerAuthenticationFlow = (props) => {
                     <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
                     } */
 
-      default:
-        return (
-          <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
-            <div className="x-container w-container">
-              <div className="x-wrapper small-center">
-                <div className="spacer-small"></div>
-                <h1 className="h1">Your Public Profile</h1>
-                <h2 className="p-1 white big">Define your Holonym by linking your accounts to the blockchain.</h2>
-                <div className="spacer-medium"></div>
-                <div className="x-card small">
-                  <div className="card-heading">
-                    <h3 className="h3 no-margin">
-                      {holo.name || "Your Name"}
-                      <p className="no-margin">{holo.bio || "Your bio"}</p>
-                    </h3>
-                    <EditProfileButton {...props} holo={holo} />
-                  </div>
+    default:
+      return (
+        <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
+          <div className="x-container w-container">
+            <div className="x-wrapper small-center">
+              <div className="spacer-small"></div>
+              <h1 className="h1">Your Public Profile</h1>
+              <h2 className="p-1 white big">Define your Holonym by linking your accounts to the blockchain.</h2>
+              <div className="spacer-medium"></div>
+              <div className="x-card small">
+                <div className="card-heading">
+                  <h3 className="h3 no-margin">
+                    {holo.name || "Your Name"}
+                    <p className="no-margin">{holo.bio || "Your bio"}</p>
+                  </h3>
+                  <EditProfileButton {...props} holo={holo} />
                 </div>
-                ) : (<p className="warning">Failed to verify JWT on-chain</p>
-                );
               </div>
-              <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
-                <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
-                  <h5>Your link</h5>
-                  <textarea style={{ width: "100%", height: "150px" }} type="email" class="text-field w-input" value={myUrl} />
-                  <p className="success">✓ Copied to clipboard</p>
-                  <h5>Your QR</h5>
-                  <QRCode value={myUrl} />
-                </div>
-              </Modal>
+              ) : (<p className="warning">Failed to verify JWT on-chain</p>
+              );
             </div>
+            <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
+              <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
+                <h5>Your link</h5>
+                <textarea style={{ width: "100%", height: "150px" }} type="email" class="text-field w-input" value={myUrl} />
+                <p className="success">✓ Copied to clipboard</p>
+                <h5>Your QR</h5>
+                <QRCode value={myUrl} />
+              </div>
+            </Modal>
           </div>
-        );
-    }
-  };
+        </div>
+      );
+  }
 };
 
 const AuthenticationFlow = (props) => {
