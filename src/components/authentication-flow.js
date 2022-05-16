@@ -233,6 +233,8 @@ const InnerAuthenticationFlow = (props) => {
     // listen for the transaction to go to the mempool
     // props.provider.on('pending', async () => console.log('tx'))
 
+    console.log("step:", step);
+
     switch (step) {
       case "waitingForBlockCompletion":
         if (!pendingProofPopup) {
