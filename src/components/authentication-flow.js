@@ -4,11 +4,19 @@ import contractAddresses from "../constants/contractAddresses.json";
 import { truncateAddress } from "../utils/ui-helpers.js";
 import abi from "../constants/abi/VerifyJWTv2.json";
 import { LitCeramic } from "./lit-ceramic.js";
+import { InfoButton } from "./info-button";
 import QRCode from "react-qr-code";
 import { EditProfileButton } from "./edit-profile.js";
 import MessageScreen from "./atoms/MessageScreen";
 import Error from "./errors.js";
+import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
+import Github from "../img/Github.svg";
+import Google from "../img/Google.svg";
+import CircleWavy from "../img/CircleWavy.svg";
 import CircleWavyCheck from "../img/CircleWavyCheck.svg";
+import Orcid from "../img/Orcid.svg";
+import TwitterLogo from "../img/TwitterLogo.svg";
+import Share from "../img/Share.svg";
 import { useAccount, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
 import { Modal } from "./atoms/Modal.js";
 import { fixedBufferXOR as xor, getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
@@ -393,20 +401,82 @@ const InnerAuthenticationFlow = (props) => {
                   </h3>
                   <EditProfileButton {...props} holo={holo} />
                 </div>
+                {/* <img src={profile} loading="lazy" alt="" style={{textAlign: "left"}} /> */}
+
+                <div className="spacer-small"></div>
+
+                <div className="card-heading">
+                  <h3 id="w-node-_7e19a9c8-ff94-4387-04bd-6aaf6d53a8ea-b12b29e5" className="h3 no-margin">
+                    Link your profiles
+                  </h3>
+                  <InfoButton
+                    text={`This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and only submit credentials you want visible in the "blockchain yellowpages." You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 `}
+                  />
+                </div>
+                <div className="spacer-small"></div>
+                <div className="card-text-wrapper">
+                  <div className="card-text-div">
+                    <img src={Google} loading="lazy" alt="" className="card-logo" />
+                    <div className="card-text">{holo.google || "youremail@gmail.com"}</div>
+                    <GoogleLoginButton creds={holo.google} />
+                  </div>
+                  <img src={holo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                </div>
+                <div className="spacer-x-small"></div>
+                <div className="card-text-wrapper">
+                  <div className="card-text-div">
+                    <img src={Orcid} loading="lazy" alt="" className="card-logo" />
+                    <div className="card-text">{holo.orcid || "xxxx-xxxx-xxxx-xxxx"}</div>
+                    <ORCIDLoginButton creds={holo.orcid} />
+                  </div>
+                  <img src={holo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                </div>
+                <div className="spacer-x-small"></div>
+                <div className="card-text-wrapper">
+                  <div className="card-text-div">
+                    <img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
+                    <div className="card-text">{`@${holo.twitter || "twitterusername"}`}</div>
+                    <TwitterLoginButton creds={holo.twitter} />
+                  </div>
+                  <img src={holo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                </div>
+                <div className="spacer-x-small"></div>
+                <div className="card-text-wrapper">
+                  <div className="card-text-div">
+                    <img src={Github} loading="lazy" alt="" className="card-logo" />
+                    <div className="card-text">{`@${holo.github || "githubusername"}`}</div>
+                    <GitHubLoginButton creds={holo.github} />
+                  </div>
+                  <img src={holo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                </div>
               </div>
-              ) : (<p className="warning">Failed to verify JWT on-chain</p>
-              );
+              <div className="spacer-large larger"></div>
+              <div className="spacer-medium"></div>
+              {/* Share button: copies link and makes QR for it */}
+              <div
+                className="x-wrapper small-center animation0"
+                onClick={() => {
+                  navigator.clipboard.writeText(myUrl);
+                  setShareModal(true);
+                }}
+              >
+                <h3>Share</h3>
+                <img src={Share} loading="lazy" alt="" className="card-logo" />
+              </div>
+              {/* <a onClick className="x-button secondary"><img src={QR} /></a> */}
+              {/* <a href="#" className="x-button secondary w-button">continue</a>
+        <a href="#" className="x-button secondary no-outline w-button">Learn more</a> */}
             </div>
-            <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
-              <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
-                <h5>Your link</h5>
-                <textarea style={{ width: "100%", height: "150px" }} type="email" class="text-field w-input" value={myUrl} />
-                <p className="success">✓ Copied to clipboard</p>
-                <h5>Your QR</h5>
-                <QRCode value={myUrl} />
-              </div>
-            </Modal>
           </div>
+          <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
+            <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
+              <h5>Your link</h5>
+              <textarea style={{ width: "100%", height: "150px" }} type="email" class="text-field w-input" value={myUrl} />
+              <p className="success">✓ Copied to clipboard</p>
+              <h5>Your QR</h5>
+              <QRCode value={myUrl} />
+            </div>
+          </Modal>
         </div>
       );
   }

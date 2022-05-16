@@ -46,12 +46,12 @@ export const Lookup = (props) => {
       chainId: desiredChainId,
     };
     await signer.sendTransaction(tx);
+    return true;
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    setModalVisible(false);
-    sendCrypto(event.target.amount.value);
+    sendCrypto(event.target.amount.value).then((result) => setModalVisible(false));
   };
 
   useEffect(() => {
