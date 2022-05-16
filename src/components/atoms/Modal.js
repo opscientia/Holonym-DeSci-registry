@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const Modal = (props) => {
   // stop display when clicked outside
@@ -22,8 +22,8 @@ export const Modal = (props) => {
       >
         <div className="x-container w-container">
           <div ref={ref} className={"x-card small " + (props.blur ? "large-blur" : "")}>
-            <div className="card-heading">
-              <div text={"hey"}>{props.children}</div>
+            <div className="card-heading" style={{ alignItems: "normal" }}>
+              <div>{props.children}</div>
             </div>
           </div>
         </div>

@@ -4,11 +4,9 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { desiredChainId } from "./constants/desiredChain";
 import { Provider, createClient } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-
-const desiredChain = "gnosis";
-const desiredChainId = 100;
 
 // Set up wagmi connectors
 const client = createClient({

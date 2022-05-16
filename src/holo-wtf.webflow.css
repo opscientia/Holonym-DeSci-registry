@@ -690,6 +690,27 @@ p {
   flex-direction: row;
 }
 
+@keyframes animation0 {
+  0%   {filter: drop-shadow(30px 10px 4px #1b1bd3);width:7vw;}
+  25%  {filter: drop-shadow(30px 10px 4px #dddd44);width:7.1vw;}
+  50%  {filter: drop-shadow(30px 10px 4px #ddd344);width:7.2vw;}
+  75%  {filter: drop-shadow(30px 10px 4px #dd4444);width:7.1vw;}
+  100% {filter: drop-shadow(30px 10px 4px #a044dd);width:7vw;}
+}
+
+.animation0 {
+  /* width:14vw; */
+  width: 7vw;
+  animation-name: animation0;
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+}
+
+.animation0:hover {
+  color:#fac5c6;
+}
+
+
 .x-partners {
   width: 10%;
   max-height: 75px;
@@ -777,7 +798,7 @@ p {
 }
 
 .success {
-  background-color: #89b3e5;
+  color: #a8e27e;
 }
 
 .success-text {
