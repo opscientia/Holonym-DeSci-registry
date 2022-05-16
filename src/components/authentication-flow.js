@@ -42,20 +42,20 @@ const DisplayJWTSection = (props) => {
           let field = key;
           let value = props.section[key];
           // give a human readable name to important field:
-          if (field == "creds") {
+          if (field === "creds") {
             field = "Credentials";
           }
-          if (field == "sub") {
+          if (field === "sub") {
             field = `${props.web2service} ID`;
           }
-          if (field == "given_name") {
+          if (field === "given_name") {
             field = "Given First Name";
           }
-          if (field == "family_name") {
+          if (field === "family_name") {
             field = "Given Last Name";
           }
-          if (field == "picture") {
-            value = <img style={{ borderRadius: "7px" }} src={value} />;
+          if (field === "picture") {
+            value = <img style={{ borderRadius: "7px" }} src={value} alt="" />;
           }
           // capitalize first letter:
           field = field.replace("_", " ");
@@ -101,26 +101,50 @@ const InnerAuthenticationFlow = (props) => {
   };
   const [holo, setHolo] = useState(defaultHolo);
   // Load the user's Holo when the page loads
-  useEffect(async () => {
-    try {
-      const holoIsEmpty = Object.values(holo).every((x) => !x);
-      if (!holoIsEmpty || !account?.address) {
-        return;
-      } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-      const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
-      let holo_ = (await response.json())[props.desiredChain];
-      setHolo({
-        ...defaultHolo,
-        google: holo_.google,
-        orcid: holo_.orcid,
-        github: holo_.github,
-        twitter: holo_.twitter,
-        name: holo_.name,
-        bio: holo_.bio,
-      });
-    } catch (err) {
-      console.error("Error:", err);
+  // useEffect(async () => {
+  //   try {
+  //     const holoIsEmpty = Object.values(holo).every((x) => !x);
+  //     if (!holoIsEmpty || !account?.address) {
+  //       return;
+  //     } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
+  //     const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
+  //     let holo_ = (await response.json())[props.desiredChain];
+  //     setHolo({
+  //       ...defaultHolo,
+  //       google: holo_.google,
+  //       orcid: holo_.orcid,
+  //       github: holo_.github,
+  //       twitter: holo_.twitter,
+  //       name: holo_.name,
+  //       bio: holo_.bio,
+  //     });
+  //   } catch (err) {
+  //     console.error("Error:", err);
+  //   }
+  // }, [props.desiredChain]);
+  useEffect(() => {
+    async function getAndSetHolo() {
+      try {
+        const holoIsEmpty = Object.values(holo).every((x) => !x);
+        if (!holoIsEmpty || !account?.address) {
+          return;
+        } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
+        const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
+        let holo_ = (await response.json())[props.desiredChain];
+        setHolo({
+          ...defaultHolo,
+          google: holo_.google,
+          orcid: holo_.orcid,
+          github: holo_.github,
+          twitter: holo_.twitter,
+          name: holo_.name,
+          bio: holo_.bio,
+        });
+      } catch (err) {
+        console.error("Error:", err);
+      }
     }
+    getAndSetHolo();
   }, [props.desiredChain]);
 
   let revealBlock = 0; //block when user should be prompted to reveal their JWT
@@ -128,7 +152,7 @@ const InnerAuthenticationFlow = (props) => {
 
   // if a token is already provided, set the step to user approving the token
   if (tokenURL) {
-    if (JWTText == "") {
+    if (JWTText === "") {
       console.log(tokenURL, "token url!!!!!!!!!!!!!!!!!!!!!", JWTFromURL(tokenURL));
       setJWTText(JWTFromURL(tokenURL));
       setStep("userApproveJWT");
@@ -139,14 +163,17 @@ const InnerAuthenticationFlow = (props) => {
     }
   }
 
-  useEffect(async () => {
-    if (!(JWTText && props && props.credentialClaim && vjwt)) {
-      return;
+  useEffect(() => {
+    async function setJWTAndParams() {
+      if (!(JWTText && props && props.credentialClaim && vjwt)) {
+        return;
+      }
+      console.log("VJWT IS ", vjwt.address);
+      console.log("abcdefg", await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
+      setJWTObject(parseJWT(JWTText));
+      setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
     }
-    console.log("VJWT IS ", vjwt.address);
-    console.log("abcdefg", await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
-    setJWTObject(parseJWT(JWTText));
-    setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
+    setJWTAndParams();
   }, [JWTText, params]);
 
   if (!account) {
@@ -281,7 +308,7 @@ const InnerAuthenticationFlow = (props) => {
           return "waiting for token to load";
         }
         vjwt.kid().then((kid) => {
-          if (JWTObject.header.parsed.kid != kid) {
+          if (JWTObject.header.parsed.kid !== kid) {
             console.log("kid", JWTObject.header.parsed.kid, kid);
             props.errorCallback(
               <p>

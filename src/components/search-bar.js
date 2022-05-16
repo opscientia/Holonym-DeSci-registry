@@ -1,6 +1,5 @@
-import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
-import { searchHolos } from "../utils/holoSearch";
 
 const SearchArrow = () => {
   return (
@@ -13,9 +12,9 @@ const SearchArrow = () => {
   );
 };
 // Empty search bar, vs search bar style when credentials have been typed that shows suggestions
-const EmptySearch = (props) => {
-  return <input onChange={props.onChange} className="text-field w-input" maxLength="256" placeholder="Discover others by email, Twitter, etc." />;
-};
+// const EmptySearch = (props) => {
+//   return <input onChange={props.onChange} className="text-field w-input" maxLength="256" placeholder="Discover others by email, Twitter, etc." />;
+// };
 
 const SearchWithSuggestions = (props) => {
   return (
@@ -149,7 +148,6 @@ const SearchWithSuggestions = (props) => {
 
 export const SearchBar = () => {
   let navigate = useNavigate();
-  let params = useParams();
   let [credentials, setCredentials] = useState("");
   // const [web2Service, setWeb2Service] = useState(params.web2service || 'ORCID') // Needn't be ORCID -- any web2service is fine. But this does feel hacky)
   const searchWithService = (service) => {

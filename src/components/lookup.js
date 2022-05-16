@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { desiredChainId, desiredChainCurrency } from "../constants/desiredChain";
 import { SearchBar } from "./search-bar";
-import { DisplayPOAPs } from "./poaps";
+// import { DisplayPOAPs } from "./poaps";
 import { Modal } from "./atoms/Modal.js";
 import Holo from "./atoms/Holo";
 import { getHoloFromAddress, getHoloFromCredentials, searchHolos } from "../utils/holoSearch";
@@ -31,7 +31,7 @@ export const Lookup = (props) => {
   const [holos, setHolos] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   let params = useParams();
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: signer } = useSigner();
   const { data: account } = useAccount();
 
   const sendCrypto = async (amount) => {
