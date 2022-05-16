@@ -156,10 +156,10 @@ export const SearchBar = () => {
     // Parse credential, ensuring sure it's the right format (i.e., add/remove @ or @gmail.com when appropriate)
     let creds = credentials;
     // Sometimes gmail addresses have custom domain names, but @gmail should be default
-    if (service == "Google" && !creds.includes("@")) {
+    if (service === "Google" && !creds.includes("@")) {
       creds += "@gmail.com";
       // Twitter handles don't actually start with @ on the low level
-    } else if (service == "twitter" && creds.startsWith("@")) {
+    } else if (service === "twitter" && creds.startsWith("@")) {
       creds = creds.substring(1);
     }
     setCredentials(""); //reset credentials

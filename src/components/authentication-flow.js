@@ -11,8 +11,6 @@ import Error from "./errors.js";
 import CircleWavyCheck from "../img/CircleWavyCheck.svg";
 import { useAccount, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
 import { Modal } from "./atoms/Modal.js";
-import Share from "../img/Share.svg";
-import wtf from "../wtf-configured";
 import { fixedBufferXOR as xor, getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
 const { ethers } = require("ethers");
 
