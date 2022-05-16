@@ -1,27 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { desiredChainId, desiredChainCurrency } from "../constants/desiredChain";
 import { SearchBar } from "./search-bar";
 import { DisplayPOAPs } from "./poaps";
+import { Modal } from "./atoms/Modal.js";
 import Holo from "./atoms/Holo";
 import { getHoloFromAddress, getHoloFromCredentials, searchHolos } from "../utils/holoSearch";
+import { useSigner, useAccount } from "wagmi";
 
 // import ToggleButton from 'react-bootstrap/ToggleButton'
 // import ButtonGroup from 'react-bootstrap/ButtonGroup'
 // import 'bootstrap/dist/css/bootstrap.css';
 
 const { ethers } = require("ethers");
-
-const sendCrypto = (provider, to) => {
-  if (!provider || !to) {
-    alert("Error: Please connect your wallet, set it to the right network, and specify a recipient");
-  } else {
-    provider.getSigner().sendTransaction({
-      to: to,
-      // Convert currency unit from ether to wei
-      value: ethers.utils.parseEther(".1"),
-    });
-  }
-};
 
 // Wraps everything on the lookup screen with style
 const Wrapper = (props) => {
@@ -38,7 +29,30 @@ const Wrapper = (props) => {
 //   MAKE SURE NETWORK IS SET TO THE RIGHT ONE (AVALANCHE C TESTNET)
 export const Lookup = (props) => {
   const [holos, setHolos] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
   let params = useParams();
+  const { data: signer, isError, isLoading } = useSigner();
+  const { data: account } = useAccount();
+
+  const sendCrypto = async (amount) => {
+    console.log("sending", amount);
+    let tx = {
+      to: holos[0].address,
+      from: account.address,
+      nonce: await signer.getTransactionCount(),
+      gasLimit: 200000,
+      // value: ethers.utils.parseEther(".1"),
+      value: ethers.utils.parseEther(amount),
+      chainId: desiredChainId,
+    };
+    await signer.sendTransaction(tx);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setModalVisible(false);
+    sendCrypto(event.target.amount.value);
+  };
 
   useEffect(() => {
     if (!params.web2service || !params.credentials) {
@@ -76,12 +90,33 @@ export const Lookup = (props) => {
           <Holo holo={holos[0]} />
           <div className="spacer-medium"></div>
           <div className="btn-wrapper">
-            {/* TODO: Rewrite payment function using wagmi hooks
-            {params.web2service != "address" ? (
-              <a onClick={() => sendCrypto(props.provider, holos[0].address)} className="x-button primary">
-                Pay {params.credentials}
-              </a>
-            ) : null} */}
+            <button onClick={() => setModalVisible(true)} className="x-button primary">
+              Pay {holos[0].name || holos[0].google || holos[0].orcid || holos[0].twitter || holos[0].github}
+            </button>
+
+            <Modal visible={modalVisible} setVisible={() => {}} blur={true}>
+              <h3 className="h3 white">
+                How much {desiredChainCurrency} would you like to send{" "}
+                {holos[0].name || holos[0].google || holos[0].orcid || holos[0].twitter || holos[0].github}?
+              </h3>
+              <div className="x-container w-container" style={{ justifyContent: "space-between", color: "black" }}>
+                <form onSubmit={handleSubmit}>
+                  <input name="amount" type="number" step="0.01" />
+                  <div className="spacer-small"></div>
+                  <button
+                    onClick={() => setModalVisible(false)}
+                    type="button"
+                    className="x-button secondary"
+                    style={{ width: "45%", marginRight: "10px" }}
+                  >
+                    Close
+                  </button>
+                  <button type="submit" className="x-button" style={{ width: "45%", marginLeft: "10px" }}>
+                    Submit
+                  </button>
+                </form>
+              </div>
+            </Modal>
           </div>
           <div>{/* <DisplayPOAPs address={holos[0].address} /> */}</div>
         </>
