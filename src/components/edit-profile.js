@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useProvider, useContract } from "wagmi";
+import { useContractWrite } from "wagmi";
 import { truncateAddress } from "../utils/ui-helpers.js";
 import { Modal } from "./atoms/Modal.js";
 import contractAddresses from "../constants/contractAddresses.json";
@@ -9,15 +9,21 @@ export const EditProfileButton = (props) => {
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const provider = useProvider();
-  const WTFBiosContract = useContract({
-    addressOrName: contractAddresses.WTFBios,
-    contractInterface: abi,
-    signerOrProvider: provider,
-  });
+  const {
+    data: txResp,
+    isError,
+    isLoading,
+    writeAsync: wtfSetNameAndBio,
+  } = useContractWrite(
+    {
+      addressOrName: contractAddresses.WTFBios,
+      contractInterface: abi,
+    },
+    "setNameAndBio" // Name of function that will be called
+  );
 
   const submitNameBio = async () => {
-    await WTFBiosContract.setNameAndBio(name, bio);
+    await wtfSetNameAndBio({ args: [name, bio] });
     setVisible(false);
   };
 

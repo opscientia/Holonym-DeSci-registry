@@ -109,27 +109,6 @@ const InnerAuthenticationFlow = (props) => {
   };
   const [holo, setHolo] = useState(defaultHolo);
   // Load the user's Holo when the page loads
-  // useEffect(async () => {
-  //   try {
-  //     const holoIsEmpty = Object.values(holo).every((x) => !x);
-  //     if (!holoIsEmpty || !account?.address) {
-  //       return;
-  //     } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-  //     const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
-  //     let holo_ = (await response.json())[props.desiredChain];
-  //     setHolo({
-  //       ...defaultHolo,
-  //       google: holo_.google,
-  //       orcid: holo_.orcid,
-  //       github: holo_.github,
-  //       twitter: holo_.twitter,
-  //       name: holo_.name,
-  //       bio: holo_.bio,
-  //     });
-  //   } catch (err) {
-  //     console.error("Error:", err);
-  //   }
-  // }, [props.desiredChain]);
   useEffect(() => {
     async function getAndSetHolo() {
       try {
