@@ -22,7 +22,9 @@ export const searchHolos = async (searchStr) => {
       let resp = await fetch(`https://sciverse.id/searchHolos?searchStr=${searchStr}`);
       let holos = await resp.json();
       return holos;
-    } catch (err) {}
+    } catch (err) {
+      attemptNum++;
+    }
   }
   console.log(`Failed ${numAllowedAttempts} attempts to fetch search results for search "${searchStr}"`);
 };
