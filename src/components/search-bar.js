@@ -168,6 +168,7 @@ export const SearchBar = () => {
     event.preventDefault();
     let searchStr = event.target[0].value;
     navigate(`/lookup/holosearch/${searchStr}`);
+    setCredentials("");
   };
 
   return (

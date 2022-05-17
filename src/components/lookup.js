@@ -101,7 +101,15 @@ export const Lookup = (props) => {
               </h3>
               <div className="x-container w-container" style={{ justifyContent: "space-between", color: "black" }}>
                 <form onSubmit={handleSubmit}>
-                  <input name="amount" type="number" step="0.01" />
+                  <input
+                    name="amount"
+                    type="number"
+                    step="0.01"
+                    className="text-field w-input"
+                    style={{ height: "10px", width: "100%" }}
+                    placeholder="0.1"
+                    min="0"
+                  />
                   <div className="spacer-small"></div>
                   <button
                     onClick={() => setModalVisible(false)}
