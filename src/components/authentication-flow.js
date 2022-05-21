@@ -1,54 +1,41 @@
-import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
 import { useParams, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import contractAddresses from "../constants/contractAddresses.json";
 import { truncateAddress } from "../utils/ui-helpers.js";
-import { fixedBufferXOR as xor, sandwichIDWithBreadFromContract, padBase64, hexToString, searchForPlainTextInBase64 } from "wtfprotocol-helpers";
-import abi from "../constants/abi/VerifyJWT.json";
+import abi from "../constants/abi/VerifyJWTv2.json";
 import { LitCeramic } from "./lit-ceramic.js";
-import { InfoButton } from "./info-button.js";
+import { InfoButton } from "./info-button";
 import QRCode from "react-qr-code";
 import { EditProfileButton } from "./edit-profile.js";
 import MessageScreen from "./atoms/MessageScreen";
 import Error from "./errors.js";
+import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
 import Github from "../img/Github.svg";
 import Google from "../img/Google.svg";
 import CircleWavy from "../img/CircleWavy.svg";
 import CircleWavyCheck from "../img/CircleWavyCheck.svg";
 import Orcid from "../img/Orcid.svg";
 import TwitterLogo from "../img/TwitterLogo.svg";
-import { useProvider } from "wagmi";
+import Share from "../img/Share.svg";
+import { useAccount, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
+import { Modal } from "./atoms/Modal.js";
+import { fixedBufferXOR as xor, getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
 const { ethers } = require("ethers");
 
-// TODO: better error handling
-// takes encoded JWT and returns parsed header, parsed payload, parsed signature, raw header, raw header, raw signature
-const parseJWT = (JWT) => {
-  if (!JWT) {
+const JWTFromURL = function (url) {
+  if (!url) {
     return null;
   }
   let parsedToJSON = {};
-  JWT.split("&").map((x) => {
+  url.split("&").map((x) => {
     let [key, value] = x.split("=");
     parsedToJSON[key] = value;
   });
-  let [rawHead, rawPay, rawSig] = parsedToJSON["id_token"].split(".");
-  console.log(rawHead, rawPay, "RAWR");
-  let [head, pay] = [rawHead, rawPay].map((x) => (x ? JSON.parse(atob(x)) : null));
-  let [sig] = [Buffer.from(rawSig.replaceAll("-", "+").replaceAll("_", "/"), "base64")]; //replaceAlls convert it from base64url to base64
-  return {
-    header: {
-      parsed: head,
-      raw: rawHead,
-    },
-    payload: {
-      parsed: pay,
-      raw: rawPay,
-    },
-    signature: {
-      decoded: sig,
-      raw: rawSig,
-    },
-  };
+  return parsedToJSON["id_token"];
+};
+
+const parseJWTFromURL = function (url) {
+  return parseJWT(JWTFromURL(url));
 };
 
 const ignoredFields = ["azp", "kid", "alg", "at_hash", "aud", "auth_time", "iss", "exp", "iat", "jti", "nonce", "email_verified", "rand"]; //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
@@ -57,27 +44,26 @@ const DisplayJWTSection = (props) => {
   return (
     <>
       {Object.keys(props.section).map((key) => {
-        console.log(key);
         if (ignoredFields.includes(key)) {
           return null;
         } else {
           let field = key;
           let value = props.section[key];
           // give a human readable name to important field:
-          if (field == "creds") {
+          if (field === "creds") {
             field = "Credentials";
           }
-          if (field == "sub") {
+          if (field === "sub") {
             field = `${props.web2service} ID`;
           }
-          if (field == "given_name") {
+          if (field === "given_name") {
             field = "Given First Name";
           }
-          if (field == "family_name") {
+          if (field === "family_name") {
             field = "Given Last Name";
           }
-          if (field == "picture") {
-            value = <img style={{ borderRadius: "7px" }} src={value} />;
+          if (field === "picture") {
+            value = <img style={{ borderRadius: "7px" }} src={value} alt="" />;
           }
           // capitalize first letter:
           field = field.replace("_", " ");
@@ -100,16 +86,21 @@ let pendingProofPopup = false;
 const InnerAuthenticationFlow = (props) => {
   const params = useParams();
   const navigate = useNavigate();
-  let token = params.token || props.token; // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-  console.log(props);
-  const vjwt = props.web2service && provider ? new ethers.Contract(contractAddresses[props.web2service], abi, provider.getSigner()) : null;
+  const { data: account } = useAccount();
+  const { data: signer } = useSigner();
+  const provider = useProvider();
+  let tokenURL = params.token || props.token; // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
+  const vjwt = props.web2service && signer ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState("");
   const [JWTObject, setJWTObject] = useState(""); //a fancy version of the JWT we will use for this script
+  const [params4Verifying, setParams4Verifying] = useState({});
   const [displayMessage, setDisplayMessage] = useState("");
   const [onChainCreds, setOnChainCreds] = useState(null);
+  const [shareModal, setShareModal] = useState(false);
   const [txHash, setTxHash] = useState(null);
   const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
+  const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
   const defaultHolo = {
     google: null,
     orcid: null,
@@ -117,43 +108,40 @@ const InnerAuthenticationFlow = (props) => {
     twitter: null,
   };
   const [holo, setHolo] = useState(defaultHolo);
-  const provider = useProvider();
   // Load the user's Holo when the page loads
-  useEffect(async () => {
-    try {
-      // if props has provider but not address for some reason, get the address:
-      let address;
-      if (provider) {
-        address = props.address || (await provider.getSigner().getAddress());
+  useEffect(() => {
+    async function getAndSetHolo() {
+      try {
+        const holoIsEmpty = Object.values(holo).every((x) => !x);
+        if (!holoIsEmpty || !account?.address) {
+          return;
+        } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
+        const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
+        let holo_ = (await response.json())[props.desiredChain];
+        setHolo({
+          ...defaultHolo,
+          google: holo_.google,
+          orcid: holo_.orcid,
+          github: holo_.github,
+          twitter: holo_.twitter,
+          name: holo_.name,
+          bio: holo_.bio,
+        });
+      } catch (err) {
+        console.error("Error:", err);
       }
-      const holoIsEmpty = Object.values(holo).every((x) => !x);
-      if (!holoIsEmpty || !address) {
-        return;
-      } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-      const response = await fetch(`https://sciverse.id/getHolo?address=${address}`);
-      let holo_ = (await response.json())[props.desiredChain];
-      setHolo({
-        ...defaultHolo,
-        google: holo_.google,
-        orcid: holo_.orcid,
-        github: holo_.github,
-        twitter: holo_.twitter,
-        name: holo_.name,
-        bio: holo_.bio,
-      });
-    } catch (err) {
-      console.log("Error:", err);
     }
-  }, [props.desiredChain, provider, props.address]);
+    getAndSetHolo();
+  }, [props.desiredChain]);
 
   let revealBlock = 0; //block when user should be prompted to reveal their JWT
   // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
 
   // if a token is already provided, set the step to user approving the token
-  if (token) {
-    if (JWTText == "") {
-      console.log("setting token");
-      setJWTText(token);
+  if (tokenURL) {
+    if (JWTText === "") {
+      console.log(tokenURL, "token url!!!!!!!!!!!!!!!!!!!!!", JWTFromURL(tokenURL));
+      setJWTText(JWTFromURL(tokenURL));
       setStep("userApproveJWT");
     }
   } else {
@@ -161,73 +149,77 @@ const InnerAuthenticationFlow = (props) => {
       setStep(null);
     }
   }
-  console.log(props, JWTText, step);
 
-  useEffect(() => setJWTObject(parseJWT(JWTText)), [JWTText]);
+  useEffect(() => {
+    async function setJWTAndParams() {
+      if (!(JWTText && props && props.credentialClaim && vjwt)) {
+        return;
+      }
+      console.log("VJWT IS ", vjwt.address);
+      console.log("abcdefg", await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
+      setJWTObject(parseJWT(JWTText));
+      setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
+    }
+    setJWTAndParams();
+  }, [JWTText, params]);
 
-  if (!provider) {
-    console.log(props);
+  if (!account) {
     return "Please connect your wallet";
   }
 
-  const commitJWTOnChain = async (JWTObject) => {
-    console.log("commitJWTOnChat called");
-    let message = JWTObject.header.raw + "." + JWTObject.payload.raw;
-    // let publicHashedMessage = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(message))
-    let secretHashedMessage = ethers.utils.sha256(ethers.utils.toUtf8Bytes(message));
+  const commitJWTOnChain = async (credentialClaim) => {
     setDisplayMessage(
       "After you submit this transaction, you will receive another transaction in about 10 seconds once the block is mined. Once it's mined, you'll see a new popup to finish verification"
     );
-    console.log(secretHashedMessage, props.address);
     // xor the values as bytes (without preceding 0x)
-    let proofPt1 = xor(Buffer.from(secretHashedMessage.replace("0x", ""), "hex"), Buffer.from(props.address.replace("0x", ""), "hex"));
-    let proof = ethers.utils.sha256(proofPt1);
-    console.log(proof.toString("hex"));
+    console.log("p4v", params4Verifying);
+    const commitments = params4Verifying.generateCommitments(account.address);
     try {
-      let tx = await vjwt.commitJWTProof(proof);
-      await tx.wait();
-      const revealBlock = tx.blockNumber();
-      console.log("t", revealBlock);
-      setStep("waitingForBlockCompletion");
+      let tx = await vjwt.commitJWTProof(...commitments);
+      revealBlock = (await provider.getBlockNumber()) + 1;
+      let revealed = false;
+      provider.on("block", async () => {
+        if ((await provider.getBlockNumber()) >= revealBlock && !revealed) {
+          setStep("waitingForBlockCompletion");
+          revealed = true;
+        }
+      });
     } catch (error) {
       console.log("commitment eror", error);
-      props.errorCallback(error.message);
+      props.errorCallback(error.data?.message || error.message);
     }
+
+    // setStep('waitingForBlockCompletion')
   };
 
   // credentialField is 'email' for gmail and 'sub' for orcid. It's the claim of the JWT which should be used as an index to look the user up by
-  const proveIKnewValidJWT = async (credentialClaim) => {
-    let sig = JWTObject.signature.decoded;
-    let message = JWTObject.header.raw + "." + JWTObject.payload.raw;
-    let payloadIdx = Buffer.from(JWTObject.header.raw).length + 1;
-    console.log(JWTObject.payload.parsed[credentialClaim]);
-    let sandwich = await sandwichIDWithBreadFromContract(JWTObject.payload.parsed[credentialClaim], vjwt);
-    console.log(sandwich, JWTObject.payload.raw);
-    let [startIdx, endIdx] = searchForPlainTextInBase64(Buffer.from(sandwich, "hex").toString(), JWTObject.payload.raw);
-
-    console.log(vjwt, ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, sandwich);
-    console.log(vjwt.address);
+  const proveIKnewValidJWT = async () => {
+    const p4v = params4Verifying.verifyMeContractParams();
     try {
-      let tx = await vjwt.verifyMe(ethers.BigNumber.from(sig), message, payloadIdx, startIdx, endIdx, "0x" + sandwich);
+      let tx = await vjwt.verifyMe(...p4v);
       setTxHash(tx.hash);
       return tx;
     } catch (error) {
-      props.errorCallback(error.message);
+      props.errorCallback(error.data?.message || error.message);
     }
   };
 
-  // vjwt is VerifyJWT smart contract as an ethers object, JWTObject is the parsed JWT
-  const submitAnonymousCredentials = async (vjwt, JWTObject) => {
-    let message = JWTObject.header.raw + "." + JWTObject.payload.raw;
-    let sig = JWTObject.signature.decoded;
-    try {
-      let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)));
-      setTxHash(tx.hash);
-      return tx;
-    } catch (error) {
-      props.errorCallback(error.message);
-    }
-  };
+  // Commenting out anonymous credentials for now
+  // const submitAnonymousCredentials = async (vjwt, JWTObject) => {
+  //   let message = JWTObject.header.raw + '.' + JWTObject.payload.raw
+  //   let sig = JWTObject.signature.decoded
+  //   try {
+  //     let tx = await vjwt.linkPrivateJWT(ethers.BigNumber.from(sig), ethers.utils.sha256(ethers.utils.toUtf8Bytes(message)))
+  //     setTxHash(tx.hash)
+  //     return tx
+  //   } catch (error) {
+  //     props.errorCallback(error.data?.message || error.message)
+  //   }
+
+  // }
+
+  // listen for the transaction to go to the mempool
+  // props.provider.on('pending', async () => console.log('tx'))
 
   switch (step) {
     case "waitingForBlockCompletion":
@@ -235,16 +227,17 @@ const InnerAuthenticationFlow = (props) => {
         pendingProofPopup = true;
         // this should be multiple functions eventually instead of convoluded nested loops
         if (credentialsRPrivate) {
-          submitAnonymousCredentials(vjwt, JWTObject).then((tx) => {
-            tx.wait().then((txReceipt) => console.log("WE SHOULD NOTIFY THE USER WHEN THIS FAILS"));
-          });
+          // Commenting out anonymous credentials for now
+          // submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
+          //   props.provider.once(tx, async () => {
+          //     console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')
+          //     // setStep('success');
+          //   })
+          // })
         } else {
-          proveIKnewValidJWT(props.credentialClaim).then((tx) => {
-            tx.wait().then(async (txReceipt) => {
-              console.log(props.address);
-              console.log(await vjwt.credsForAddress(props.address));
-              console.log(hexToString(await vjwt.credsForAddress(props.address)));
-              await setOnChainCreds(hexToString(await vjwt.credsForAddress(props.address)));
+          proveIKnewValidJWT().then((tx) => {
+            provider.once(tx, async () => {
+              await setOnChainCreds(hexToString(await vjwt.credsForAddress(account.address)));
               setStep("success");
             });
           });
@@ -261,33 +254,33 @@ const InnerAuthenticationFlow = (props) => {
       let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim];
       console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`);
       return onChainCreds ? (
-        <div class="x-section bg-img wf-section" style={{ width: "100vw" }}>
-          <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" class="x-container w-container">
-            <div class="x-wrapper no-flex">
-              <div class="spacer-large larger"></div>
-              <h1 class="h1 small">Your identity is successfully verified</h1>
-              <div class="spacer-small"></div>
-              <div class="identity-wrapper">
-                <div class="identity-div-1">
-                  <div class="card-block">
-                    <div class="card-heading">
-                      <h3 class="h3 no-margin">{props.web2service + " ID"}</h3>
-                      <img src={CircleWavyCheck} loading="lazy" alt="" class="verify-icon" />
+        <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
+          <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" className="x-container w-container">
+            <div className="x-wrapper no-flex">
+              <div className="spacer-large larger"></div>
+              <h1 className="h1 small">Your identity is successfully verified</h1>
+              <div className="spacer-small"></div>
+              <div className="identity-wrapper">
+                <div className="identity-div-1">
+                  <div className="card-block">
+                    <div className="card-heading">
+                      <h3 className="h3 no-margin">{props.web2service + " ID"}</h3>
+                      <img src={CircleWavyCheck} loading="lazy" alt="" className="verify-icon" />
                     </div>
-                    <div class="spacer-xx-small"></div>
-                    <p class="identity-text">{creds}</p>
+                    <div className="spacer-xx-small"></div>
+                    <p className="identity-text">{creds}</p>
                   </div>
                 </div>
               </div>
-              <div class="spacer-small"></div>
-              <div class="identity-verified-btn-div">
-                {/* <a href="#" class="x-button secondary outline w-button">view tranaction</a> */}
-                {/* <div class="spacer-x-small"></div> */}
-                <a href={`/myholo`} class="x-button w-button">
+              <div className="spacer-small"></div>
+              <div className="identity-verified-btn-div">
+                {/* <a href="#" className="x-button secondary outline w-button">view tranaction</a> */}
+                {/* <div className="spacer-x-small"></div> */}
+                <a href={`/myholo`} className="x-button w-button">
                   Go to my Holo
                 </a>
-                <div class="spacer-x-small"></div>
-                <a href={`/`} class="x-button secondary outline w-button">
+                <div className="spacer-x-small"></div>
+                <a href={`/`} className="x-button secondary outline w-button">
                   View All Holos
                 </a>
               </div>
@@ -303,11 +296,11 @@ const InnerAuthenticationFlow = (props) => {
         return "waiting for token to load";
       }
       vjwt.kid().then((kid) => {
-        if (JWTObject.header.parsed.kid != kid) {
+        if (JWTObject.header.parsed.kid !== kid) {
           console.log("kid", JWTObject.header.parsed.kid, kid);
           props.errorCallback(
             <p>
-              KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those keeds need to be updated
+              KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those key IDs need to be updated
               on-chain. Please check back later. We would appreciate it if you could email{" "}
               <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running{" "}
             </p>
@@ -326,7 +319,7 @@ const InnerAuthenticationFlow = (props) => {
                 <div class="spacer-large larger"></div>
                 <h1 class="h1">Confirm Identity</h1>
                 <h4 className="p-1 white">
-                  Confirm you would like to publicly link your address <code>{props.address ? truncateAddress(props.address) : null}</code> and its
+                  Confirm you would like to publicly link your address <code>{account ? truncateAddress(account.address) : null}</code> and its
                   history with{" "}
                 </h4>
                 <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />
@@ -347,6 +340,28 @@ const InnerAuthenticationFlow = (props) => {
           </div>
         </div>
       );
+    /*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
+                    <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
+                    : 
+                    <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/
+    /*Header
+                    <br />
+                    <code>
+                    <DisplayJWTSection section={JWTObject.header.parsed} />
+                    </code>
+                    
+                    <DisplayJWTSection section={JWTObject.payload.parsed} />
+                    {
+                    
+                    props.account ? <>
+                    Then<br />
+                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
+                    <br />Otherwise<br />
+                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
+                    </>
+                    : 
+                    <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
+                    } */
 
     default:
       return (
@@ -374,7 +389,7 @@ const InnerAuthenticationFlow = (props) => {
                     Link your profiles
                   </h3>
                   <InfoButton
-                    text={`This will link your blockchain address, ${props.address}, to your Web2 accounts! Please be careful and only submit credentials you want visible in the "blockchain yellowpages." You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 `}
+                    text={`This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and only submit credentials you want visible in the "blockchain yellowpages." You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 `}
                   />
                 </div>
                 <div className="spacer-small"></div>
@@ -415,12 +430,32 @@ const InnerAuthenticationFlow = (props) => {
                 </div>
               </div>
               <div className="spacer-large larger"></div>
-              <div className="spacer-large larger"></div>
               <div className="spacer-medium"></div>
-              <p>You can be disovered by: </p>
-              <QRCode value={`https://whoisthis.wtf/lookup/address/${props.address}`} />
+              {/* Share button: copies link and makes QR for it */}
+              <div
+                className="x-wrapper small-center animation0"
+                onClick={() => {
+                  navigator.clipboard.writeText(myUrl);
+                  setShareModal(true);
+                }}
+              >
+                <h3>Share</h3>
+                <img src={Share} loading="lazy" alt="" className="card-logo" />
+              </div>
+              {/* <a onClick className="x-button secondary"><img src={QR} /></a> */}
+              {/* <a href="#" className="x-button secondary w-button">continue</a>
+        <a href="#" className="x-button secondary no-outline w-button">Learn more</a> */}
             </div>
           </div>
+          <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
+            <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
+              <h5>Your link</h5>
+              <textarea style={{ width: "100%", height: "150px" }} type="email" class="text-field w-input" value={myUrl} />
+              <p className="success">✓ Copied to clipboard</p>
+              <h5>Your QR</h5>
+              <QRCode value={myUrl} />
+            </div>
+          </Modal>
         </div>
       );
   }
@@ -428,6 +463,7 @@ const InnerAuthenticationFlow = (props) => {
 
 const AuthenticationFlow = (props) => {
   const [error, setError] = useState();
+  // return <Error msg={`We are doing some maintenance`} />
   return error ? <Error msg={error} /> : <InnerAuthenticationFlow {...props} errorCallback={(err) => setError(err)} />;
 };
 

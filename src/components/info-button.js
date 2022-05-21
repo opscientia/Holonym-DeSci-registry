@@ -3,9 +3,9 @@ import arrow from "../img/Card-Arrow.svg";
 
 const InfoText = (props) => (
   <>
-    <div class="card-popup" style={{ display: props.display ? "block" : "none" }}>
-      <p class="card-popup-text">{props.text}</p>
-      <img src={arrow} loading="lazy" alt="" class="popup-arrow"></img>
+    <div className="card-popup" style={{ display: props.display ? "block" : "none" }}>
+      <p className="card-popup-text">{props.text}</p>
+      <img src={arrow} loading="lazy" alt="" className="popup-arrow"></img>
     </div>
   </>
 );
@@ -26,7 +26,7 @@ export const InfoButton = (props) => {
 
   return (
     <div ref={ref}>
-      <a className="info-btn w-inline-block" onClick={() => setDisplay(!display)}>
+      <button className="info-btn w-inline-block" style={{ backgroundColor: "transparent" }} onClick={() => setDisplay(!display)}>
         <div className="info-img w-embed">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -43,7 +43,7 @@ export const InfoButton = (props) => {
             ></path>
           </svg>
         </div>
-      </a>
+      </button>
 
       <InfoText display={display} text={props.text}></InfoText>
     </div>
