@@ -84,6 +84,7 @@ function App() {
           />
 
           <Route path="/lookup/:web2service/:credentials" element={<Lookup desiredChain={desiredChain} />} />
+          <Route path="/l/:web2service/:credentials" element={<Lookup desiredChain={desiredChain} />} />
           <Route path="/lookup" element={<Lookup />} />
           <Route path="/registry" element={<Registry desiredChain={desiredChain} />} />
           {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
