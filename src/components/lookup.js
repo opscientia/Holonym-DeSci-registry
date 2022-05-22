@@ -5,7 +5,7 @@ import { SearchBar } from "./search-bar";
 // import { DisplayPOAPs } from "./poaps";
 import { Modal } from "./atoms/Modal.js";
 import Holo from "./atoms/Holo";
-import { getHoloFromAddress, getHoloFromCredentials, searchHolos } from "../utils/holoSearch";
+import { getHoloFromAddress, getHoloFromCredentials, searchHolos, holoIsEmpty } from "../utils/holoSearch";
 import { useSigner, useAccount } from "wagmi";
 
 // import ToggleButton from 'react-bootstrap/ToggleButton'
@@ -78,14 +78,17 @@ export const Lookup = (props) => {
       </Wrapper>
     );
   }
-
+  if(!holos || ( (holos.length === 1) && holoIsEmpty(holos[0]) ) ){
+    return <Wrapper>
+    <SearchBar />
+    <p>No users found</p>
+    </Wrapper>
+  }
   return (
     <Wrapper>
       <SearchBar />
       <div className="spacer-large"></div>
-      {!holos ? (
-        <p>No users found</p>
-      ) : holos.length === 1 ? ( // Display one Holo, with payment button and POAPs
+      {holos.length === 1 ? ( // Display one Holo, with payment button and POAPs
         <>
           <Holo holo={holos[0]} />
           <div className="spacer-medium"></div>

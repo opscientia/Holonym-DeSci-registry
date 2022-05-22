@@ -28,3 +28,7 @@ export const searchHolos = async (searchStr) => {
   }
   console.log(`Failed ${numAllowedAttempts} attempts to fetch search results for search "${searchStr}"`);
 };
+
+export const holoIsEmpty = (holo) => {
+  return !Object.values(holo)?.some(x=>x)
+}
