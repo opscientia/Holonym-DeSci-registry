@@ -1,9 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import contractAddresses from "../constants/contractAddresses.json";
 import { truncateAddress } from "../utils/ui-helpers.js";
 import abi from "../constants/abi/VerifyJWTv2.json";
-import { LitCeramic } from "./lit-ceramic.js";
+// import { LitCeramic } from "./lit-ceramic.js";
 import { InfoButton } from "./info-button";
 import QRCode from "react-qr-code";
 import { EditProfileButton } from "./edit-profile.js";
@@ -19,7 +19,7 @@ import TwitterLogo from "../img/TwitterLogo.svg";
 import Share from "../img/Share.svg";
 import { useAccount, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
 import { Modal } from "./atoms/Modal.js";
-import { fixedBufferXOR as xor, getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
+import { getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
 const { ethers } = require("ethers");
 
 const JWTFromURL = function (url) {
@@ -30,12 +30,9 @@ const JWTFromURL = function (url) {
   url.split("&").map((x) => {
     let [key, value] = x.split("=");
     parsedToJSON[key] = value;
+    return null
   });
   return parsedToJSON["id_token"];
-};
-
-const parseJWTFromURL = function (url) {
-  return parseJWT(JWTFromURL(url));
 };
 
 const ignoredFields = ["azp", "kid", "alg", "at_hash", "aud", "auth_time", "iss", "exp", "iat", "jti", "nonce", "email_verified", "rand"]; //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
@@ -85,7 +82,6 @@ let pendingProofPopup = false;
 
 const InnerAuthenticationFlow = (props) => {
   const params = useParams();
-  const navigate = useNavigate();
   const { data: account } = useAccount();
   const { data: signer } = useSigner();
   const provider = useProvider();
@@ -98,8 +94,8 @@ const InnerAuthenticationFlow = (props) => {
   const [displayMessage, setDisplayMessage] = useState("");
   const [onChainCreds, setOnChainCreds] = useState(null);
   const [shareModal, setShareModal] = useState(false);
-  const [txHash, setTxHash] = useState(null);
-  const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
+  // const [txHash, setTxHash] = useState(null);
+  // const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
   const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
   const defaultHolo = {
     google: null,
@@ -134,7 +130,6 @@ const InnerAuthenticationFlow = (props) => {
     getAndSetHolo();
   }, [props.desiredChain]);
 
-  let revealBlock = 0; //block when user should be prompted to reveal their JWT
   // useEffect(()=>{if(token){setJWTText(token); setStep('userApproveJWT')}}, []) //if a token is provided via props, set the JWTText as the token and advance the form past step 1
 
   // if a token is already provided, set the step to user approving the token
@@ -173,8 +168,8 @@ const InnerAuthenticationFlow = (props) => {
     // xor the values as bytes (without preceding 0x)
     const commitments = params4Verifying.generateCommitments(account.address);
     try {
-      let tx = await vjwt.commitJWTProof(...commitments);
-      revealBlock = (await provider.getBlockNumber()) + 1;
+      await vjwt.commitJWTProof(...commitments);
+      // revealBlock = (await provider.getBlockNumber()) + 1;
       let revealed = false;
       provider.on("block", async () => {
         // Don't reveal unless params were successfully committed:
@@ -197,7 +192,7 @@ const InnerAuthenticationFlow = (props) => {
     const p4v = params4Verifying.verifyMeContractParams();
     try {
       let tx = await vjwt.verifyMe(...p4v);
-      setTxHash(tx.hash);
+      // setTxHash(tx.hash);
       return tx;
     } catch (error) {
       props.errorCallback(error.data?.message || error.message);
@@ -226,7 +221,7 @@ const InnerAuthenticationFlow = (props) => {
       if (!pendingProofPopup) {
         pendingProofPopup = true;
         // this should be multiple functions eventually instead of convoluded nested loops
-        if (credentialsRPrivate) {
+        // if (credentialsRPrivate) {
           // Commenting out anonymous credentials for now
           // submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
           //   props.provider.once(tx, async () => {
@@ -234,20 +229,21 @@ const InnerAuthenticationFlow = (props) => {
           //     // setStep('success');
           //   })
           // })
-        } else {
+        // } else {
           proveIKnewValidJWT().then((tx) => {
             provider.once(tx, async () => {
               await setOnChainCreds(hexToString(await vjwt.credsForAddress(account.address)));
               setStep("success");
             });
           });
-        }
+        // }
       }
-      return credentialsRPrivate ? (
-        <LitCeramic provider={provider} stringToEncrypt={JWTObject.header.raw + "." + JWTObject.payload.raw} />
-      ) : (
-        <MessageScreen msg="Waiting for block to be mined" />
-      );
+      return <MessageScreen msg="Waiting for block to be mined" />
+      // return credentialsRPrivate ? (
+      //   <LitCeramic provider={provider} stringToEncrypt={JWTObject.header.raw + "." + JWTObject.payload.raw} />
+      // ) : (
+      //   <MessageScreen msg="Waiting for block to be mined" />
+      // );
     case "success":
       // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
       console.log("NU CREDS", JWTObject.payload.parsed[props.credentialClaim]);
@@ -326,7 +322,6 @@ const InnerAuthenticationFlow = (props) => {
               </div>
               <div class="spacer-medium"></div>
               <a
-                href="#"
                 class="x-button secondary"
                 onClick={async () => {
                   await commitJWTOnChain(JWTObject);
