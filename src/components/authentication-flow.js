@@ -153,12 +153,9 @@ const InnerAuthenticationFlow = (props) => {
 
   useEffect(() => {
     async function setJWTAndParams() {
-      console.log(JWTText, props, props.credentialClaim, vjwt, 'ALCJASLKCJNSLKJNCALSKJDN')
       if (!(JWTText && props && props.credentialClaim && vjwt)) {
         return;
       }
-      console.log("VJWT IS ", vjwt.address);
-      console.log("abcdefg", await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
       setJWTObject(parseJWT(JWTText));
       setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
     }
@@ -174,7 +171,6 @@ const InnerAuthenticationFlow = (props) => {
       "After you submit this transaction, you will receive another transaction in about 10 seconds once the block is mined. Once it's mined, you'll see a new popup to finish verification"
     );
     // xor the values as bytes (without preceding 0x)
-    console.log("p4v", params4Verifying);
     const commitments = params4Verifying.generateCommitments(account.address);
     try {
       let tx = await vjwt.commitJWTProof(...commitments);
