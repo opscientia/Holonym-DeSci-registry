@@ -168,7 +168,7 @@ const InnerAuthenticationFlow = (props) => {
 
   const commitJWTOnChain = async (credentialClaim) => {
     setDisplayMessage(
-      "After you submit this transaction, you will receive another transaction in about 10 seconds once the block is mined. Once it's mined, you'll see a new popup to finish verification"
+      "After you submit this transaction, you will receive another transaction in about ten seconds once the block is finalized. Once it's mined, you'll see a new popup to finish verification"
     );
     // xor the values as bytes (without preceding 0x)
     const commitments = params4Verifying.generateCommitments(account.address);
@@ -177,7 +177,9 @@ const InnerAuthenticationFlow = (props) => {
       revealBlock = (await provider.getBlockNumber()) + 1;
       let revealed = false;
       provider.on("block", async () => {
-        if ((await provider.getBlockNumber()) >= revealBlock && !revealed) {
+        // Don't reveal unless params were successfully committed:
+        if (((await vjwt.commitments(commitments[0]))[0] === commitments[1]) && !revealed) {
+          
           setStep("waitingForBlockCompletion");
           revealed = true;
         }
@@ -193,9 +195,6 @@ const InnerAuthenticationFlow = (props) => {
   // credentialField is 'email' for gmail and 'sub' for orcid. It's the claim of the JWT which should be used as an index to look the user up by
   const proveIKnewValidJWT = async () => {
     const p4v = params4Verifying.verifyMeContractParams();
-    // Don't reveal unless params were successfully committed:
-    let [bound, unbound] = params4Verifying.generateCommitments(account.address)
-    console.log(vjwt.commitments(bound))
     try {
       let tx = await vjwt.verifyMe(...p4v);
       setTxHash(tx.hash);
