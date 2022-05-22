@@ -90,7 +90,7 @@ const InnerAuthenticationFlow = (props) => {
   const { data: signer } = useSigner();
   const provider = useProvider();
   let tokenURL = params.token || props.token; // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-  const vjwt = props.web2service && signer ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
+  const vjwt = (props.web2service && signer) ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState("");
   const [JWTObject, setJWTObject] = useState(""); //a fancy version of the JWT we will use for this script
@@ -142,6 +142,7 @@ const InnerAuthenticationFlow = (props) => {
     if (JWTText === "") {
       console.log(tokenURL, "token url!!!!!!!!!!!!!!!!!!!!!", JWTFromURL(tokenURL));
       setJWTText(JWTFromURL(tokenURL));
+      console.log("new JWT text", JWTFromURL(tokenURL))
       setStep("userApproveJWT");
     }
   } else {
@@ -152,6 +153,7 @@ const InnerAuthenticationFlow = (props) => {
 
   useEffect(() => {
     async function setJWTAndParams() {
+      console.log(JWTText, props, props.credentialClaim, vjwt, 'ALCJASLKCJNSLKJNCALSKJDN')
       if (!(JWTText && props && props.credentialClaim && vjwt)) {
         return;
       }
@@ -161,7 +163,7 @@ const InnerAuthenticationFlow = (props) => {
       setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
     }
     setJWTAndParams();
-  }, [JWTText, params]);
+  }, [JWTText, params, props]);
 
   if (!account) {
     return "Please connect your wallet";
@@ -195,6 +197,9 @@ const InnerAuthenticationFlow = (props) => {
   // credentialField is 'email' for gmail and 'sub' for orcid. It's the claim of the JWT which should be used as an index to look the user up by
   const proveIKnewValidJWT = async () => {
     const p4v = params4Verifying.verifyMeContractParams();
+    // Don't reveal unless params were successfully committed:
+    let [bound, unbound] = p4v.generateCommitments(account.address)
+    console.log(vjwt.commitments(bound))
     try {
       let tx = await vjwt.verifyMe(...p4v);
       setTxHash(tx.hash);
