@@ -163,7 +163,7 @@ const InnerAuthenticationFlow = (props) => {
       setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
     }
     setJWTAndParams();
-  }, [JWTText, params, props]);
+  }, [JWTText, params, props, signer]);
 
   if (!account) {
     return "Please connect your wallet";
@@ -198,7 +198,7 @@ const InnerAuthenticationFlow = (props) => {
   const proveIKnewValidJWT = async () => {
     const p4v = params4Verifying.verifyMeContractParams();
     // Don't reveal unless params were successfully committed:
-    let [bound, unbound] = p4v.generateCommitments(account.address)
+    let [bound, unbound] = params4Verifying.generateCommitments(account.address)
     console.log(vjwt.commitments(bound))
     try {
       let tx = await vjwt.verifyMe(...p4v);
