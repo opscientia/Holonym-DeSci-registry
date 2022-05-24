@@ -4,6 +4,7 @@ import contractAddresses from "../constants/contractAddresses.json";
 import { truncateAddress } from "../utils/ui-helpers.js";
 import abi from "../constants/abi/VerifyJWTv2.json";
 // import { LitCeramic } from "./lit-ceramic.js";
+import NavSearch from "./atoms/NavSearch.js";
 import { InfoButton } from "./info-button";
 import QRCode from "react-qr-code";
 import { EditProfileButton } from "./edit-profile.js";
@@ -459,7 +460,11 @@ const InnerAuthenticationFlow = (props) => {
 const AuthenticationFlow = (props) => {
   const [error, setError] = useState();
   // return <Error msg={`We are doing some maintenance`} />
-  return error ? <Error msg={error} /> : <InnerAuthenticationFlow {...props} errorCallback={(err) => setError(err)} />;
+  return error ? <Error msg={error} /> : 
+  <>
+  <NavSearch />
+  <InnerAuthenticationFlow {...props} errorCallback={(err) => setError(err)} />
+  </>;
 };
 
 export default AuthenticationFlow;
