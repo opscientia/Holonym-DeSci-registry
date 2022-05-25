@@ -16,15 +16,9 @@ const client = createClient({
   autoConnect: true,
   connectors({ chainId }) {
     return [
-      // new InjectedConnector({
-      //   options: {
-      //     chainId: desiredChainId,
-      //   },
-      // }),
-
-      new WalletConnectConnector({
+      new InjectedConnector({
         options: {
-          qrcode: true,
+          chainId: desiredChainId,
         },
       }),
 
@@ -33,6 +27,12 @@ const client = createClient({
       new CoinbaseWalletConnector({
         options: {
           appName: 'holonym',
+        },
+      }),
+
+      new WalletConnectConnector({
+        options: {
+          qrcode: true,
         },
       }),
     ];

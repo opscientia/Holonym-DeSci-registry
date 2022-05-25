@@ -9,13 +9,13 @@ import { Lookup } from "./components/lookup.js";
 import React, { useEffect, useState } from "react";
 import WebFont from "webfontloader";
 import Address from "./components/atoms/Address.js";
+import WalletModal from "./components/atoms/WalletModal";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount, useNetwork } from "wagmi";
 import { desiredChain } from "./constants/desiredChain";
 import chainParams from "./constants/chainParams.json"
-
-import { Modal } from "./components/atoms/Modal.js";
 import Error from "./components/errors.js";
+
 
 const addChain = (chainName, provider) => {
   // make sure provider exists and has request method
@@ -38,7 +38,7 @@ function App() {
     pendingChainId,
     switchNetwork,
   } = useNetwork();
-  const [walletModal, setWalletModal] = useState(false)
+  const [walletModalShowing, setWalletModalShowing] = useState(false)
   
   useEffect(() => {
     WebFont.load({
@@ -75,27 +75,7 @@ function App() {
     
     <div className="App x-section wf-section">
       <div className="x-container nav w-container">
-        <Modal visible={walletModal} setVisible={setWalletModal} blur={true}>
-              <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
-                <h2>Select Wallet</h2>
-                {connectors.map((connector) => (
-                <button
-                  className="x-button secondary"
-                  disabled={!connector.ready}
-                  key={connector.id}
-                  onClick={() => connect(connector)}
-                >
-                  {connector.name}
-                  {!connector.ready && ' (unsupported)'}
-                  {isConnecting &&
-                    connector.id === pendingConnector?.id &&
-                    ' (connecting)'}
-                </button>
-              ))}
-
-              {error && <p>{error.message}</p>}
-              </div>
-            </Modal>
+        <WalletModal visible={walletModalShowing} setVisible={setWalletModalShowing} blur={true} />
         <HomeLogo />
         {/* {chains.map((x) => (
         <button
@@ -115,7 +95,7 @@ function App() {
               className="wallet-connected nav-button"
               // disabled={!connectors[0].ready}
               // key={connectors[0].id}
-              onClick={()=>setWalletModal(true)}
+              onClick={()=>setWalletModalShowing(true)}
             >
               <div style={{opacity:0.5}}>
                 Connect Wallet
