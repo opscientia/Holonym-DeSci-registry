@@ -16,11 +16,11 @@ const client = createClient({
   autoConnect: true,
   connectors({ chainId }) {
     return [
-      new InjectedConnector({
-        options: {
-          chainId: desiredChainId,
-        },
-      }),
+      // new InjectedConnector({
+      //   options: {
+      //     chainId: desiredChainId,
+      //   },
+      // }),
 
       new MetaMaskConnector({}),
       

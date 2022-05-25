@@ -22,8 +22,8 @@ const walletMetadata = {
     logo: coinbaseLogo,
   },
   injected : {
-    name: 'Injected',
-    description: 'Whichever one is currently active in your browser',
+    name: 'Default',
+    description: 'Your default wallet (already connected, click to confirm)',
     logo: null,
   },
   
