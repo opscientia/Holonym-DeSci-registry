@@ -58,7 +58,12 @@ function App() {
     if(!window.ethereum)
       myHoloPage = <Error msg={'could not find provider to switch to gnosis chain. please manually switch to gnosis chain'} />
     addChain(desiredChain, window.ethereum)
-    switchNetwork?.(desiredChain.chainId)
+    // try {
+    //   switchNetwork?.(desiredChain.chainId)
+    // } catch(err) {
+    //   console.log(err)
+    // }
+    
   }
 
   return (
