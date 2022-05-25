@@ -70,7 +70,7 @@ const DisplayJWTSection = (props) => {
           return (
             <div>
               <h3>{field}</h3>
-              <p class="identity-text">{value}</p>
+              <p className="identity-text">{value}</p>
             </div>
           );
         }
@@ -313,26 +313,26 @@ const InnerAuthenticationFlow = (props) => {
           <div className="x-container w-container">
             <div className="x-wrapper small-center">
               <div className="spacer-small"></div>
-              <div class="x-wrapper no-flex">
-                <div class="spacer-large larger"></div>
-                <h1 class="h1">Confirm Identity</h1>
+              <div className="x-wrapper no-flex">
+                <div className="spacer-large larger"></div>
+                <h1 className="h1">Confirm Identity</h1>
                 <h4 className="p-1 white">
                   Confirm you would like to publicly link your address <code>{account ? truncateAddress(account.address) : null}</code> and its
                   history with{" "}
                 </h4>
                 <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />
               </div>
-              <div class="spacer-medium"></div>
+              <div className="spacer-medium"></div>
               <a
-                class="x-button secondary"
+                className="x-button secondary"
                 onClick={async () => {
                   await commitJWTOnChain(JWTObject);
                 }}
               >
                 submit public holo
               </a>
-              <div class="spacer-small"></div>
-              <div class="identity-info-div"></div>
+              <div className="spacer-small"></div>
+              <div className="identity-info-div"></div>
             </div>
           </div>
         </div>
@@ -447,7 +447,7 @@ const InnerAuthenticationFlow = (props) => {
           <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
             <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
               <h5>Your link</h5>
-              <textarea style={{ width: "100%", height: "150px" }} type="email" class="text-field w-input" value={myUrl} />
+              <textarea style={{ width: "100%", height: "150px" }} type="email" className="text-field w-input" value={myUrl} />
               <p className="success">✓ Copied to clipboard</p>
               <h5>Your QR</h5>
               <QRCode value={myUrl} />
