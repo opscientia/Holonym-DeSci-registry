@@ -12,6 +12,19 @@ import Address from "./components/atoms/Address.js";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount, useNetwork } from "wagmi";
 import { desiredChain } from "./constants/desiredChain";
+import chainParams from "./constants/chainParams.json"
+import Error from "./components/errors.js";
+
+const addChain = (chainName, provider) => {
+  // make sure provider exists and has request method
+  // NOTE : may need to put "|| provider.provider.request" in this if statement 
+  if(!provider || !provider.request){return}
+  provider.request({
+          method: "wallet_addEthereumChain",
+          params: [chainParams[chainName]]
+        }
+  )
+}
 
 function App() {
   const { data: account } = useAccount();
@@ -35,7 +48,18 @@ function App() {
     });
   }, []);
 
+
   const myHoloPage = <AuthenticationFlow desiredChain={desiredChain} />;
+
+  /*Make sure it's on the correct chain:*/
+  console.log(activeChain?.id, parseInt(chainParams[desiredChain].chainId), activeChain?.id === parseInt(chainParams[desiredChain].chainId))
+  if(!isLoading && activeChain?.id === parseInt(chainParams[desiredChain].chainId)){
+    console.log('correct chain')
+  } else {
+    if(!window.ethereum)
+      myHoloPage = <Error msg={'could not find provider to switch to gnosis chain. please manually switch to gnosis chain'} />
+    addChain(desiredChain, window.ethereum)
+  }
   const network = useNetwork({chainId: 1})
   console.log(activeChain)
   return (
