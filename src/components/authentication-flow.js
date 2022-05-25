@@ -273,13 +273,14 @@ const InnerAuthenticationFlow = (props) => {
               <div className="identity-verified-btn-div">
                 {/* <a href="#" className="x-button secondary outline w-button">view tranaction</a> */}
                 {/* <div className="spacer-x-small"></div> */}
-                <a href={`/myholo`} className="x-button w-button">
+                
+                <a href={`/myholo`} className="x-button secondary">
                   Go to my Holo
                 </a>
                 <div className="spacer-x-small"></div>
-                <a href={`/`} className="x-button secondary outline w-button">
+                {/* <a href={`/`} className="x-button secondary outline w-button">
                   View All Holos
-                </a>
+                </a> */}
               </div>
             </div>
           </div>
