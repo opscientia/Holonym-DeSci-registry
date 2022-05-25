@@ -52,16 +52,15 @@ function App() {
   const myHoloPage = <AuthenticationFlow desiredChain={desiredChain} />;
 
   /*Make sure it's on the correct chain:*/
-  console.log(activeChain?.id, parseInt(chainParams[desiredChain].chainId), activeChain?.id === parseInt(chainParams[desiredChain].chainId))
   if(!isLoading && activeChain?.id === parseInt(chainParams[desiredChain].chainId)){
     console.log('correct chain')
   } else {
     if(!window.ethereum)
       myHoloPage = <Error msg={'could not find provider to switch to gnosis chain. please manually switch to gnosis chain'} />
     addChain(desiredChain, window.ethereum)
+    switchNetwork?.(desiredChain.chainId)
   }
-  const network = useNetwork({chainId: 1})
-  console.log(activeChain)
+
   return (
     <div className="App x-section wf-section">
       <div className="x-container nav w-container">
