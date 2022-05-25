@@ -10,12 +10,20 @@ import React, { useEffect } from "react";
 import WebFont from "webfontloader";
 import Address from "./components/atoms/Address.js";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useConnect, useAccount } from "wagmi";
+import { useConnect, useAccount, useNetwork } from "wagmi";
 import { desiredChain } from "./constants/desiredChain";
 
 function App() {
   const { data: account } = useAccount();
   const { connect, connectors } = useConnect();
+  const {
+    activeChain,
+    chains,
+    error,
+    isLoading,
+    pendingChainId,
+    switchNetwork,
+  } = useNetwork();
 
   useEffect(() => {
     WebFont.load({
@@ -28,22 +36,37 @@ function App() {
   }, []);
 
   const myHoloPage = <AuthenticationFlow desiredChain={desiredChain} />;
-
+  const network = useNetwork({chainId: 1})
+  console.log(activeChain)
   return (
     <div className="App x-section wf-section">
       <div className="x-container nav w-container">
         <HomeLogo />
+        {/* {chains.map((x) => (
+        <button
+          disabled={!switchNetwork || x.id === activeChain?.id}
+          key={x.id}
+          onClick={() => switchNetwork?.(280)}
+        >
+          {x.name}
+          {isLoading && pendingChainId === x.id && ' (switching)'}
+        </button>
+      ))} */}
         {account?.address ? (
           <Address address={account.address} />
         ) : (
-          <button
-            className="connect-wallet x-button secondary outline-menu w-button"
-            disabled={!connectors[0].ready}
-            key={connectors[0].id}
-            onClick={() => connect(connectors[0])}
-          >
-            Connect Wallet
-          </button>
+          <div className="nav-btn">
+            <div
+              className="wallet-connected nav-button"
+              disabled={!connectors[0].ready}
+              key={connectors[0].id}
+              onClick={() => connect(connectors[0])}
+            >
+              <div style={{opacity:0.5}}>
+                Connect Wallet
+              </div>
+            </div>
+          </div>
         )}
       </div>
       <Router>

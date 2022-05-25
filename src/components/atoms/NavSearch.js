@@ -9,7 +9,7 @@ const NavSearchButton = (props) => {
     <div className="wallet-connected">
       <img src={searchIcon} loading="lazy" alt="" className="wallet-icon" />
       {/* <div onClick={props.handleClick} className="wallet-text" style={{opacity:"0.5"}}>Search Holos</div> */}
-      <div onClick={()=>navigate('/lookup')} className="wallet-text" style={{opacity:"0.5"}}>Search Holos</div>
+      <div onClick={()=>navigate('/lookup')} className="wallet-text mobile-hidden" style={{opacity:"0.5"}}>Search Holos</div>
     </div>
   </div>
 }

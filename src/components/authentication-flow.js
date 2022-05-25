@@ -459,7 +459,7 @@ const InnerAuthenticationFlow = (props) => {
 
 const AuthenticationFlow = (props) => {
   const [error, setError] = useState();
-  // return <Error msg={`We are doing some maintenance`} />
+  // return <Error msg={`Under maintenance...should be back up in a few hours  :) `} />
   return error ? <Error msg={error} /> : 
   <>
   <NavSearch />
