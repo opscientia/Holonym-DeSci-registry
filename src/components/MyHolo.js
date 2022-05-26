@@ -17,7 +17,6 @@ const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const { data: account } = useAccount();
   const { activeChain } = useNetwork();
-  console.log('myHolo re-rendering', account)
   const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
 
   const defaultHolo = {
@@ -30,17 +29,13 @@ const MyHolo = (props) => {
    // Load the user's Holo when account or chain changes
   useEffect(() => {
     async function getAndSetHolo() {
-      console.log('HOLO2', holo)
       try {
         const holoIsEmpty = Object.values(holo).every((x) => !x);
-        console.log('holoisempty', !holoIsEmpty, !account?.address)
         if (!holoIsEmpty || !account?.address) {
           return;
         } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
         const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
-        console.log('RESPONSE IS ', response)
         let holo_ = (await response.json())[props.desiredChain];
-        console.log('holos', holo_)
         setHolo({
           ...defaultHolo,
           google: holo_.google,

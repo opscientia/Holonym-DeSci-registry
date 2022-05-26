@@ -94,9 +94,7 @@ const InnerAuthenticationFlow = (props) => {
   // if a token is already provided, set the step to user approving the token
   if (tokenURL) {
     if (JWTText === "") {
-      console.log(tokenURL, "token url!!!!!!!!!!!!!!!!!!!!!", JWTFromURL(tokenURL));
       setJWTText(JWTFromURL(tokenURL));
-      console.log("new JWT text", JWTFromURL(tokenURL))
       setStep("userApproveJWT");
     }
   } else {
@@ -217,7 +215,6 @@ const InnerAuthenticationFlow = (props) => {
       // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
       console.log("NU CREDS", JWTObject.payload.parsed[props.credentialClaim]);
       let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim];
-      console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`);
       return onChainCreds ? (
         <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
           <div className="x-container w-container">
