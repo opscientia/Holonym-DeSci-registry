@@ -159,7 +159,17 @@ const InnerAuthenticationFlow = (props) => {
   }, [JWTText, params, props, signer]);
 
   if (!account) {
-    return "Please connect your wallet";
+    return  <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
+         <div className="x-container w-container">
+            <div className="x-wrapper no-flex">
+              <div className="spacer-large larger"></div>
+         <div className="x-wrapper small-center">
+          
+        <h1>Connect your wallet to continue</h1>
+        </div>
+        </div>
+        </div>
+      </div>
   }
 
   const commitJWTOnChain = async (credentialClaim) => {
@@ -252,7 +262,7 @@ const InnerAuthenticationFlow = (props) => {
       console.log(`https://whoisthis.wtf/lookup/${props.web2service}/${creds}`);
       return onChainCreds ? (
         <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
-          <div data-w-id="68ec56c7-5d2a-ce13-79d0-42d74e6f0829" className="x-container w-container">
+          <div className="x-container w-container">
             <div className="x-wrapper no-flex">
               <div className="spacer-large larger"></div>
               <h1 className="h1 small">Your identity is successfully verified</h1>

@@ -44,7 +44,7 @@ const WalletModal = (props) => {
                      return <>
                     <div
                       key={connector.id}
-                      onClick={() => connect(connector)}
+                      onClick={() => {connect(connector); props.setVisible(false)}}
                     >
                       <WalletOption 
                         logo={walletMetadata[connector.id].logo} 
