@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useConnect, useAccount, useNetwork } from "wagmi";
 import { Modal } from "./Modal.js";
 import metamaskLogo from "../../img/metamask.svg";
-import coinbaseLogo from "../../img/coinbase.svg";
+import coinbaseLogo from "../../img/coinbaseWallet.svg";
 import walletconnectLogo from "../../img/walletConnect.svg";
 
 const walletMetadata = {
   walletConnect : {
     name: 'Other',
-    description: 'Connect to other wallets (mobile or desktop) using WalletConnect',
+    description: 'Other mobile and desktop wallets',
     logo: walletconnectLogo,
   },
   metaMask : {
@@ -71,7 +71,7 @@ const WalletOption = (props) =>  (
     <a style={{ textDecoration: "none" }}>
       <div className="id-card profile" style={{maxWidth: "100%"}}>
         <div className="id-card-1">
-          <img src={props.logo} loading="lazy" alt="" className="id-img" />
+          <img src={props.logo} loading="lazy" alt="" className="id-img" style={{height:"69px", width:"69px", maxWidth:"200%",marginRight:"30px"}} />
         </div>
         <div className="id-card-2">
           <div className="id-profile-name-div">
