@@ -8,7 +8,7 @@ export const ORCIDLoginButton = (props) => {
   return (
     <a
       className="card-link"
-      href="https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fwhoisthis.wtf/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever"
+      href="https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fapp.holonym.id/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever"
     >
       {props.creds ? "Update ORCID" : "Link ORCID"}
     </a>
@@ -18,7 +18,7 @@ export const ORCIDLoginButton = (props) => {
 /** Twitter **/
 export const TwitterLoginButton = (props) => {
   return (
-    <a className="card-link" href="http://143.198.251.86:8081/twitter/gnosis/verify">
+    <a className="card-link" href="https://holonym.id/twitter/gnosis/verify">
       {props.creds ? "Update Twitter" : "Link Twitter"}
     </a>
   );
@@ -26,7 +26,7 @@ export const TwitterLoginButton = (props) => {
 
 export const GitHubLoginButton = (props) => {
   return (
-    <a className="card-link" href="http://143.198.251.86:8081/auth/github">
+    <a className="card-link" href="https://holonym.id/auth/github">
       {props.creds ? "Update GitHub" : "Link GitHub"}
     </a>
   );
