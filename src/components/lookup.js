@@ -34,7 +34,7 @@ export const Lookup = (props) => {
   const { data: signer } = useSigner();
   const { data: account } = useAccount();
 
-  const sendCrypto = async (amount) => {
+  const sendCrypto = async (amount, to) => {
     console.log("sending", amount);
     let tx = {
       to: holos[0].address,
@@ -45,6 +45,7 @@ export const Lookup = (props) => {
       value: ethers.utils.parseEther(amount),
       chainId: desiredChainId,
     };
+    console.log(tx, 'tx')
     await signer.sendTransaction(tx);
     return true;
   };
@@ -66,6 +67,7 @@ export const Lookup = (props) => {
         getHoloFromAddress(params.credentials).then((holo) => setHolos([holo]));
         break;
       default:
+        console.log('getting holo from cred')
         getHoloFromCredentials(params.credentials, params.web2service).then((holo) => setHolos([holo]));
     }
   }, [params.credentials, params.web2service]);

@@ -3,14 +3,12 @@ import { desiredChain } from "../constants/desiredChain";
 export const getHoloFromAddress = async (address) => {
   const response = await fetch(`https://sciverse.id/getHolo?address=${address}`);
   const holo_ = (await response.json())[desiredChain];
-  return holo_;
+  return {...holo_, address: address};
 };
 
 export const getHoloFromCredentials = async (creds, service) => {
   const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${creds}&service=${service.toLowerCase()}`);
   const address = await response.json();
-  console.log("address", address);
-  console.log("0xb1d534a8836fB0d276A211653AeEA41C6E11361E" === address);
   return await getHoloFromAddress(address);
 };
 
