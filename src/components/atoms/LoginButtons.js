@@ -24,10 +24,20 @@ export const TwitterLoginButton = (props) => {
   );
 };
 
+/** GitHub **/
 export const GitHubLoginButton = (props) => {
   return (
     <a className="card-link" href="https://holonym.id/auth/github">
       {props.creds ? "Update GitHub" : "Link GitHub"}
+    </a>
+  );
+};
+
+/** Discord **/
+export const DiscordLoginButton = (props) => {
+  return (
+    <a className="card-link" href="https://holonym.id/auth/discord">
+      {props.creds ? "Update Discord" : "Link Discord"}
     </a>
   );
 };

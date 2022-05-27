@@ -6,9 +6,10 @@ import { EditProfileButton } from "./edit-profile.js"
 import { InfoButton } from "./info-button.js"
 import Orcid from "../img/Orcid.svg";
 import TwitterLogo from "../img/TwitterLogo.svg";
-import Share from "../img/Share.svg";import { GoogleLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
-import Github from "../img/Github.svg";
-import Google from "../img/Google.svg";
+// import GoogleLogo from "../img/Google.svg";
+import DiscordLogo from "../img/icons8-discord.svg";
+import Share from "../img/Share.svg";import { DiscordLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
+import GithubLogo from "../img/Github.svg";
 import CircleWavy from "../img/CircleWavy.svg";
 import CircleWavyCheck from "../img/CircleWavyCheck.svg";
 
@@ -42,6 +43,7 @@ const MyHolo = (props) => {
           orcid: holo_.orcid,
           github: holo_.github,
           twitter: holo_.twitter,
+          discord: holo_.discord,
           name: holo_.name,
           bio: holo_.bio,
         });
@@ -51,6 +53,7 @@ const MyHolo = (props) => {
     }
     getAndSetHolo();
   }, [activeChain, account]);
+  console.log(holo)
   return (<div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
             <div className="x-container w-container">
               <div className="x-wrapper small-center">
@@ -78,15 +81,26 @@ const MyHolo = (props) => {
                       text={`This will link your blockchain address, ${props.account}, to your Web2 accounts! Please be careful and only submit credentials you want visible in the "blockchain yellowpages." You will be guided through a process to link the credentials on-chain 💥 🌈 🤩 `}
                     />
                   </div>
+
+                  <div className="spacer-x-small"></div>
+                  <div className="card-text-wrapper">
+                    <div className="card-text-div">
+                      <img src={DiscordLogo} loading="lazy" alt="" className="card-logo" />
+                      <div className="card-text">{`@${holo.discord || "username"}`}</div>
+                      <DiscordLoginButton creds={holo.discord} />
+                    </div>
+                    <img src={holo.discord ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                  </div>
+                  {/* commenting out gmail -- we don't want people to be able to build a spamming list, and emails are PII. There's ambiguous regulations for blockchain PII
                   <div className="spacer-small"></div>
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
-                      <img src={Google} loading="lazy" alt="" className="card-logo" />
+                      <img src={GoogleLogo} loading="lazy" alt="" className="card-logo" />
                       <div className="card-text">{holo.google || "youremail@gmail.com"}</div>
                       <GoogleLoginButton creds={holo.google} />
                     </div>
                     <img src={holo.google ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
-                  </div>
+                  </div> */}
                   <div className="spacer-x-small"></div>
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
@@ -100,7 +114,7 @@ const MyHolo = (props) => {
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
                       <img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
-                      <div className="card-text">{`@${holo.twitter || "twitterusername"}`}</div>
+                      <div className="card-text">{`@${holo.twitter || "TwitterHandle"}`}</div>
                       <TwitterLoginButton creds={holo.twitter} />
                     </div>
                     <img src={holo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
@@ -108,7 +122,7 @@ const MyHolo = (props) => {
                   <div className="spacer-x-small"></div>
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
-                      <img src={Github} loading="lazy" alt="" className="card-logo" />
+                      <img src={GithubLogo} loading="lazy" alt="" className="card-logo" />
                       <div className="card-text">{`@${holo.github || "githubusername"}`}</div>
                       <GitHubLoginButton creds={holo.github} />
                     </div>
