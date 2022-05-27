@@ -1,18 +1,21 @@
 import React from "react";
-import Github from "../../img/Github.svg";
-import Google from "../../img/Google.svg";
-import Orcid from "../../img/Orcid.svg";
+import GithubLogo from "../../img/Github.svg";
+import GoogleLogo from "../../img/Google.svg";
+import DiscordLogo from "../../img/icons8-discord.svg";
+import OrcidLogo from "../../img/Orcid.svg";
 import TwitterLogo from "../../img/TwitterLogo.svg";
 import profile from "../../img/profile.svg";
 import { linkFor } from "../../utils/link-for.js";
 const icons = {
-  google: Google,
-  github: Github,
-  orcid: Orcid,
+  google: GoogleLogo,
+  github: GithubLogo,
+  orcid: OrcidLogo,
   twitter: TwitterLogo,
+  discord: DiscordLogo
 };
 
 export default function SmallCard(props) {
+  console.log("hhhhh", props.holo)
   return (
     <div className="x-card" style={{ minHeight: "100%" }}>
       <a href={props.href} style={{ textDecoration: "none" }}>
@@ -31,7 +34,7 @@ export default function SmallCard(props) {
           </div>
         </div>
         {Object.keys(props.holo)
-          .filter((k) => !["name", "bio", "address"].includes(k))
+          .filter((k) => props.holo[k] && !["name", "bio", "address", "google"].includes(k))
           .map((k, index) => (
             <a key={index} href={linkFor(k, props.holo[k])}>
               <img src={icons[k]} style={{ paddingLeft: "30px" }} loading="lazy" alt="" className="card-logo" />

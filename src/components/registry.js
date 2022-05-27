@@ -59,6 +59,7 @@ const Registry = (props) => {
         google: holo_.google,
         orcid: holo_.orcid,
         github: holo_.github,
+        discord: holo_.discord,
         twitter: holo_.twitter,
         name: holo_.name || "Anonymous",
         bio: holo_.bio || "No information provided",

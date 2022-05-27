@@ -1,19 +1,22 @@
 import React from "react";
 import CircleWavy from "../../img/CircleWavy.svg";
 import CircleWavyCheck from "../../img/CircleWavyCheck.svg";
-import Github from "../../img/Github.svg";
-import Google from "../../img/Google.svg";
-import Orcid from "../../img/Orcid.svg";
+import GithubLogo from "../../img/Github.svg";
+import GoogleLogo from "../../img/Google.svg";
+import OrcidLogo from "../../img/Orcid.svg";
+import DiscordLogo from "../../img/icons8-discord.svg";
+
 import TwitterLogo from "../../img/TwitterLogo.svg";
 import profile from "../../img/profile.svg";
 import { linkFor } from "../../utils/link-for.js";
 import { useNavigate } from "react-router-dom";
 
 const icons = {
-  google: Google,
-  github: Github,
-  orcid: Orcid,
+  google: GoogleLogo,
+  github: GithubLogo,
+  orcid: OrcidLogo,
   twitter: TwitterLogo,
+  discord: DiscordLogo
 };
 // const defaultHolo = {
 //   address: "",
@@ -52,7 +55,7 @@ const Holo = (props) => {
       </div> */}
         <div className="spacer-small"></div>
         {Object.keys(props.holo)
-          .filter((k) => !["name", "bio", "address", "discord"].includes(k)) //ignore discord too for now
+          .filter((k) => !["name", "bio", "address", "google"].includes(k))
           .map((k, index) => (
             <div key={index}>
               <a style={{ textDecoration: "none" }} href={linkFor(k, props.holo[k])}>
