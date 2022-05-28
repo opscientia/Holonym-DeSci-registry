@@ -87,7 +87,7 @@ function App() {
           {isLoading && pendingChainId === x.id && ' (switching)'}
         </button>
       ))} */}
-        {account?.address ? (
+        {(account?.address && account?.connector) ? (
           <Address address={account.address} />
         ) : (
           <div className="nav-btn">
