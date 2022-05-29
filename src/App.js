@@ -9,6 +9,7 @@ import { Lookup } from "./components/lookup.js";
 import React, { useEffect, useState } from "react";
 import WebFont from "webfontloader";
 import Address from "./components/atoms/Address.js";
+import ReturnButton from './components/atoms/ReturnButton'
 import WalletModal from "./components/atoms/WalletModal";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount, useNetwork } from "wagmi";
@@ -77,6 +78,7 @@ function App() {
       <div className="x-container nav w-container">
         <WalletModal visible={walletModalShowing} setVisible={setWalletModalShowing} blur={true} />
         <HomeLogo />
+        <ReturnButton />
         {/* {chains.map((x) => (
         <button
           disabled={!switchNetwork || x.id === activeChain?.id}
