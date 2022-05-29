@@ -332,6 +332,18 @@ const InnerAuthenticationFlow = (props) => {
 
 const AuthenticationFlow = (props) => {
   const [error, setError] = useState();
+
+  useEffect(() => {
+    const search = window.location.search;
+    const searchParams = new URLSearchParams(search);
+
+    // Set variables that are used in sign up with holo
+    if (searchParams.get('siteurl') && searchParams.get('sitetitle')) {
+      sessionStorage.setItem('signUpWithHoloSiteUrl', searchParams.get('siteurl'));
+      sessionStorage.setItem('signUpWithHoloSiteTitle', searchParams.get('sitetitle'));
+    }
+  }, [])
+
   // return <Error msg={`Under maintenance...should be back up in a few hours  :) `} />
   return error ? <Error msg={error} /> : 
   <>
