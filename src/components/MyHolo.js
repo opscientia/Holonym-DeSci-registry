@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNetwork, useAccount } from "wagmi";
 import QRCode from "react-qr-code";
+import ReturnButton from "./atoms/ReturnButton";
 import { Modal } from "./atoms/Modal.js";
 import { EditProfileButton } from "./edit-profile.js"
 import { InfoButton } from "./info-button.js"
@@ -129,7 +130,8 @@ const MyHolo = (props) => {
                     <img src={holo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                 </div>
-                <div className="spacer-large larger"></div>
+                <div className="spacer-large"></div>
+                <ReturnButton />
                 <div className="spacer-medium"></div>
                 {/* Share button: copies link and makes QR for it */}
                 <div
