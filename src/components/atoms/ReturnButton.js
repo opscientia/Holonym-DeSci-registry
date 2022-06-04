@@ -15,19 +15,6 @@ const ReturnButton = () => {
     }
   }, [])
 
-  useEffect(() => {
-    // Place this ReturnButton directly to the left of the lookup button at the top of the screen
-    const lookupBtn = document.getElementsByClassName('w-inline-block small-center')[0]
-    const lookupBtnRect = lookupBtn.getBoundingClientRect();
-    const lookupBtnRight = lookupBtnRect.right;
-    // setStyle({
-    //   position: "absolute", 
-    //   top:"0px", 
-    //   right: `${lookupBtnRight + 1}px`, 
-    //   maxHeight: "64px" 
-    // })
-  }, [])
-
   function handleClick() {
     sessionStorage.removeItem('signUpWithHoloSiteUrl');
     sessionStorage.removeItem('signUpWithHoloSiteTitle');
