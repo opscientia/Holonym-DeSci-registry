@@ -19,7 +19,7 @@ const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const { data: account } = useAccount();
   const { activeChain } = useNetwork();
-  const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
+  const myUrl = `https://app.holonym.id/lookup/address/${account?.address}`;
 
   const defaultHolo = {
     google: null,
@@ -151,7 +151,7 @@ const MyHolo = (props) => {
             </div>
             <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
               <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
-                <h5>Your link</h5>
+                <h5>Your public profile is: </h5>
                 <textarea style={{ width: "100%", height: "150px" }} type="email" className="text-field w-input" value={myUrl} />
                 <p className="success">✓ Copied to clipboard</p>
                 <h5>Your QR</h5>
