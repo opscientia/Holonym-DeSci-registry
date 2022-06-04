@@ -342,7 +342,7 @@ const AuthenticationFlow = (props) => {
       sessionStorage.setItem('signUpWithHoloSiteUrl', searchParams.get('siteurl'));
       sessionStorage.setItem('signUpWithHoloSiteTitle', searchParams.get('sitetitle'));
     }
-  }, [props])
+  }, [])
 
   // return <Error msg={`Under maintenance...should be back up in a few hours  :) `} />
   return error ? <Error msg={error} /> : 
