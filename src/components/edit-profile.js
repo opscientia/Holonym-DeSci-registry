@@ -52,7 +52,7 @@ export const EditProfileButton = (props) => {
           onChange={(e) => setName(e.target.value)}
           style={{ height: "10px", width: "100%" }}
           type="email"
-          className="text-field w-input"
+          className="text-field yellow w-input"
           maxLength="32"
           placeholder="Enter name ..."
           required=""
@@ -68,7 +68,7 @@ export const EditProfileButton = (props) => {
           onChange={(e) => setBio(e.target.value)}
           style={{ height: "10px", width: "100%" }}
           type="email"
-          className="text-field w-input"
+          className="text-field yellow w-input"
           maxLength="128"
           placeholder="Enter Bio ..."
           required=""
