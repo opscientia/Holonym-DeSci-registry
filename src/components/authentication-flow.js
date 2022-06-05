@@ -256,7 +256,7 @@ const InnerAuthenticationFlow = (props) => {
 
     case "userApproveJWT":
       if (!JWTObject) {
-        return "waiting for token to load";
+        return <Error msg="Please connect your wallet and/or refresh the page" />;
       }
       vjwt.kid().then((kid) => {
         if (JWTObject.header.parsed.kid !== kid) {
