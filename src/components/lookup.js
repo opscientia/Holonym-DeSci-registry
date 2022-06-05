@@ -20,7 +20,7 @@ const Wrapper = (props) => {
   return (
     <div className="x-section bg-img wf-section">
       <div className="x-container w-container">
-        <div className="x-wrapper small-center">{props.children}</div>
+        <div className="x-wrapper small-center" style={{width:"100vw"}}>{props.children}</div>
       </div>
     </div>
   );
