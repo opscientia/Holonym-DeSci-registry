@@ -59,8 +59,8 @@ const MyHolo = (props) => {
             <div className="x-container w-container">
               <div className="x-wrapper small-center">
                 <div className="spacer-small"></div>
-                <h1 className="h1">Your Public Profile</h1>
-                <h2 className="p-1 white big">Define your Holonym by linking your accounts to the blockchain.</h2>
+                <h1 className="h1">Your Public Holo</h1>
+                <h2 className="p-1 white big">Link your Web2 credentials</h2>
                 <div className="spacer-medium"></div>
                 <div className="x-card small">
                   <div className="card-heading">
