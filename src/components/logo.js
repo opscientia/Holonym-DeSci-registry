@@ -1,8 +1,11 @@
+import logo from "../img/Holo-Logo.png";
+
 export const HomeLogo = () => {
   return (
     <a href="/" className="nav-logo w-inline-block">
       <div className="logo w-embed">
-        <svg width="83" height="30" viewBox="0 0 83 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <img src={logo} style={{height: "20px"}}/>
+        {/* <svg width="83" height="30" viewBox="0 0 83 30" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M0 0H3.8V11C4.8 8.5 7.4 6.6 10.6 6.6C16.6 6.6 20 11.2 20 17.3V29.5H16.2V17.3C16.2 12.6 13.9 9.8 10.2 9.8C6.2 9.8 3.8 12.8 3.8 17.6V29.5H0V0Z"
             fill="white"
@@ -23,7 +26,7 @@ export const HomeLogo = () => {
               <stop offset="1" stopColor="white"></stop>
             </linearGradient>
           </defs>
-        </svg>
+        </svg> */}
       </div>
     </a>
   );
