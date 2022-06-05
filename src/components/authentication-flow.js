@@ -1,13 +1,11 @@
+import { ApproveJWT, MessageScreen, FinalScreen } from "./authentication-flow-atoms.js";
 import { useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import contractAddresses from "../constants/contractAddresses.json";
-import { truncateAddress } from "../utils/ui-helpers.js";
 import abi from "../constants/abi/VerifyJWTv2.json";
 // import { LitCeramic } from "./lit-ceramic.js";
 import NavSearch from "./atoms/NavSearch.js";
-import MessageScreen from "./atoms/MessageScreen";
 import Error from "./errors.js";
-import CircleWavyCheck from "../img/CircleWavyCheck.svg";
 import { useAccount, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
 import { getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
 import MyHolo from "./MyHolo";
@@ -24,49 +22,6 @@ const JWTFromURL = function (url) {
     return null
   });
   return parsedToJSON["id_token"];
-};
-
-const ignoredFields = ["azp", "kid", "alg", "at_hash", "aud", "auth_time", "iss", "exp", "iat", "jti", "nonce", "email_verified", "rand"]; //these fields should still be checked but just not presented to the users as they are unecessary for the user's data privacy and confusing for the user
-// React component to display (part of) a JWT in the form of a javscript Object to the user
-const DisplayJWTSection = (props) => {
-  return (
-    <>
-      {Object.keys(props.section).map((key) => {
-        if (ignoredFields.includes(key)) {
-          return null;
-        } else {
-          let field = key;
-          let value = props.section[key];
-          // give a human readable name to important field:
-          if (field === "creds") {
-            field = "Credentials";
-          }
-          if (field === "sub") {
-            field = `${props.web2service} ID`;
-          }
-          if (field === "given_name") {
-            field = "Given First Name";
-          }
-          if (field === "family_name") {
-            field = "Given Last Name";
-          }
-          if (field === "picture") {
-            value = <img style={{ borderRadius: "7px" }} src={value} alt="" />;
-          }
-          // capitalize first letter:
-          field = field.replace("_", " ");
-          field = field[0].toUpperCase() + field.substring(1);
-
-          return (
-            <div>
-              <h3>{field}</h3>
-              <p className="identity-text">{value}</p>
-            </div>
-          );
-        }
-      })}
-    </>
-  );
 };
 
 let pendingProofPopup = false;
@@ -130,7 +85,7 @@ const InnerAuthenticationFlow = (props) => {
 
   const commitJWTOnChain = async (credentialClaim) => {
     setDisplayMessage(
-      "After you submit this transaction, you will receive another transaction in about ten seconds once the block is finalized. Once it's mined, you'll see a new popup to finish verification"
+      "Please confirm the transaction. Please then wait 10-30 seconds (to prevent frontrunning)."
     );
     // xor the values as bytes (without preceding 0x)
     const commitments = params4Verifying.generateCommitments(account.address);
@@ -193,14 +148,14 @@ const InnerAuthenticationFlow = (props) => {
           // submitAnonymousCredentials(vjwt, JWTObject).then(tx => {
           //   props.provider.once(tx, async () => {
           //     console.log('WE SHOULD NOTIFY THE USER WHEN THIS FAILS')
-          //     // setStep('success');
+          //     // setStep('final');
           //   })
           // })
         // } else {
           proveIKnewValidJWT().then((tx) => {
             provider.once(tx, async () => {
               await setOnChainCreds(hexToString(await vjwt.credsForAddress(account.address)));
-              setStep("success");
+              setStep("final");
             });
           });
         // }
@@ -211,52 +166,19 @@ const InnerAuthenticationFlow = (props) => {
       // ) : (
       //   <MessageScreen msg="Waiting for block to be mined" />
       // );
-    case "success":
+    case "final":
       // for some reason, onChainCreds updates later on Gnosis, so adding another fallback option for taking it off-chain (otherwise it will say verification failed when it probably hasn't failed; it just isn't yet retrievable)
       console.log("NU CREDS", JWTObject.payload.parsed[props.credentialClaim]);
       let creds = onChainCreds || JWTObject.payload.parsed[props.credentialClaim];
       return onChainCreds ? (
-        <div className="x-section bg-img wf-section" style={{ width: "100vw" }}>
-          <div className="x-container w-container">
-            <div className="x-wrapper no-flex">
-              <div className="spacer-large larger"></div>
-              <h1 className="h1 small">Your identity is successfully verified</h1>
-              <div className="spacer-small"></div>
-              <div className="identity-wrapper">
-                <div className="identity-div-1">
-                  <div className="card-block">
-                    <div className="card-heading">
-                      <h3 className="h3 no-margin">{props.web2service + " ID"}</h3>
-                      <img src={CircleWavyCheck} loading="lazy" alt="" className="verify-icon" />
-                    </div>
-                    <div className="spacer-xx-small"></div>
-                    <p className="identity-text">{creds}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="spacer-small"></div>
-              <div className="identity-verified-btn-div">
-                {/* <a href="#" className="x-button secondary outline w-button">view tranaction</a> */}
-                {/* <div className="spacer-x-small"></div> */}
-                
-                <a href={`/myholo`} className="x-button secondary">
-                  Go to my Holo
-                </a>
-                <div className="spacer-x-small"></div>
-                {/* <a href={`/`} className="x-button secondary outline w-button">
-                  View All Holos
-                </a> */}
-              </div>
-            </div>
-          </div>
-        </div>
+        <FinalScreen {...props} creds={creds}/>
       ) : (
-        <p className="warning">Failed to verify JWT on-chain</p>
+        <Error msg="Failed to verify JWT on-chain" />
       );
 
     case "userApproveJWT":
       if (!JWTObject) {
-        return "waiting for token to load";
+        return <Error msg="Please connect your wallet and/or refresh the page" />;
       }
       vjwt.kid().then((kid) => {
         if (JWTObject.header.parsed.kid !== kid) {
@@ -274,56 +196,9 @@ const InnerAuthenticationFlow = (props) => {
       return displayMessage ? (
         <MessageScreen msg={displayMessage} />
       ) : (
-        <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
-          <div className="x-container w-container">
-            <div className="x-wrapper small-center">
-              <div className="spacer-small"></div>
-              <div className="x-wrapper no-flex">
-                <div className="spacer-large larger"></div>
-                <h1 className="h1">Confirm Identity</h1>
-                <h4 className="p-1 white">
-                  Confirm you would like to publicly link your address <code>{account ? truncateAddress(account.address) : null}</code> and its
-                  history with{" "}
-                </h4>
-                <DisplayJWTSection section={JWTObject.payload.parsed} web2service={props.web2service} />
-              </div>
-              <div className="spacer-medium"></div>
-              <a
-                className="x-button secondary"
-                onClick={async () => {
-                  await commitJWTOnChain(JWTObject);
-                }}
-              >
-                submit public holo
-              </a>
-              <div className="spacer-small"></div>
-              <div className="identity-info-div"></div>
-            </div>
-          </div>
-        </div>
+        <ApproveJWT account={account} callback={async () => {await commitJWTOnChain(JWTObject)}} JWTObject={JWTObject} />
       );
-    /*Date.now() / 1000 > JWTObject.payload.parsed.exp ? 
-                    <p className='success'>JWT is expired ✓ (that's a good thing)</p> 
-                    : 
-                    <p className='warning'>WARNING: Token is not expired. Submitting it on chain is dangerous</p>}*/
-    /*Header
-                    <br />
-                    <code>
-                    <DisplayJWTSection section={JWTObject.header.parsed} />
-                    </code>
-                    
-                    <DisplayJWTSection section={JWTObject.payload.parsed} />
-                    {
-                    
-                    props.account ? <>
-                    Then<br />
-                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject)}}>Submit Public Holo</button>
-                    <br />Otherwise<br />
-                    <button className='cool-button' onClick={async ()=>{await commitJWTOnChain(JWTObject); setCredentialsRPrivate(true)}}>Submit Private Holo</button>
-                    </>
-                    : 
-                    <button className='cool-button' onClick={props.connectWalletFunction}>Connect Wallet to Finish Verifying Yourself</button>
-                    } */
+    
 
     default:
       return <MyHolo desiredChain={props.desiredChain} />;

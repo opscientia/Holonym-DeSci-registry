@@ -418,6 +418,7 @@ p {
   line-height: 1.2;
   letter-spacing: 1px;
   text-transform: uppercase;
+  text-decoration: none;
 }
 
 .x-button:hover {
