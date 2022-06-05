@@ -144,6 +144,12 @@ function App() {
           <Route path="/lookup/:web2service/:credentials" element={<Lookup desiredChain={desiredChain} />} />
           <Route path="/l/:web2service/:credentials" element={<Lookup desiredChain={desiredChain} />} />
           <Route path="/lookup" element={<Lookup />} />
+          <Route exact path={"/whitepaper"} element={
+          <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
+            <div style={{height:"80vh", width: "100vw"}}>
+              {/* <embed src="https://holonym.id/whitepaper.pdf" width="800px" height="2100px" /> */}
+              <embed src="http://www.africau.edu/images/default/sample.pdf" width="100%" height="100%" /> 
+          </div></div>} />
           <Route path="/registry" element={<Registry desiredChain={desiredChain} />} />
           {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
           <Route path={"/"} element={myHoloPage} />
