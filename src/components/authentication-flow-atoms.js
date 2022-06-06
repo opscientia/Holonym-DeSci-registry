@@ -60,12 +60,12 @@ export const MessageScreen = (props) =>
 
 export const FinalScreen = (props) => (
   <>
-  <div class="fireworks-div">
-    <img src={fwBlue} loading="lazy" sizes="100vw" srcSet={`${fwBlue500} 500w, ${fwBlue} 658w`} alt="" class="fireworks-1" />
-    <img src={fwRed} loading="lazy" sizes="100vw" srcSet={`${fwRed500} 500w, ${fwRed800} 800w, ${fwRed} 904w`} alt="" class="fireworks-2" /></div>
-    <div class="x-section product wf-section">
-      <div class="x-container product w-container">
-        <div class="x-pre-wrapper">
+  <div className="fireworks-div">
+    <img src={fwBlue} loading="lazy" sizes="100vw" srcSet={`${fwBlue500} 500w, ${fwBlue} 658w`} alt="" className="fireworks-1" />
+    <img src={fwRed} loading="lazy" sizes="100vw" srcSet={`${fwRed500} 500w, ${fwRed800} 800w, ${fwRed} 904w`} alt="" className="fireworks-2" /></div>
+    <div className="x-section product wf-section">
+      <div className="x-container product w-container">
+        <div className="x-pre-wrapper">
         <h1 className="h1">You're verified</h1>
                     <div className="card-heading">
                       
@@ -82,6 +82,9 @@ export const FinalScreen = (props) => (
                 <a href={`/myholo`} className="x-button secondary">
                   Go to my Holo
                 </a>
+                {/* <a href={`/myholo`} className="x-button secondary outline">
+                  Go to my Holo
+                </a> */}
                 <div className="spacer-x-small"></div>
                 </div>
         </div>
