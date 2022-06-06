@@ -160,7 +160,7 @@ const InnerAuthenticationFlow = (props) => {
           });
         // }
       }
-      return <MessageScreen msg="Waiting for block to be mined" />
+      return <MessageScreen msg="A new popup will show soon. Press confirm to finish verifying your account." />
       // return credentialsRPrivate ? (
       //   <LitCeramic provider={provider} stringToEncrypt={JWTObject.header.raw + "." + JWTObject.payload.raw} />
       // ) : (
