@@ -1524,6 +1524,7 @@ p {
     -ms-flex-direction: row;
     flex-direction: row;
   }
+  
   .slider-wrapper {
     margin-right:15px;
     display: -ms-grid;
@@ -1749,6 +1750,9 @@ p {
     -webkit-flex-direction: row;
     -ms-flex-direction: row;
     flex-direction: row;
+  }
+  .mobile-hidden {
+    display: none;
   }
   .slider-wrapper {
     margin-right:15px;
