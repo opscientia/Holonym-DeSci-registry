@@ -19,8 +19,8 @@ const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const { data: account } = useAccount();
   const { activeChain } = useNetwork();
-  const myUrl = `https://whoisthis.wtf/lookup/address/${account?.address}`;
-
+  const myUrl = `https://app.holonym.id/lookup/address/${account?.address}`;
+  
   const defaultHolo = {
     google: null,
     orcid: null,
@@ -59,8 +59,8 @@ const MyHolo = (props) => {
             <div className="x-container w-container">
               <div className="x-wrapper small-center">
                 <div className="spacer-small"></div>
-                <h1 className="h1">Your Public Profile</h1>
-                <h2 className="p-1 white big">Define your Holonym by linking your accounts to the blockchain.</h2>
+                <h1 className="h1">Your Public Holo</h1>
+                <h2 className="p-1 white big">Link your Web2 credentials</h2>
                 <div className="spacer-medium"></div>
                 <div className="x-card small">
                   <div className="card-heading">
@@ -151,7 +151,7 @@ const MyHolo = (props) => {
             </div>
             <Modal visible={shareModal} setVisible={setShareModal} blur={true}>
               <div className="x-wrapper small-center" style={{ padding: "0px", minWidth: "285px" }}>
-                <h5>Your link</h5>
+                <h5>Your public profile is: </h5>
                 <textarea style={{ width: "100%", height: "150px" }} type="email" className="text-field w-input" value={myUrl} />
                 <p className="success">✓ Copied to clipboard</p>
                 <h5>Your QR</h5>

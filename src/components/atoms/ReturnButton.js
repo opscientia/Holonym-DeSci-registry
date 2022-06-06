@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 // Button to return to a site that directed the user to holo via a "sign up with holo" link
-const ReturnButton = () => {
+const ReturnButton = (props) => {
   // const [style, setStyle] = useState()
   const [redirectingSiteUrl, setRedirectingSiteUrl] = useState()
   const [redirectingSiteTitle, setRedirectingSiteTitle] = useState()
@@ -13,7 +13,7 @@ const ReturnButton = () => {
       setRedirectingSiteUrl(siteUrlTemp)
       setRedirectingSiteTitle(siteTitleTemp)
     }
-  }, [])
+  }, [props])
 
   function handleClick() {
     sessionStorage.removeItem('signUpWithHoloSiteUrl');
