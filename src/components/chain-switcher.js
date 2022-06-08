@@ -8,6 +8,7 @@ import LogoPolygon from "../img/Polygon.png";
 const supportedChains = [
   {title: "Gnosis Chain", name:"gnosis", logo: LogoGnosis, price: 2, nativeCurrency : "DAI", disabled: false},
   {title: "Mumbai Testnet", name:"mumbai", logo: LogoPolygon, price: 3, nativeCurrency : "MATIC"},
+  // {title: "Görli Testnet", name:"goerli", logo: LogoEthereum, price: 0.1, nativeCurrency : "ETH", disabled: false},
   {title: "Polygon", name:"polygon", logo: LogoPolygon, price: 3, nativeCurrency : "MATIC", disabled: true},
   {title: "Ethereum", name:"ethereum", logo: LogoEthereum, price: 0.1, nativeCurrency : "ETH", disabled: true},
 ]
@@ -67,8 +68,8 @@ export const ChainSwitcher = (props) => {
   const { setDesiredChain } = useDesiredChain();
 
   return (
-  <div className="x-section product wf-section bg-img">
-    <div className="x-container product w-container"  style={{ fontSize : "14px" }}>
+  <div className="x-section bg-img" style={{fontSize : "14px", overflow: "scroll"}}>
+    <div className="x-container product w-container" style={{overflow: "scroll"}} >
       <div className="x-pre-wrapper">
         <h1 className="h1">Select Chain</h1>
         <p className="p-big">Choose a chain to verify your accounts on</p>
