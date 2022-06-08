@@ -9,6 +9,7 @@ import Error from "./errors.js";
 import { useAccount, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
 import { getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
 import MyHolo from "./MyHolo";
+import { useDesiredChain } from "./chain-switcher.js";
 const { ethers } = require("ethers");
 
 const JWTFromURL = function (url) {
@@ -30,6 +31,8 @@ const InnerAuthenticationFlow = (props) => {
   const params = useParams();
   const { data: account } = useAccount();
   const { data: signer } = useSigner();
+  const { desiredChain, setDesiredChain, desiredChainActive } = useDesiredChain();
+
   const provider = useProvider();
   let tokenURL = params.token || props.token; // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
   const vjwt = (props.web2service && signer) ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
@@ -39,6 +42,9 @@ const InnerAuthenticationFlow = (props) => {
   const [params4Verifying, setParams4Verifying] = useState({});
   const [displayMessage, setDisplayMessage] = useState("");
   const [onChainCreds, setOnChainCreds] = useState(null);
+
+  useEffect(()=>{if(desiredChain !== 'gnosis'){setDesiredChain('gnosis')}}, [desiredChain])
+
   // const [txHash, setTxHash] = useState(null);
   // const [credentialsRPrivate, setCredentialsRPrivate] = useState(false);
 
@@ -180,6 +186,12 @@ const InnerAuthenticationFlow = (props) => {
       if (!JWTObject) {
         return <Error msg="Please connect your wallet and/or refresh the page" />;
       }
+      if (!desiredChain){
+        return <Error msg={`No blockchain specified. You should not be seeing this error -- If so, please contact us`} />
+      }
+      if(!desiredChainActive) {
+        return <Error msg={`Couldn't autoswitch to ${desiredChain}. Please manually switch your wallet to ${desiredChain}. This error often occurs on mobile browsers. If you're on a mobile browser, please instead open the website in MetaMask's mobile browser. I wish there was an easier way. Thanks for your patience`} />
+      }
       vjwt.kid().then((kid) => {
         if (JWTObject.header.parsed.kid !== kid) {
           console.log("kid", JWTObject.header.parsed.kid, kid);
@@ -201,7 +213,7 @@ const InnerAuthenticationFlow = (props) => {
     
 
     default:
-      return <MyHolo desiredChain={props.desiredChain} />;
+      return <MyHolo desiredChain={desiredChain} />;
   }
 };
 

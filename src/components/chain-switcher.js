@@ -50,7 +50,7 @@ export const useDesiredChain = () => {
     }
   }, [desiredChain, activeChain, isLoading, provider, switchNetwork]);
   console.log('desired chain ', desiredChain)
-  return {desiredChain:desiredChain, setDesiredChain:setDesiredChain, desiredChainActive:desiredChainActive};
+  return {desiredChain:desiredChain, setDesiredChain:setDesiredChain, desiredChainActive:desiredChainActive, desiredChainId:chainParams[desiredChain]?.chainId};
 }
 
 export const ChainSwitcher = () => {

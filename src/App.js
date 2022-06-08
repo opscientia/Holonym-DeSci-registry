@@ -21,7 +21,6 @@ function App() {
   const { desiredChain, setDesiredChain } = useDesiredChain();
   const { data: account } = useAccount();
   const [walletModalShowing, setWalletModalShowing] = useState(false);
-  useEffect(()=>{if(desiredChain !== 'gnosis'){setDesiredChain('gnosis')}}, [desiredChain])
   useEffect(() => {
     WebFont.load({
       google: {
@@ -33,7 +32,7 @@ function App() {
   }, []);
 
 
-  let myHoloPage = <AuthenticationFlow desiredChain={desiredChain} />;
+  let myHoloPage = <AuthenticationFlow />;
 
   
 
@@ -75,31 +74,30 @@ function App() {
                 }
                 credentialClaim={"sub"}
                 web2service={"ORCID"}
-                desiredChain={desiredChain}
               />
             }
           />
           {/*Google has a different syntax and redirect pattern than ORCID*/}
           <Route
             path="/google/token/:token"
-            element={<AuthenticationFlow credentialClaim={"email"} web2service={"Google"} desiredChain={desiredChain} />}
+            element={<AuthenticationFlow credentialClaim={"email"} web2service={"Google"} />}
           />
 
           <Route
             path="/twitter/token/:token"
-            element={<AuthenticationFlow credentialClaim={"creds"} web2service={"Twitter"} desiredChain={desiredChain} />}
+            element={<AuthenticationFlow credentialClaim={"creds"} web2service={"Twitter"} />}
           />
           <Route
             path="/GitHub/token/:token"
-            element={<AuthenticationFlow credentialClaim={"creds"} web2service={"Github"} desiredChain={desiredChain} />}
+            element={<AuthenticationFlow credentialClaim={"creds"} web2service={"Github"} />}
           />
           <Route
             path="/discord/token/:token"
-            element={<AuthenticationFlow credentialClaim={"creds"} web2service={"Discord"} desiredChain={desiredChain} />}
+            element={<AuthenticationFlow credentialClaim={"creds"} web2service={"Discord"} />}
           />
 
-          <Route path="/lookup/:web2service/:credentials" element={<Lookup desiredChain={desiredChain} />} />
-          <Route path="/l/:web2service/:credentials" element={<Lookup desiredChain={desiredChain} />} />
+          <Route path="/lookup/:web2service/:credentials" element={<Lookup />} />
+          <Route path="/l/:web2service/:credentials" element={<Lookup />} />
           <Route path="/lookup" element={<Lookup />} />
           <Route exact path={"/whitepaper"} element={
           <div className="bg-img x-section wf-section" style={{ width: "100vw" }}>
@@ -107,7 +105,7 @@ function App() {
               {/* <embed src="https://holonym.id/whitepaper.pdf" width="800px" height="2100px" /> */}
               <embed src="http://www.africau.edu/images/default/sample.pdf" width="100%" height="100%" /> 
           </div></div>} />
-          <Route path="/registry" element={<Registry desiredChain={desiredChain} />} />
+          <Route path="/registry" element={<Registry />} />
           {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
           <Route path={"/"} element={myHoloPage} />
           <Route path={"/myholo"} element={myHoloPage} />
