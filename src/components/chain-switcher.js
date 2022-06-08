@@ -63,21 +63,21 @@ export const useDesiredChain = () => {
   return {desiredChain:desiredChain, setDesiredChain:setDesiredChain, desiredChainActive:desiredChainActive, desiredChainId:chainParams[desiredChain]?.chainId};
 }
 
-export const ChainSwitcher = () => {
+export const ChainSwitcher = (props) => {
   const { setDesiredChain } = useDesiredChain();
 
   return (
   <div className="x-section product wf-section bg-img">
     <div className="x-container product w-container"  style={{ fontSize : "14px" }}>
       <div className="x-pre-wrapper">
-        <h1 className="h1">Select the Chain</h1>
-        <p className="p-big">Choose your chain to verify your identity</p>
+        <h1 className="h1">Select Chain</h1>
+        <p className="p-big">Choose a chain to verify your accounts on</p>
       </div>
       <div className="spacer-medium"></div>
       <div className="x-wrapper grid benefits">
         {
           supportedChains.map(chain => (
-            <a onClick={()=>(!chain.disabled && setDesiredChain(chain.name))} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
+            <a onClick={()=>(!chain.disabled && setDesiredChain(chain.name) && props.callback())} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
               <img src={chain.logo} loading="lazy" alt="" className="card-img small" />
               <h2 className="h2-small">{chain.title}</h2>
               <div className="text-link">Cost estimate: {chain.price} <strong>{chain.nativeCurrency}</strong></div>
