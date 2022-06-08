@@ -3,9 +3,8 @@ import { useConnect, useProvider, useNetwork } from "wagmi";
 import chainParams from "../constants/chainParams.json";
 // Adds a 
 const switchToChain = (desiredChain, provider, switchNetworkFallback) => {
-  // First try it with the given provider. Otherwise, try it with wagmi:
+  // First try it with the given provider argument
   try {
-    console.log('switching chains', provider)
     // make sure provider exists and has request method
     // NOTE : may need to put "|| provider.provider.request" in this if statement 
     if(!provider || !provider.request){return}
@@ -15,6 +14,7 @@ const switchToChain = (desiredChain, provider, switchNetworkFallback) => {
           }
   )
   } catch (err) {
+    // Otherwise, try it with wagmi
     try {
       switchNetworkFallback(
         parseInt(chainParams[desiredChain].chainId)
@@ -47,7 +47,7 @@ export const useDesiredChain = () => {
     } else {
       switchToChain(desiredChain, provider, switchNetwork);
     }
-  }, [desiredChain, activeChain, isLoading, provider]);
+  }, [desiredChain, activeChain, isLoading, provider, switchNetwork]);
   console.log('desired chain ', desiredChain)
   return {desiredChain:desiredChain, setDesiredChain:setDesiredChain};
 }
