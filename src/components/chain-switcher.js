@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
 import { useConnect, useProvider, useNetwork } from "wagmi";
 import chainParams from "../constants/chainParams.json";
+import LogoEthereum from "../img/Ethereum.png";
+import LogoGnosis from "../img/Gnosis.png";
+import LogoPolygon from "../img/Polygon.png";
+
+const supportedChains = [
+  {title: "Gnosis Chain", name:"gnosis", logo: LogoGnosis, price: 2, nativeCurrency : "DAI", disabled: false},
+  {title: "Mumbai Testnet", name:"mumbai", logo: LogoPolygon, price: 3, nativeCurrency : "MATIC"},
+  {title: "Polygon", name:"polygon", logo: LogoPolygon, price: 3, nativeCurrency : "MATIC", disabled: true},
+  {title: "Ethereum", name:"ethereum", logo: LogoEthereum, price: 0.1, nativeCurrency : "ETH", disabled: true},
+]
 // Adds a 
 const switchToChain = (desiredChain, provider, switchNetworkFallback) => {
   // First try it with the given provider argument
@@ -54,48 +64,30 @@ export const useDesiredChain = () => {
 }
 
 export const ChainSwitcher = () => {
-  
+  const { setDesiredChain } = useDesiredChain();
+
   return (
   <div className="x-section product wf-section bg-img">
-    <div className="x-container product w-container">
+    <div className="x-container product w-container"  style={{ fontSize : "14px" }}>
       <div className="x-pre-wrapper">
         <h1 className="h1">Select the Chain</h1>
         <p className="p-big">Choose your chain to verify your identity</p>
       </div>
       <div className="spacer-medium"></div>
       <div className="x-wrapper grid benefits">
-        <a className="x-card blue-yellow w-inline-block"><img src="../images/Gnosis.png" loading="lazy" alt="" className="card-img small" />
-          <h2 className="h2-small">Gnosis Chain</h2>
-          <div className="text-link">Buy xDAI</div>
-          <p className="p-2 white">Avg. Gas - $0.1 - $0.2<br />Holo Fees - $0.1</p>
-          <p className="p-2 white"><strong>Est. Total Cost - $2/month</strong></p>
-        </a>
-        <a className="x-card blue-yellow w-inline-block"><img src="../images/Polygon.png" loading="lazy" alt="" className="card-img small" />
-          <h2 className="h2-small">Mumbai Testnet</h2>
-          <div className="text-link">Buy MATIC</div>
-          <p className="p-2 white">Avg. Gas - $0.1 - $0.2<br />Holo Fees - $0.1</p>
-          <p className="p-2 white"><strong>Est. Total Cost - $2/month</strong></p>
-        </a>
-        <div className="x-card blue-yellow disable"><img src="../images/Polygon.png" loading="lazy" alt="" className="card-img small b-w" />
-          <h2 className="h2-small disable">Polygon Mainet</h2>
-          <a className="text-link disable">Buy MATIC</a>
-          <p className="p-2">Avg. Gas - $0.1 - $0.2<br />Holo Fees - $0.1</p>
-          <p className="p-2"><strong>Est. Total Cost - $2/month</strong></p>
-          <div className="chain-coming-soon"></div>
-          <div className="blur-text-overlay">
-            <h3 className="blur-text-heading">Coming Soon</h3>
-          </div>
-        </div>
-        <div className="x-card blue-yellow disable"><img src="../images/Ethereum.png" loading="lazy" alt="" className="card-img small" />
-          <h2 className="h2-small disable">Ethereum Chain</h2>
-          <a className="text-link disable">Buy ETH</a>
-          <p className="p-2">Avg. Gas - $20 - $100<br />Holo Fees - $10</p>
-          <p className="p-2"><strong>Est. Total Cost - $40/month + Gas</strong></p>
-          <div className="chain-coming-soon"></div>
-          <div className="blur-text-overlay">
-            <h3 className="blur-text-heading">Coming Soon</h3>
-          </div>
-        </div>
+        {
+          supportedChains.map(chain => (
+            <a onClick={()=>(!chain.disabled && setDesiredChain(chain.name))} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
+              <img src={chain.logo} loading="lazy" alt="" className="card-img small" />
+              <h2 className="h2-small">{chain.title}</h2>
+              <div className="text-link">Cost estimate: {chain.price} <strong>{chain.nativeCurrency}</strong></div>
+              {chain.disabled && <><div className="chain-coming-soon"></div>
+              <div className="blur-text-overlay">
+                <h3 className="blur-text-heading">Coming Soon</h3>
+              </div></>}
+            </a>
+          ))
+          }
       </div>
     </div>
   </div>

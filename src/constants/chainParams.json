@@ -10,7 +10,7 @@
     "rpcUrls": ["https://api.avax-test.network/ext/bc/C/rpc"],
     "blockExplorerUrls": ["https://testnet.snowtrace.io/"]
   },
-  "polygon" : {
+  "mumbai" : {
     "chainId": "0x13881",
     "chainName": "Polygon Mumbai Testnet",
     "nativeCurrency": {
@@ -18,7 +18,7 @@
         "symbol": "MATIC",
         "decimals": 18
     },
-    "rpcUrls": ["https://rpc-mumbai.maticvigil.com"],
+    "rpcUrls": ["https://rpc-mumbai.matic.today"],
     "blockExplorerUrls": ["https://mumbai.polygonscan.com/"]
   }, 
 
