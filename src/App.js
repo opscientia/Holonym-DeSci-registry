@@ -12,34 +12,16 @@ import Address from "./components/atoms/Address.js";
 import WalletModal from "./components/atoms/WalletModal";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount, useNetwork } from "wagmi";
-import { desiredChain } from "./constants/desiredChain";
-import chainParams from "./constants/chainParams.json"
+// import { desiredChain } from "./constants/desiredChain";
+import { ChainSwitcher, useDesiredChain } from "./components/chain-switcher";
 import Error from "./components/errors.js";
 
 
-const addChain = (chainName, provider) => {
-  // make sure provider exists and has request method
-  // NOTE : may need to put "|| provider.provider.request" in this if statement 
-  if(!provider || !provider.request){return}
-  provider.request({
-          method: "wallet_addEthereumChain",
-          params: [chainParams[chainName]]
-        }
-  )
-}
-
 function App() {
+  const { desiredChain, setDesiredChain } = useDesiredChain();
   const { data: account } = useAccount();
-  const { connect, connectors, error, isConnecting, pendingConnector } = useConnect();
-  const {
-    activeChain,
-    chains,
-    isLoading,
-    pendingChainId,
-    switchNetwork,
-  } = useNetwork();
-  const [walletModalShowing, setWalletModalShowing] = useState(false)
-  
+  const [walletModalShowing, setWalletModalShowing] = useState(false);
+  useEffect(()=>{if(desiredChain !== 'gnosis'){setDesiredChain('gnosis')}}, [desiredChain])
   useEffect(() => {
     WebFont.load({
       google: {
@@ -53,23 +35,7 @@ function App() {
 
   let myHoloPage = <AuthenticationFlow desiredChain={desiredChain} />;
 
-  /*Make sure it's on the correct chain:*/
-  if(!isLoading && activeChain?.id === parseInt(chainParams[desiredChain].chainId)){
-    console.log('correct chain')
-  } else {
-    if(!window.ethereum)
-      myHoloPage = <Error msg={`could not switch to ${desiredChain} chain. Please manually switch to ${desiredChain}`} />
-    addChain(desiredChain, window.ethereum)
-    // try {
-    //   switchNetwork?.(desiredChain.chainId)
-    // } catch(err) {
-    //   console.log(err)
-    // }
-    
-  }
-  // if(! (activeChain?.id === parseInt(chainParams[desiredChain].chainId))){
-  //   myHoloPage = <h1>Switching to {desiredChain}...</h1>
-  // }
+  
 
   return (
     
@@ -77,16 +43,7 @@ function App() {
       <div className="x-container nav w-container">
         <WalletModal visible={walletModalShowing} setVisible={setWalletModalShowing} blur={true} />
         <HomeLogo />
-        {/* {chains.map((x) => (
-        <button
-          disabled={!switchNetwork || x.id === activeChain?.id}
-          key={x.id}
-          onClick={() => switchNetwork?.(280)}
-        >
-          {x.name}
-          {isLoading && pendingChainId === x.id && ' (switching)'}
-        </button>
-      ))} */}
+
         {(account?.address && account?.connector) ? (
           <Address address={account.address} />
         ) : (
@@ -154,6 +111,7 @@ function App() {
           {/* <Route path='/private' element={<LitCeramic stringToEncrypt={JWTObject.header.raw + '.' + JWTObject.payload.raw}/>} /> */}
           <Route path={"/"} element={myHoloPage} />
           <Route path={"/myholo"} element={myHoloPage} />
+          <Route path={"/chainswitchertest"} element={<ChainSwitcher />} />
         </Routes>
       </Router>
     </div>
