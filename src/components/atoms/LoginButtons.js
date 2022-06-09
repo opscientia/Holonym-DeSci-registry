@@ -1,11 +1,30 @@
+import { useState } from "react";
 import GoogleLogin from "react-google-login";
 import { useNavigate } from "react-router-dom";
 import { appIDForChain, chainForAppID } from "../../constants/chainsAndAuds";
+import { ChainSwitcherModal } from "../chain-switcher";
 // import Refresh from '../img/refresh.svg';
 
-
-/** ORCID **/
+const LoginButton = (props) => {
+  const [modalShowing, setModalShowing] = useState(false)
+  return (
+    <>
+      <a className="card-link" onClick={()=>setModalShowing(true)}>
+        {props.creds ? "Update" : "Link"} {props.web2service}
+      </a>
+      <ChainSwitcherModal visible={modalShowing} setVisible={setModalShowing} onChainChange={(newChain)=>props.callback(newChain)} />
+    </>
+    )
+}
 export const ORCIDLoginButton = (props) => {
+  console.log("lorcidp", props)
+  return <LoginButton 
+    web2service={"ORCID"} 
+    callback={(newChain)=>{window.location.href=`https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fapp.holonym.id/orcid/token/&client_id=${appIDForChain.orcid[newChain]}&scope=openid&nonce=whatever`}}
+ />
+}
+/** ORCID **/
+export const ORCILoginButton = (props) => {
 
   return (
     <a

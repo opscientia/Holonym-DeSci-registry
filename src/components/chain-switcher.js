@@ -66,16 +66,17 @@ export const useDesiredChain = () => {
 }
 
 export const ChainSwitcher = (props) => {
+  const [clickedActiveChain, setClickedActiveChain] = useState(false);
   const { desiredChain, setDesiredChain } = useDesiredChain();
   const {
     activeChain,
     isLoading,
   } = useNetwork();
-  useEffect(()=>{if(desiredChain)props.onChainChange(desiredChain); console.log("desired", desiredChain)}, [activeChain])
+  useEffect(()=>{if(desiredChain||clickedActiveChain) props.onChainChange(desiredChain)}, [activeChain, clickedActiveChain])
 
   return (
-  <div className="w-section x-section bg-img" style={{fontSize : "14px", overflow: "scroll"}}>
-    <div className="x-container product w-container" style={{padding: "0px", overflow: "scroll"}} >
+  <div style={{fontSize : "14px", overflow: "scroll"}}>
+    <div className="x-container product w-container" style={{paddingTop: "0px"}} >
       <div className="x-pre-wrapper">
         <h1 className="h1">Select Chain</h1>
         <p className="p-big">Choose a chain to verify your accounts on</p>
@@ -84,7 +85,10 @@ export const ChainSwitcher = (props) => {
       <div className="x-wrapper grid benefits">
         {
           supportedChains.map(chain => (
-            <a onClick={()=>(!chain.disabled && setDesiredChain(chain.name) && props.callback(chain.name))} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
+            <a onClick={()=>{
+              if(!chain.disabled) setDesiredChain(chain.name)
+              if(chainParams[desiredChain] && activeChain?.id) setClickedActiveChain(true)
+            }} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
               <img src={chain.logo} loading="lazy" alt="" className="card-img small" />
               <h2 className="h2-small">{chain.title}</h2>
               <div className="text-link">Cost estimate: {chain.price} <strong>{chain.nativeCurrency}</strong></div>
@@ -101,11 +105,10 @@ export const ChainSwitcher = (props) => {
   )
 }
 
-export const ChainSwitcherModal = () => {
-  const [modalVisible, setModalVisible] = useState(true)
+export const ChainSwitcherModal = (props) => {
   return (
-      <SimpleModal visible={modalVisible} blur={true}>
-            <ChainSwitcher />  
+      <SimpleModal visible={props.visible} setVisible={props.setVisible} blur={true}>
+            <ChainSwitcher onChainChange={props.onChainChange} />  
       </SimpleModal>
   )
 }

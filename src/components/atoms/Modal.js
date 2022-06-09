@@ -47,12 +47,12 @@ export const SimpleModal = (props) => {
   }, [ref]);
 
   return (
-    <div style={{ display: props.visible ? "block" : "none" }}>
-      <div className={"x-section bg-img" + (props.blur ? "blur" : "")}>
-          <div ref={ref} className={"x-card small " + (props.blur ? "large-blur" : "")}>
+      <div className={"x-section bg-img " + (props.blur ? "blur" : "")} style={{ display: props.visible ? "block" : "none" , position:"absolute", top: "0px", left: "0px", width: "100vw", height: "100vh"}}>
+        <div className="x-container w-container">
+          <div ref={ref} className={"x-card blue-yellow " + (props.blur ? "large-blur" : "")}>
               <div>{props.children}</div>
+          </div>
         </div>
       </div>
-    </div>
   );
 };

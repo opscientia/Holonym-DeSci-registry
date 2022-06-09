@@ -970,6 +970,7 @@ p {
 
 .animation0 {
   /* width:14vw; */
+  margin-top: 100px;
   width: 7vw;
   animation-name: animation0;
   animation-duration: 5s;
