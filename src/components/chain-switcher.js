@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useConnect, useProvider, useNetwork } from "wagmi";
+import { Modal, SimpleModal } from "./atoms/Modal";
 import chainParams from "../constants/chainParams.json";
 import LogoEthereum from "../img/Ethereum.png";
 import LogoGnosis from "../img/Gnosis.png";
@@ -60,16 +61,21 @@ export const useDesiredChain = () => {
       switchToChain(desiredChain, provider, switchNetwork);
     }
   }, [desiredChain, activeChain, isLoading, provider, switchNetwork]);
-  console.log('desired chain ', desiredChain)
+  
   return {desiredChain:desiredChain, setDesiredChain:setDesiredChain, desiredChainActive:desiredChainActive, desiredChainId:chainParams[desiredChain]?.chainId};
 }
 
 export const ChainSwitcher = (props) => {
-  const { setDesiredChain } = useDesiredChain();
+  const { desiredChain, setDesiredChain } = useDesiredChain();
+  const {
+    activeChain,
+    isLoading,
+  } = useNetwork();
+  useEffect(()=>{if(desiredChain)props.onChainChange(desiredChain); console.log("desired", desiredChain)}, [activeChain])
 
   return (
-  <div className="x-section bg-img" style={{fontSize : "14px", overflow: "scroll"}}>
-    <div className="x-container product w-container" style={{overflow: "scroll"}} >
+  <div className="w-section x-section bg-img" style={{fontSize : "14px", overflow: "scroll"}}>
+    <div className="x-container product w-container" style={{padding: "0px", overflow: "scroll"}} >
       <div className="x-pre-wrapper">
         <h1 className="h1">Select Chain</h1>
         <p className="p-big">Choose a chain to verify your accounts on</p>
@@ -78,7 +84,7 @@ export const ChainSwitcher = (props) => {
       <div className="x-wrapper grid benefits">
         {
           supportedChains.map(chain => (
-            <a onClick={()=>(!chain.disabled && setDesiredChain(chain.name) && props.callback())} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
+            <a onClick={()=>(!chain.disabled && setDesiredChain(chain.name) && props.callback(chain.name))} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
               <img src={chain.logo} loading="lazy" alt="" className="card-img small" />
               <h2 className="h2-small">{chain.title}</h2>
               <div className="text-link">Cost estimate: {chain.price} <strong>{chain.nativeCurrency}</strong></div>
@@ -95,9 +101,14 @@ export const ChainSwitcher = (props) => {
   )
 }
 
-export const ChainSwitcherModal = () => (
-  null
-)
+export const ChainSwitcherModal = () => {
+  const [modalVisible, setModalVisible] = useState(true)
+  return (
+      <SimpleModal visible={modalVisible} blur={true}>
+            <ChainSwitcher />  
+      </SimpleModal>
+  )
+}
 
 /* /* {chains.map((x) => (
         <button

@@ -13,7 +13,7 @@ import Share from "../img/Share.svg";import { DiscordLoginButton, ORCIDLoginButt
 import GithubLogo from "../img/Github.svg";
 import CircleWavy from "../img/CircleWavy.svg";
 import CircleWavyCheck from "../img/CircleWavyCheck.svg";
-
+import { desiredChain, ChainSwitcher } from "../constants/desiredChain";
 
 const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
@@ -88,7 +88,7 @@ const MyHolo = (props) => {
                     <div className="card-text-div">
                       <img src={DiscordLogo} loading="lazy" alt="" className="card-logo" />
                       <div className="card-text">{`@${holo.discord || "username"}`}</div>
-                      <DiscordLoginButton creds={holo.discord} />
+                      <DiscordLoginButton creds={holo.discord} desiredChain={desiredChain} />
                     </div>
                     <img src={holo.discord ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
@@ -107,7 +107,7 @@ const MyHolo = (props) => {
                     <div className="card-text-div">
                       <img src={Orcid} loading="lazy" alt="" className="card-logo" />
                       <div className="card-text">{holo.orcid || "xxxx-xxxx-xxxx-xxxx"}</div>
-                      <ORCIDLoginButton creds={holo.orcid} />
+                      <ORCIDLoginButton creds={holo.orcid} desiredChain={desiredChain} />
                     </div>
                     <img src={holo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
@@ -116,7 +116,7 @@ const MyHolo = (props) => {
                     <div className="card-text-div">
                       <img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
                       <div className="card-text">{`@${holo.twitter || "TwitterHandle"}`}</div>
-                      <TwitterLoginButton creds={holo.twitter} />
+                      <TwitterLoginButton creds={holo.twitter} desiredChain={desiredChain} />
                     </div>
                     <img src={holo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
@@ -125,7 +125,7 @@ const MyHolo = (props) => {
                     <div className="card-text-div">
                       <img src={GithubLogo} loading="lazy" alt="" className="card-logo" />
                       <div className="card-text">{`@${holo.github || "githubusername"}`}</div>
-                      <GitHubLoginButton creds={holo.github} />
+                      <GitHubLoginButton creds={holo.github} desiredChain={desiredChain} />
                     </div>
                     <img src={holo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>

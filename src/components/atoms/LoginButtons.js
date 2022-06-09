@@ -1,14 +1,16 @@
 import GoogleLogin from "react-google-login";
 import { useNavigate } from "react-router-dom";
-
+import { appIDForChain, chainForAppID } from "../../constants/chainsAndAuds";
 // import Refresh from '../img/refresh.svg';
+
 
 /** ORCID **/
 export const ORCIDLoginButton = (props) => {
+
   return (
     <a
       className="card-link"
-      href="https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fapp.holonym.id/orcid/token/&client_id=APP-MPLI0FQRUVFEKMYX&scope=openid&nonce=whatever"
+      href={`https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fapp.holonym.id/orcid/token/&client_id=${appIDForChain.orcid[props.desiredchain]}&scope=openid&nonce=whatever"`}
     >
       {props.creds ? "Update ORCID" : "Link ORCID"}
     </a>
@@ -18,7 +20,7 @@ export const ORCIDLoginButton = (props) => {
 /** Twitter **/
 export const TwitterLoginButton = (props) => {
   return (
-    <a className="card-link" href="https://holonym.id/twitter/gnosis/verify">
+    <a className="card-link" href={`https://holonym.id/auth/twitter/chain/${props.desiredchain}`}>
       {props.creds ? "Update Twitter" : "Link Twitter"}
     </a>
   );
@@ -27,7 +29,7 @@ export const TwitterLoginButton = (props) => {
 /** GitHub **/
 export const GitHubLoginButton = (props) => {
   return (
-    <a className="card-link" href="https://holonym.id/auth/github">
+    <a className="card-link" href={`https://holonym.id/auth/github/chain/${props.desiredchain}`}>
       {props.creds ? "Update GitHub" : "Link GitHub"}
     </a>
   );
@@ -36,7 +38,7 @@ export const GitHubLoginButton = (props) => {
 /** Discord **/
 export const DiscordLoginButton = (props) => {
   return (
-    <a className="card-link" href="https://holonym.id/auth/discord">
+    <a className="card-link" href={`https://holonym.id/auth/discord/chain/${props.desiredchain}`}>
       {props.creds ? "Update Discord" : "Link Discord"}
     </a>
   );

@@ -134,7 +134,7 @@ p {
 
 /* for blurred modals to be extra blurred  */
 .large-blur {
-  background-color: rgba(19,30,38,0.5);
+  /* background-color: rgba(19,30,38,0.5); */
   /* : 0.5; */
   backdrop-filter: blur(1px);
 }

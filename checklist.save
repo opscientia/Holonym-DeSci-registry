@@ -1,0 +1,10 @@
+works on mobile
+works on home page (if used on homepage)
+works before verification
+works upon payment
+error handling when desired chain cannot be switched to
+desired chain is not argument to App commponents
+lookup, registry work
+new loading message after second transaction 'loading...'
+fix crashing when done
+

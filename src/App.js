@@ -13,7 +13,7 @@ import WalletModal from "./components/atoms/WalletModal";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useConnect, useAccount, useNetwork } from "wagmi";
 // import { desiredChain } from "./constants/desiredChain";
-import { ChainSwitcher, useDesiredChain } from "./components/chain-switcher";
+import { ChainSwitcher, ChainSwitcherModal, useDesiredChain } from "./components/chain-switcher";
 import Error from "./components/errors.js";
 
 
@@ -38,7 +38,7 @@ function App() {
 
   return (
     
-    <div className="App x-section wf-section">
+    <div className="App x-section wf-section bg-img">
       <div className="x-container nav w-container">
         <WalletModal visible={walletModalShowing} setVisible={setWalletModalShowing} blur={true} />
         <HomeLogo />
@@ -110,6 +110,7 @@ function App() {
           <Route path={"/"} element={myHoloPage} />
           <Route path={"/myholo"} element={myHoloPage} />
           <Route path={"/chainswitchertest"} element={<ChainSwitcher />} />
+          <Route path={"/chainswitchermodaltest"} element={<ChainSwitcherModal />} />
         </Routes>
       </Router>
     </div>
