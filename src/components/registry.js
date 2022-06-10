@@ -122,7 +122,7 @@ const Registry = (props) => {
                 <a onClick={() => navigate("/myholo")} className="x-button" style={{ width: "45%" }}>
                   Create My ID
                 </a>
-                <a href="https://holo.pizza" className="x-button secondary" style={{ width: "45%" }}>
+                <a href="https://holonym.id" className="x-button secondary" style={{ width: "45%" }}>
                   Learn More
                 </a>
               </div>

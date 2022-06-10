@@ -31,3 +31,28 @@ export const Modal = (props) => {
     </div>
   );
 };
+
+export const SimpleModal = (props) => {
+  // stop display when clicked outside
+  const ref = useRef(null);
+  useEffect(() => {
+    function handleClick(event) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        props.setVisible(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [ref]);
+
+  return (
+      <div className={"x-section bg-img " + (props.blur ? "blur" : "")} style={{ display: props.visible ? "block" : "none" , position:"absolute", top: "0px", left: "0px", width: "100vw", height: "100vh"}}>
+        <div className="x-container w-container">
+          <div ref={ref} className={"x-card blue-yellow " + (props.blur ? "large-blur" : "")}>
+              <div>{props.children}</div>
+          </div>
+        </div>
+      </div>
+  );
+};
