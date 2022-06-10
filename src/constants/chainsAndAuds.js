@@ -12,5 +12,7 @@ export const appIDForChain = {
 
 export const chainForAppID = {
     "APP-MPLI0FQRUVFEKMYX" : "gnosis",
-    "APP-TUDV82T8W5ZLSB5B" : "mumbai"
+    "APP-TUDV82T8W5ZLSB5B" : "mumbai",
+    "gnosis" : "gnosis",
+    "mumbai" : "mumbai"
 }

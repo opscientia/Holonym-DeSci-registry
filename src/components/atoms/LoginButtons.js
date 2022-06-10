@@ -5,6 +5,8 @@ import { appIDForChain, chainForAppID } from "../../constants/chainsAndAuds";
 import { ChainSwitcherModal } from "../chain-switcher";
 // import Refresh from '../img/refresh.svg';
 
+const authUrl = "http://143.198.251.86:8081" // "https://holonym.id";
+
 const LoginButton = (props) => {
   const [modalShowing, setModalShowing] = useState(false)
   return (
@@ -39,40 +41,40 @@ export const ORCIDLoginButton = (props) => {
 export const TwitterLoginButton = (props) => (
   <LoginButton 
     web2service={"Twitter"} 
-    callback={(newChain)=>{window.location.href=`https://holonym.id/auth/twitter/chain/${newChain}`}}
+    callback={(newChain)=>{window.location.href=`${authUrl}/auth/twitter/chain/${newChain}`}}
  />
 )
 
 export const GitHubLoginButton = (props) => (
   <LoginButton 
     web2service={"GitHub"} 
-    callback={(newChain)=>{window.location.href=`https://holonym.id/auth/github/chain/${newChain}`}}
+    callback={(newChain)=>{window.location.href=`${authUrl}/auth/github/chain/${newChain}`}}
  />
 )
 
 export const DiscordLoginButton = (props) => (
   <LoginButton 
     web2service={"Discord"} 
-    callback={(newChain)=>{window.location.href=`https://holonym.id/auth/discord/chain/${newChain}`}}
+    callback={(newChain)=>{window.location.href=`${authUrl}/auth/discord/chain/${newChain}`}}
  />
 )
 // export const TwitterLoginButton = (props) => {
 //   return (
-//     <a className="card-link" href={`https://holonym.id/auth/twitter/chain/${props.desiredchain}`}>
+//     <a className="card-link" href={`${authUrl}/auth/twitter/chain/${props.desiredchain}`}>
 //       {props.creds ? "Update Twitter" : "Link Twitter"}
 //     </a>
 //   );
 // };
 // export const GitHubLoginButton = (props) => {
 //   return (
-//     <a className="card-link" href={`https://holonym.id/auth/github/chain/${props.desiredchain}`}>
+//     <a className="card-link" href={`${authUrl}/auth/github/chain/${props.desiredchain}`}>
 //       {props.creds ? "Update GitHub" : "Link GitHub"}
 //     </a>
 //   );
 // };
 // export const DiscordLoginButton = (props) => {
 //   return (
-//     <a className="card-link" href={`https://holonym.id/auth/discord/chain/${props.desiredchain}`}>
+//     <a className="card-link" href={`${authUrl}/auth/discord/chain/${props.desiredchain}`}>
 //       {props.creds ? "Update Discord" : "Link Discord"}
 //     </a>
 //   );

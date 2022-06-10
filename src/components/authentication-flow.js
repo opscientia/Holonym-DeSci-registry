@@ -9,7 +9,7 @@ import abi from "../constants/abi/VerifyJWTv2.json";
 import NavSearch from "./atoms/NavSearch";
 import Error from "./errors";
 import { useAccount, useNetwork, useSigner, useProvider } from "wagmi"; // NOTE: Need wagmi for: account, provider, connect wallet
-import { getParamsForVerifying, hexToString, parseJWT } from "wtfprotocol-helpers";
+import { getParamsForVerifying, hexToString, parseJWT, sandwichDataWithBreadFromContract } from "wtfprotocol-helpers";
 import MyHolo from "./MyHolo";
 
 const { ethers } = require("ethers");
@@ -37,7 +37,7 @@ const InnerAuthenticationFlow = (props) => {
 
   const provider = useProvider();
   let tokenURL = params.token || props.token; // Due to redirects with weird urls from some OpenID providers, there can't be a uniform way of accessing the token from the URL, so props based on window.location are used in weird situations
-  const vjwt = (props.web2service && signer) ? new ethers.Contract(contractAddresses[props.web2service], abi, signer) : null;
+  const [vjwt, setVjwt] = useState(null);
   const [step, setStep] = useState(null);
   const [JWTText, setJWTText] = useState("");
   const [JWTObject, setJWTObject] = useState(""); //a fancy version of the JWT we will use for this script
@@ -67,12 +67,23 @@ const InnerAuthenticationFlow = (props) => {
 
   useEffect(() => {
     async function setJWTAndParams() {
-      if (!(JWTText && props && props.credentialClaim && vjwt)) {
+      if (!(JWTText && signer && props && props.credentialClaim)) {
         return;
       }
-      setJWTObject(parseJWT(JWTText));
+      const parsedJWT = parseJWT(JWTText);
+      setJWTObject(parsedJWT);
+      console.log('gaa', chainForAppID[parsedJWT?.payload?.parsed?.aud])
+      const vjwt_ = new ethers.Contract(
+        contractAddresses[chainForAppID[parsedJWT?.payload?.parsed?.aud]][props.web2service],
+        abi, 
+        signer
+      );
+      setVjwt(vjwt_);
       try {
-        setParams4Verifying(await getParamsForVerifying(vjwt, JWTText, props.credentialClaim, "ethersjs"));
+        let rand = Math.random()
+        console.log('abc', rand, provider, vjwt_, JWTText, props.credentialClaim)
+        console.log(await getParamsForVerifying(vjwt_, JWTText, props.credentialClaim, "ethersjs"), 'abc', rand)
+        // setParams4Verifying(await getParamsForVerifying(vjwt_, JWTText, props.credentialClaim, "ethersjs"));
       } catch(e) {
         console.log("Error", e)
       }
@@ -188,11 +199,11 @@ const InnerAuthenticationFlow = (props) => {
       );
 
     case "userApproveJWT":
-      const chainNameFromToken = chainForAppID[JWTObject.payload.aud]
+      const chainNameFromToken = chainForAppID[JWTObject?.payload?.parsed?.aud]
       if (!JWTObject) {
         return <Error msg="Please connect your wallet and/or refresh the page" />
       }
-      if(!(chainParams[chainNameFromToken].chainId !== activeChain?.id)) {
+      if(!(chainParams[chainNameFromToken]?.chainId !== activeChain?.id)) {
         return <Error msg={`Couldn't autoswitch to ${chainNameFromToken}. Please manually switch your wallet to ${chainNameFromToken}. This error often occurs on mobile browsers. If you're on a mobile browser, please instead open the website in MetaMask's mobile browser. I wish there was an easier way. Thanks for your patience`} />
       }
       // if (!desiredChain){
@@ -201,18 +212,22 @@ const InnerAuthenticationFlow = (props) => {
       // if(!desiredChainActive) {
       //   return <Error msg={`Couldn't autoswitch to ${desiredChain}. Please manually switch your wallet to ${desiredChain}. This error often occurs on mobile browsers. If you're on a mobile browser, please instead open the website in MetaMask's mobile browser. I wish there was an easier way. Thanks for your patience`} />
       // }
-      vjwt.kid().then((kid) => {
-        if (JWTObject.header.parsed.kid !== kid) {
-          console.log("kid", JWTObject.header.parsed.kid, kid);
-          props.errorCallback(
-            <p>
-              KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those key IDs need to be updated
-              on-chain. Please check back later. We would appreciate it if you could email{" "}
-              <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running{" "}
-            </p>
-          );
-        }
+      try {
+        vjwt?.kid().then((kid) => {
+          if (JWTObject?.header?.parsed?.kid !== kid) {
+            console.log("kid", JWTObject.header.parsed.kid, kid);
+            props.errorCallback(
+              <p>
+                KID does not match KID on-chain. This likely means {props.web2service} has rotated their keys and those key IDs need to be updated
+                on-chain. Please check back later. We would appreciate it if you could email{" "}
+                <a href="mailto:wtfprotocol@gmail.com">wtfprotocol@gmail.com</a> about this error so we can get {props.web2service} up and running{" "}
+              </p>
+            );
+          }
       });
+    } catch(error) {
+      props.errorCallback(error.data?.message || error.message);
+    }
 
       return displayMessage ? (
         <MessageScreen msg={displayMessage} />
