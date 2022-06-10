@@ -80,10 +80,10 @@ const InnerAuthenticationFlow = (props) => {
       );
       setVjwt(vjwt_);
       try {
-        let rand = Math.random()
-        console.log('abc', rand, provider, vjwt_, JWTText, props.credentialClaim)
-        console.log(await getParamsForVerifying(vjwt_, JWTText, props.credentialClaim, "ethersjs"), 'abc', rand)
-        // setParams4Verifying(await getParamsForVerifying(vjwt_, JWTText, props.credentialClaim, "ethersjs"));
+        // let rand = Math.random()
+        // console.log('abc', rand, provider, vjwt_, JWTText, props.credentialClaim)
+        // console.log(await getParamsForVerifying(vjwt_, JWTText, props.credentialClaim, "ethersjs"), 'abc', rand)
+        setParams4Verifying(await getParamsForVerifying(vjwt_, JWTText, props.credentialClaim, "ethersjs"));
       } catch(e) {
         console.log("Error", e)
       }
