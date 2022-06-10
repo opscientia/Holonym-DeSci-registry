@@ -87,7 +87,7 @@ export const ChainSwitcher = (props) => {
           supportedChains.map(chain => (
             <a onClick={()=>{
               if(!chain.disabled) setDesiredChain(chain.name)
-              if(chainParams[desiredChain] && activeChain?.id) setClickedActiveChain(true)
+              if(chainParams[chain.name] && activeChain?.id) setClickedActiveChain(true)
             }} className={`x-card blue-yellow w-inline-block ${chain.disabled && "disable"}`}>
               <img src={chain.logo} loading="lazy" alt="" className="card-img small" />
               <h2 className="h2-small">{chain.title}</h2>
