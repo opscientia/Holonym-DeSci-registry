@@ -1,4 +1,7 @@
 .fireworks-1 {
+  /* Allow elements underneath to be hovered still */
+  pointer-events: none; 
+
   position: fixed;
   left: 0%;
   top: auto;
@@ -8,6 +11,9 @@
 }
 
 .fireworks-2 {
+   /* Allow elements underneath to be hovered still */
+  pointer-events: none;
+  
   position: fixed;
   left: auto;
   top: 0%;
