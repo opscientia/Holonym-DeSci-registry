@@ -1,13 +1,12 @@
-import { desiredChain } from "../constants/desiredChain";
 
 export const getHoloFromAddress = async (address) => {
-  const response = await fetch(`https://sciverse.id/getHolo?address=${address}`);
-  const holo_ = (await response.json())[desiredChain];
+  const response = await fetch(`http://localhost:3000/api/getHolo?address=${address}`);
+  const holo_ = await response.json();
   return {...holo_, address: address};
 };
 
 export const getHoloFromCredentials = async (creds, service) => {
-  const response = await fetch(`https://sciverse.id/addressForCredentials?credentials=${creds}&service=${service.toLowerCase()}`);
+  const response = await fetch(`http://localhost:3000/api/addressForCredentials?credentials=${creds}&service=${service.toLowerCase()}`);
   const address = await response.json();
   return await getHoloFromAddress(address);
 };
@@ -17,8 +16,10 @@ export const searchHolos = async (searchStr) => {
   let attemptNum = 0;
   while (attemptNum < numAllowedAttempts) {
     try {
-      let resp = await fetch(`https://sciverse.id/searchHolos?searchStr=${searchStr}`);
-      let holos = await resp.json();
+      const resp = await fetch(`http://localhost:3000/api/searchHolos?searchStr=${searchStr}`);
+      const holos = await resp.json();
+      console.log('holos...')
+      console.log(holos)
       return holos;
     } catch (err) {
       attemptNum++;

@@ -1505,6 +1505,15 @@ p {
   margin-left: 5px;
 }
 
+.id-verification-chain-icon {
+  height: 18px;
+  width: 18px;
+}
+
+.grayscale { 
+  filter: grayscale(100%); 
+}
+
 .nav-logo {
   position: absolute;
   left: 0%;

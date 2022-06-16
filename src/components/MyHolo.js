@@ -11,9 +11,15 @@ import TwitterLogo from "../img/TwitterLogo.svg";
 import DiscordLogo from "../img/icons8-discord.svg";
 import Share from "../img/Share.svg";import { DiscordLoginButton, ORCIDLoginButton, TwitterLoginButton, GitHubLoginButton } from "./atoms/LoginButtons.js";
 import GithubLogo from "../img/Github.svg";
+import EthereumLogo from '../img/Ethereum.png';
+import GnosisLogo from '../img/Gnosis.png';
+import PolygonLogo from '../img/Polygon.png';
 import CircleWavy from "../img/CircleWavy.svg";
 import CircleWavyCheck from "../img/CircleWavyCheck.svg";
 import { desiredChain, ChainSwitcher } from "../constants/desiredChain";
+
+const chainIconClasses = "id-verification-icon id-verification-chain-icon"
+const chainIconClassesGray = chainIconClasses + " grayscale"
 
 const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
@@ -21,33 +27,40 @@ const MyHolo = (props) => {
   const { activeChain } = useNetwork();
   const myUrl = `https://app.holonym.id/lookup/address/${account?.address}`;
   
-  const defaultHolo = {
-    google: null,
-    orcid: null,
-    github: null,
-    twitter: null,
+  const defaultHolo = { 
+    gnosis: {
+      google: null,
+      orcid: null,
+      github: null,
+      twitter: null,
+    },
+    mumbai: {}
   };
   const [holo, setHolo] = useState(defaultHolo);
    // Load the user's Holo when account or chain changes
   useEffect(() => {
     async function getAndSetHolo() {
       try {
-        const holoIsEmpty = Object.values(holo).every((x) => !x);
+        const gnosisHoloIsEmpty = Object.values(holo['gnosis']).every((x) => !x);
+        const mumbaiHoloIsEmpty = Object.values(holo['mumbai']).every((x) => !x);
+        const holoIsEmpty = gnosisHoloIsEmpty && mumbaiHoloIsEmpty
         if (!holoIsEmpty || !account?.address) {
           return;
         } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
-        const response = await fetch(`https://sciverse.id/getHolo?address=${account?.address}`);
-        let holo_ = (await response.json())[props.desiredChain];
-        setHolo({
-          ...defaultHolo,
-          google: holo_.google,
-          orcid: holo_.orcid,
-          github: holo_.github,
-          twitter: holo_.twitter,
-          discord: holo_.discord,
-          name: holo_.name,
-          bio: holo_.bio,
-        });
+        console.log('fetching holo')
+        const response = await fetch(`http://localhost:3000/api/getHolo?address=${account?.address}`);
+        let holo_ = await response.json();
+        setHolo(holo_)
+        // setHolo({
+        //   ...defaultHolo,
+        //   google: holo_.google,
+        //   orcid: holo_.orcid,
+        //   github: holo_.github,
+        //   twitter: holo_.twitter,
+        //   discord: holo_.discord,
+        //   name: holo_.name,
+        //   bio: holo_.bio,
+        // });
       } catch (err) {
         console.error("Error:", err);
       }
@@ -65,8 +78,8 @@ const MyHolo = (props) => {
                 <div className="x-card small">
                   <div className="card-heading">
                     <h3 className="h3 no-margin">
-                      {holo.name || "Your Name"}
-                      <p className="no-margin">{holo.bio || "Your bio"}</p>
+                      {holo['gnosis'].name || holo['mumbai'].name || "Your Name"}
+                      <p className="no-margin">{holo['gnosis'].bio || holo['mumbai'].bio || "Your bio"}</p>
                     </h3>
                     <EditProfileButton {...props} holo={holo} />
                   </div>
@@ -87,10 +100,12 @@ const MyHolo = (props) => {
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
                       <img src={DiscordLogo} loading="lazy" alt="" className="card-logo" />
-                      <div className="card-text">{`@${holo.discord || "username"}`}</div>
-                      <DiscordLoginButton creds={holo.discord} desiredChain={desiredChain} />
+                      <div className="card-text">{`@${holo['gnosis'].discord || holo['mumbai'].discord || "username"}`}</div>
+                      <DiscordLoginButton creds={holo['gnosis'].discord || holo['mumbai'].discord} desiredChain={desiredChain} />
                     </div>
-                    <img src={holo.discord ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                    {holo['mumbai'].discord && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['gnosis'].discord && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    <img src={holo['gnosis'].discord || holo['mumbai'].discord ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                   {/* commenting out gmail -- we don't want people to be able to build a spamming list, and emails are PII. There's ambiguous regulations for blockchain PII
                   <div className="spacer-small"></div>
@@ -106,28 +121,34 @@ const MyHolo = (props) => {
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
                       <img src={Orcid} loading="lazy" alt="" className="card-logo" />
-                      <div className="card-text">{holo.orcid || "xxxx-xxxx-xxxx-xxxx"}</div>
-                      <ORCIDLoginButton creds={holo.orcid} desiredChain={desiredChain} />
+                      <div className="card-text">{holo['gnosis'].orcid || holo['mumbai'].orcid || "xxxx-xxxx-xxxx-xxxx"}</div>
+                      <ORCIDLoginButton creds={holo['gnosis'].orcid || holo['mumbai'].orcid} desiredChain={desiredChain} />
                     </div>
-                    <img src={holo.orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                    {holo['mumbai'].orcid && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['gnosis'].orcid && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    <img src={holo['gnosis'].orcid || holo['mumbai'].orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                   <div className="spacer-x-small"></div>
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
                       <img src={TwitterLogo} loading="lazy" alt="" className="card-logo" />
-                      <div className="card-text">{`@${holo.twitter || "TwitterHandle"}`}</div>
-                      <TwitterLoginButton creds={holo.twitter} desiredChain={desiredChain} />
+                      <div className="card-text">{`@${holo['gnosis'].twitter || holo['mumbai'].twitter || "TwitterHandle"}`}</div>
+                      <TwitterLoginButton creds={holo['gnosis'].twitter || holo['mumbai'].twitter} desiredChain={desiredChain} />
                     </div>
-                    <img src={holo.twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                    {holo['mumbai'].twitter && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['gnosis'].twitter && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    <img src={holo['gnosis'].twitter || holo['mumbai'].twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                   <div className="spacer-x-small"></div>
                   <div className="card-text-wrapper">
                     <div className="card-text-div">
                       <img src={GithubLogo} loading="lazy" alt="" className="card-logo" />
-                      <div className="card-text">{`@${holo.github || "githubusername"}`}</div>
-                      <GitHubLoginButton creds={holo.github} desiredChain={desiredChain} />
+                      <div className="card-text">{`@${holo['gnosis'].github || holo['mumbai'].github || "githubusername"}`}</div>
+                      <GitHubLoginButton creds={holo['gnosis'].github || holo['mumbai'].github} desiredChain={desiredChain} />
                     </div>
-                    <img src={holo.github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
+                    {holo['mumbai'].github && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['gnosis'].github && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    <img src={holo['gnosis'].github || holo['mumbai'].github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                 </div>
                 <div className="spacer-large"></div>
