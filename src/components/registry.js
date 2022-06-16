@@ -33,7 +33,7 @@ let hasBeenRun = false;
 const Registry = (props) => {
   const { data: account } = useAccount();
   const getAllAddresses = async () => {
-    const response = await fetch(`http://localhost:3000/api/getAllUserAddresses`);
+    const response = await fetch(`https://sciverse.id/api/getAllUserAddresses`);
     let allAddresses = await response.json();
     return allAddresses;
   };
@@ -46,7 +46,7 @@ const Registry = (props) => {
       try {
         // Try getting holo from cache. If it fails, call chain directly.
         console.log(`Retrieving holo for address ${address}...`);
-        const response = await fetch(`http://localhost:3000/api/getHolo?address=${address}`);
+        const response = await fetch(`https://sciverse.id/api/getHolo?address=${address}`);
         holo_ = (await response.json())[desiredChain];
         console.log(`Retrieved holo for address ${address}...`);
         console.log(holo_);

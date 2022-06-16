@@ -48,7 +48,7 @@ const MyHolo = (props) => {
           return;
         } //only update holo if it 1. hasn't already been updated, & 2. there is an actual address provided. otherwise, it will waste a lot of RPC calls
         console.log('fetching holo')
-        const response = await fetch(`http://localhost:3000/api/getHolo?address=${account?.address}`);
+        const response = await fetch(`https://sciverse.id/api/getHolo?address=${account?.address}`);
         let holo_ = await response.json();
         setHolo(holo_)
         // setHolo({
