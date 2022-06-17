@@ -22,6 +22,7 @@ const LoginButton = (props) => {
 export const ORCIDLoginButton = (props) => {
   return <LoginButton 
     web2service={"ORCID"} 
+    creds={props.creds}
     callback={(newChain)=>{window.location.href=`https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fapp.holonym.id/orcid/token/&client_id=${appIDForChain.orcid[newChain]}&scope=openid&nonce=whatever`}}
  />
 }
@@ -40,7 +41,8 @@ export const ORCIDLoginButton = (props) => {
 
 export const TwitterLoginButton = (props) => (
   <LoginButton 
-    web2service={"Twitter"} 
+    web2service={"Twitter"}
+    creds={props.creds} 
     callback={(newChain)=>{window.location.href=`${authUrl}/auth/twitter/chain/${newChain}`}}
  />
 )
@@ -48,13 +50,15 @@ export const TwitterLoginButton = (props) => (
 export const GitHubLoginButton = (props) => (
   <LoginButton 
     web2service={"GitHub"} 
+    creds={props.creds}
     callback={(newChain)=>{window.location.href=`${authUrl}/auth/github/chain/${newChain}`}}
  />
 )
 
 export const DiscordLoginButton = (props) => (
   <LoginButton 
-    web2service={"Discord"} 
+    web2service={"Discord"}
+    creds={props.creds} 
     callback={(newChain)=>{window.location.href=`${authUrl}/auth/discord/chain/${newChain}`}}
  />
 )
