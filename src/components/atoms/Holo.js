@@ -72,9 +72,9 @@ const Holo = (props) => {
                   <div className="card-text-div">
                     <img src={icons[k]} loading="lazy" alt="" className="card-logo" />
                     <div className="card-text">{creds || "Not listed"}</div>
-                    {props.holo['mumbai'][k] && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
-                    {props.holo['gnosis'][k] && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
-                    <img src={creds ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
+                    <img style={{marginRight:"4px"}} src={creds ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="id-verification-icon" />
+                    {props.holo['mumbai'][k] && <img src={PolygonLogo} loading="lazy" title="Verified on Mumbai" className={chainIconClasses} />}
+                    {props.holo['gnosis'][k] && <img src={GnosisLogo} loading="lazy" title="Verified on Gnosis" className={chainIconClasses} />}
                   </div>
                 </a>
                 <div className="spacer-x-small"></div>
