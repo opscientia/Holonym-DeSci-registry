@@ -21,6 +21,9 @@ import { desiredChain, ChainSwitcher } from "../constants/desiredChain";
 const chainIconClasses = "id-verification-icon id-verification-chain-icon"
 const chainIconClassesGray = chainIconClasses + " grayscale"
 
+const GnosisIcon = () => <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />
+const PolygonIcon = () => <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />
+
 const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const { data: account } = useAccount();
@@ -103,8 +106,8 @@ const MyHolo = (props) => {
                       <div className="card-text">{`@${holo['gnosis'].discord || holo['mumbai'].discord || "username"}`}</div>
                       <DiscordLoginButton creds={holo['gnosis'].discord || holo['mumbai'].discord} desiredChain={desiredChain} />
                     </div>
-                    {holo['mumbai'].discord && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
-                    {holo['gnosis'].discord && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['mumbai'].discord && <PolygonIcon />}
+                    {holo['gnosis'].discord && <GnosisIcon />}
                     <img src={holo['gnosis'].discord || holo['mumbai'].discord ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                   {/* commenting out gmail -- we don't want people to be able to build a spamming list, and emails are PII. There's ambiguous regulations for blockchain PII
@@ -124,8 +127,8 @@ const MyHolo = (props) => {
                       <div className="card-text">{holo['gnosis'].orcid || holo['mumbai'].orcid || "xxxx-xxxx-xxxx-xxxx"}</div>
                       <ORCIDLoginButton creds={holo['gnosis'].orcid || holo['mumbai'].orcid} desiredChain={desiredChain} />
                     </div>
-                    {holo['mumbai'].orcid && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
-                    {holo['gnosis'].orcid && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['mumbai'].orcid && <PolygonIcon />}
+                    {holo['gnosis'].orcid && <GnosisIcon />}
                     <img src={holo['gnosis'].orcid || holo['mumbai'].orcid ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                   <div className="spacer-x-small"></div>
@@ -135,8 +138,8 @@ const MyHolo = (props) => {
                       <div className="card-text">{`@${holo['gnosis'].twitter || holo['mumbai'].twitter || "TwitterHandle"}`}</div>
                       <TwitterLoginButton creds={holo['gnosis'].twitter || holo['mumbai'].twitter} desiredChain={desiredChain} />
                     </div>
-                    {holo['mumbai'].twitter && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
-                    {holo['gnosis'].twitter && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['mumbai'].twitter && <PolygonIcon />}
+                    {holo['gnosis'].twitter && <GnosisIcon />}
                     <img src={holo['gnosis'].twitter || holo['mumbai'].twitter ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                   <div className="spacer-x-small"></div>
@@ -146,8 +149,8 @@ const MyHolo = (props) => {
                       <div className="card-text">{`@${holo['gnosis'].github || holo['mumbai'].github || "githubusername"}`}</div>
                       <GitHubLoginButton creds={holo['gnosis'].github || holo['mumbai'].github} desiredChain={desiredChain} />
                     </div>
-                    {holo['mumbai'].github && <img src={PolygonLogo} loading="lazy" alt="" className={chainIconClasses} />}
-                    {holo['gnosis'].github && <img src={GnosisLogo} loading="lazy" alt="" className={chainIconClasses} />}
+                    {holo['mumbai'].github && <PolygonIcon />}
+                    {holo['gnosis'].github && <GnosisIcon />}
                     <img src={holo['gnosis'].github || holo['mumbai'].github ? CircleWavyCheck : CircleWavy} loading="lazy" alt="" className="card-status" />
                   </div>
                 </div>
