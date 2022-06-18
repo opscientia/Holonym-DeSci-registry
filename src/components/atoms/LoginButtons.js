@@ -5,7 +5,7 @@ import { appIDForChain, chainForAppID } from "../../constants/chainsAndAuds";
 import { ChainSwitcherModal } from "../chain-switcher";
 // import Refresh from '../img/refresh.svg';
 
-const authUrl = "http://143.198.251.86:8081" // "https://holonym.id";
+const authUrl = "https://holonym.id";
 
 const LoginButton = (props) => {
   const [modalShowing, setModalShowing] = useState(false)
