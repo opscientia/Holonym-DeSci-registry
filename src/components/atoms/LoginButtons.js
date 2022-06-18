@@ -12,7 +12,7 @@ const LoginButton = (props) => {
   return (
     <>
       <a className="card-link" onClick={()=>setModalShowing(true)}>
-        {props.creds ? "Update" : "Link"} {props.web2service}
+        {props.creds ? "Update" : "Link"} {/*props.web2service*/}
       </a>
       <ChainSwitcherModal visible={modalShowing} setVisible={setModalShowing} onChainChange={(newChain)=>props.callback(newChain)} />
     </>
