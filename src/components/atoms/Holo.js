@@ -36,6 +36,7 @@ const Holo = (props) => {
 
   const name = props.holo?.['gnosis']?.name || props.holo?.['mumbai']?.name
   const bio = props.holo?.['gnosis']?.bio || props.holo?.['mumbai']?.bio
+  const defaultChain = props.holo?.['gnosis'] ? 'gnosis' : 'mumbai'
 
   return (
       <div className="x-card" onClick={()=>navigate('/lookup/address/' + props.holo.address)}>
@@ -61,7 +62,7 @@ const Holo = (props) => {
         <InfoButton text='Profile Strength is stronger the more accounts you have, the more recently you link the accounts, and greater your social activity metrics (e.g., number of friends, followers, repositories, etc.)' />
       </div> */}
         <div className="spacer-small"></div>
-        {Object.keys(props.holo?.['gnosis'])
+        {Object.keys(props.holo?.[defaultChain])
           .filter((k) => !["name", "bio", "address", "google"].includes(k))
           .map((k, index) => {
             const creds = props.holo?.gnosis?.[k] || props.holo?.mumbai?.[k]

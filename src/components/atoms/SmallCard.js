@@ -15,7 +15,8 @@ const icons = {
 };
 
 export default function SmallCard(props) {
-  // console.log("hhhhh", props.holo)
+  console.log("hhhhh", props.holo)
+  const defaultChain = props.holo?.['gnosis'] ? 'gnosis' : 'mumbai'
   return (
     <div className="x-card" style={{ minHeight: "100%" }}>
       <a href={props.href} style={{ textDecoration: "none" }}>
@@ -33,10 +34,10 @@ export default function SmallCard(props) {
             <p className="id-designation">{props.holo?.gnosis?.bio || props.holo?.mumbai?.bio || "No information provided"}</p>
           </div>
         </div>
-        {props.holo?.gnosis && Object.keys(props.holo?.gnosis)
-          .filter((k) => props.holo?.gnosis?.[k] && !["name", "bio", "address", "google"].includes(k))
+        {props.holo?.[defaultChain] && Object.keys(props.holo?.[defaultChain])
+          .filter((k) => props.holo?.[defaultChain]?.[k] && !["name", "bio", "address", "google"].includes(k))
           .map((k, index) => (
-            <a key={index} href={linkFor(k, props.holo?.gnosis?.[k])}>
+            <a key={index} href={linkFor(k, props.holo?.[defaultChain]?.[k])}>
               <img src={icons[k]} style={{ paddingLeft: "30px" }} loading="lazy" alt="" className="card-logo" />
             </a>
           ))}
