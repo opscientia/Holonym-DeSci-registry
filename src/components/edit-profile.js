@@ -1,22 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useContractWrite } from "wagmi";
 import { truncateAddress } from "../utils/ui-helpers.js";
 import { Modal } from "./atoms/Modal.js";
+import { ChainSwitcherModal } from "./chain-switcher";
 import contractAddresses from "../constants/contractAddresses.json";
 import abi from "../constants/abi/WTFBios.json";
 
 export const EditProfileButton = (props) => {
-  const [visible, setVisible] = useState(false);
+  const [chainSwitcherModalVisible, setChainSwitcherModalVisible] = useState(false)
+  const [currentChain, setCurrentChain] = useState('gnosis')
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const {
     data: txResp,
     isError,
     isLoading,
+    reset,
     writeAsync: wtfSetNameAndBio,
   } = useContractWrite(
     {
-      addressOrName: contractAddresses.WTFBios,
+      addressOrName: contractAddresses[currentChain].WTFBios,
       contractInterface: abi,
     },
     "setNameAndBio" // Name of function that will be called
@@ -24,12 +28,23 @@ export const EditProfileButton = (props) => {
 
   const submitNameBio = async () => {
     await wtfSetNameAndBio({ args: [name, bio] });
-    setVisible(false);
+    setProfileModalVisible(false);
   };
+
+  const selectChain = async () => {
+    setChainSwitcherModalVisible(true)
+  }
+
+  const onChainSelection = async (newChain) => {
+    setChainSwitcherModalVisible(false)
+    setCurrentChain(newChain)
+    reset()
+    setProfileModalVisible(true)
+  }
 
   return (
     <>
-      <a className="edit-icon-link w-inline-block" onClick={() => setVisible(true)}>
+      <a className="edit-icon-link w-inline-block" onClick={selectChain}>
         <div className="edit-icon w-embed">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -43,7 +58,12 @@ export const EditProfileButton = (props) => {
         </div>
       </a>
 
-      <Modal visible={visible} setVisible={setVisible}>
+      <div>
+        {/* TODO: This modal does not pop up in center of page. Pops up in bottom right. Fix this. */}
+        <ChainSwitcherModal visible={chainSwitcherModalVisible} setVisible={setChainSwitcherModalVisible} onChainChange={(newChain)=>onChainSelection(newChain)} />
+      </div>
+      
+      <Modal visible={profileModalVisible} setVisible={setProfileModalVisible}>
         <div className="card-heading">
           <h3 className="h3 no-margin">Name / Pseudonym</h3>
         </div>
@@ -84,7 +104,7 @@ export const EditProfileButton = (props) => {
           <a onClick={submitNameBio} className="x-button" style={{ width: "39%" }}>
             Submit
           </a>
-          <a onClick={() => setVisible(false)} className="x-button secondary" style={{ width: "39%" }}>
+          <a onClick={() => setProfileModalVisible(false)} className="x-button secondary" style={{ width: "39%" }}>
             Cancel
           </a>
         </div>
