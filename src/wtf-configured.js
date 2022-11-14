@@ -1,3 +1,3 @@
 import wtf from 'wtf-lib'
-wtf.setProviderURL({gnosis : 'https://xdai-rpc.gateway.pokt.network'})
+wtf.setProviderURL({gnosis : 'https://rpc.ankr.com/gnosis'})
 export default wtf
