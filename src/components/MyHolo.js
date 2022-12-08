@@ -43,7 +43,7 @@ const MyHolo = (props) => {
   const [shareModal, setShareModal] = useState(false);
   const { data: account } = useAccount();
   const { activeChain } = useNetwork();
-  const myUrl = `https://app.holonym.id/lookup/address/${account?.address}`;
+  const myUrl = `https://holonym-de-sci-registry.vercel.app/lookup/address/${account?.address}`;
   
   const defaultHolo = { 
     gnosis: {

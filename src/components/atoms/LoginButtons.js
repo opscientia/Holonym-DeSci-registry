@@ -23,7 +23,7 @@ export const ORCIDLoginButton = (props) => {
   return <LoginButton 
     web2service={"ORCID"} 
     creds={props.creds}
-    callback={(newChain)=>{window.location.href=`https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fapp.holonym.id/orcid/token/&client_id=${appIDForChain.orcid[newChain]}&scope=openid&nonce=whatever`}}
+    callback={(newChain)=>{window.location.href=`https://orcid.org/signin?response_type=token&redirect_uri=https:%2F%2Fholonym-de-sci-registry.vercel.app/orcid/token/&client_id=${appIDForChain.orcid[newChain]}&scope=openid&nonce=whatever`}}
  />
 }
 
