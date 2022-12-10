@@ -24,3 +24,16 @@ if [ "$branch" = "master" ]; then
 	fi
 fi
 ```
+
+## Build Instructions
+Please follow the below commands one after another,
+
+```
+git clone https://github.com/opscientia/verse
+cd verse
+npm i --legacy-peer-deps
+npm run build
+npm run dev
+```
+
+
