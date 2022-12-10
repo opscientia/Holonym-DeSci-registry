@@ -33,7 +33,7 @@ git clone https://github.com/opscientia/verse
 cd verse
 npm i --legacy-peer-deps
 npm run build
-npm run dev
+npm run start
 ```
 
 
